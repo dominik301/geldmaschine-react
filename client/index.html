@@ -1,0 +1,1149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Monopoly</title>
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+
+<body>
+	<div id="popupbackground"></div>
+	<div id="popupwrap">
+		<div id="popup">
+			<div style="position: relative;">
+				<!-- <img id="popupclose" src="Images/close.png" title="Close" alt="x" onclick="hide('popupbackground'); hide('popupwrap');" /> -->
+				<div id="popuptext"></div>
+				<div id="popupdrag"></div>
+			</div>
+		</div>
+	</div>
+
+	<div id="statsbackground"></div>
+	<div id="statswrap">
+		<div id="stats">
+			<div style="position: relative;">
+				<img id="statsclose" src="images/close.png" title="Close" alt="x" />
+				<div id="statstext"></div>
+				<div id="statsdrag"></div>
+			</div>
+		</div>
+	</div>
+
+	<p id="noscript">
+		Note: This page will not function without JavaScript.
+	</p>
+
+	<div id="refresh">
+		Refresh this page to start a new game.
+	</div>
+
+	<!-- <div id="enlarge"></div> -->
+
+	<div id="deed">
+		<div id="deed-normal" style="display: none;">
+			<div id="deed-header">
+				<div style="margin: 5px; font-size: 11px;">T I T L E&nbsp;&nbsp;D E E D</div>
+				<div id="deed-name"></div>
+			</div>
+			<table id="deed-table">
+				<tr>
+					<td colspan="2">
+						RENT&nbsp;$<span id="deed-baserent">12</span>.
+					</td>
+				</tr>
+				<tr>
+					<td style="text-align: left;">With 1 House</td>
+					<td style="text-align: right;">$&nbsp;&nbsp;&nbsp;<span id="deed-rent">60</span>.</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<div>Mortgage Value $<span id="deed-mortgage">80</span>.</div>
+						<div>Houses cost $<span id="deed-houseprice">100</span>.</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div id="deed-mortgaged">
+			<div id="deed-mortgaged-name"></div>
+			<p>&bull;</p>
+			<div>MORTGAGED</div>
+			<div> for $<span id="deed-mortgaged-mortgage">80</span></div>
+			<p>&bull;</p>
+			<div style="font-style: italic; font-size: 13px; margin: 10px;">Card must be turned this side up if property is mortgaged</div>
+		</div>
+
+		<div id="deed-special">
+			<div id="deed-special-name"></div>
+			<div id="deed-special-text"></div>
+			<div id="deed-special-footer">
+				Mortgage Value
+				<span style="float: right;">$<span id="deed-special-mortgage">100</span>.</span>
+			</div>
+		</div>
+	</div>
+
+	<table id="board">
+		<tr>
+			<td class="cell board-corner" id="cell6"></td>
+			<td class="cell board-top" id="cell7"></td>
+			<td class="cell board-top" id="cell8"></td>
+			<td class="cell board-corner" id="cell9"></td>
+		</tr><tr>
+			<td class="cell board-left" id="cell5"></td>
+			<td colspan="2" class="board-center"></td>
+			<td class="cell board-right" id="cell10"></td>
+		</tr><tr>
+			<td class="cell board-left" id="cell4"></td>
+			<td colspan="2" class="board-center"></td>
+			<td class="cell board-right" id="cell11"></td>
+		</tr><tr>
+			<td class="cell board-corner" id="cell3"></td>
+			<td class="cell board-bottom" id="cell2"></td>
+			<td class="cell board-bottom" id="cell1"></td>
+			<td class="cell board-corner" id="cell0"></td>
+		</tr>
+	</table>
+
+	<div id="moneybarwrap">
+		<div id="moneybar">
+			<table>
+				<tr id="moneybarrow1" class="money-bar-row">
+					<td class="moneybararrowcell"><img src="images/arrow.png" id="p1arrow" class="money-bar-arrow" alt=">"/></td>
+					<td id="p1moneybar" class="moneybarcell">
+						<div><span id="p1moneyname" >Player 1</span>:</div>
+						<div>$<span id="p1money">1500</span></div>
+						<div>$<span id="p1credit">1500</span></div>
+					</td>
+				</tr>
+				<tr id="moneybarrow2" class="money-bar-row">
+					<td class="moneybararrowcell"><img src="images/arrow.png" id="p2arrow" class="money-bar-arrow" alt=">" /></td>
+					<td id="p2moneybar" class="moneybarcell">
+						<div><span id="p2moneyname" >Player 2</span>:</div>
+						<div>$<span id="p2money">1500</span></div>
+						<div>$<span id="p2credit">1500</span></div>
+					</td>
+				</tr>
+				<tr id="moneybarrow3" class="money-bar-row">
+					<td class="moneybararrowcell"><img src="images/arrow.png" id="p3arrow" class="money-bar-arrow" alt=">" /></td>
+					<td id="p3moneybar" class="moneybarcell">
+						<div><span id="p3moneyname" >Player 3</span>:</div>
+						<div>$<span id="p3money">1500</span></div>
+						<div>$<span id="p3credit">1500</span></div>
+					</td>
+				</tr>
+				<tr id="moneybarrow4" class="money-bar-row">
+					<td class="moneybararrowcell"><img src="images/arrow.png" id="p4arrow" class="money-bar-arrow" alt=">" /></td>
+					<td id="p4moneybar" class="moneybarcell">
+						<div><span id="p4moneyname" >Player 4</span>:</div>
+						<div>$<span id="p4money">1500</span></div>
+						<div>$<span id="p4credit">1500</span></div>
+					</td>
+				</tr>
+				<tr id="moneybarrow5" class="money-bar-row">
+					<td class="moneybararrowcell"><img src="images/arrow.png" id="p5arrow" class="money-bar-arrow" alt=">" /></td>
+					<td id="p5moneybar" class="moneybarcell">
+						<div><span id="p5moneyname" >Player 5</span>:</div>
+						<div>$<span id="p5money">1500</span></div>
+						<div>$<span id="p5credit">1500</span></div>
+					</td>
+				</tr>
+				<tr id="moneybarrow6" class="money-bar-row">
+					<td class="moneybararrowcell"><img src="images/arrow.png" id="p6arrow" class="money-bar-arrow" alt=">" /></td>
+					<td id="p6moneybar" class="moneybarcell">
+						<div><span id="p6moneyname" >Player 6</span>:</div>
+						<div>$<span id="p6money">1500</span></div>
+						<div>$<span id="p6credit">1500</span></div>
+					</td>
+				</tr>
+				<tr id="moneybarrow7" class="money-bar-row">
+					<td class="moneybararrowcell"><img src="images/arrow.png" id="p7arrow" class="money-bar-arrow" alt=">" /></td>
+					<td id="p7moneybar" class="moneybarcell">
+						<div><span id="p7moneyname" >Bank</span>:</div>
+						<div>$<span id="p7money">1500</span></div>
+						<div>$<span id="p7credit">1500</span></div>
+					</td>
+				</tr>
+				<tr id="moneybarrow8" class="money-bar-row">
+					<td class="moneybararrowcell"><img src="images/arrow.png" id="p8arrow" class="money-bar-arrow" alt=">" /></td>
+					<td id="p8moneybar" class="moneybarcell">
+						<div><span id="p8moneyname" >Staat</span>:</div>
+						<div>$<span id="p8money">1500</span></div>
+						<div>$<span id="p8credit">1500</span></div>
+					</td>
+				</tr>
+				<tr id="moneybarrowbutton">
+					<td class="moneybararrowcell">&nbsp;</td>
+					<td style="border: none;">
+						<input type="button" id="viewstats" value="View stats" title="View a pop-up window that shows a list of each player's properties." />
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+
+	<div id="setup">
+		<div style="margin-bottom: 20px;">
+			Select number of players.
+			<select id="playernumber" title="Select the number of players for the game.">
+				<option>3</option>
+				<option selected="selected">4</option>
+				<option>5</option>
+				<option>6</option>
+			</select>
+		</div>
+
+		<div style="margin-bottom: 20px;">
+			Chancengleichheit oder Kapitalismus?
+			<select id="capitalism" title="Wähle zwischen Chancengleichheit und Kapitalismus.">
+				<option selected="selected">Chancengleichheit</option>
+				<option>Kapitalismus</option>
+			</select>
+		</div>
+
+		<div id="nietenfield" style="margin-bottom: 20px;">
+			Anzahl Nieten
+			<select id="nieten" title="Wähle die Anzahl der Nieten.">
+				<option id="nieten0">0</option>
+				<option id="nieten1">1</option>
+				<option id="nieten2">2</option>
+				<option id="nieten4">4</option>
+				<option id="nieten7">7</option>
+				<option id="nieten8">8</option>
+				<option id="nieten10">10</option>
+			</select>
+		</div>
+
+		<div id="player1input" class="player-input">
+			Player 1: <input type="text" id="player1name" title="Player name" maxlength="16" value="Player 1" />
+		</div>
+
+		<div id="player2input" class="player-input">
+			Player 2: <input type="text" id="player2name" title="Player name" maxlength="16" value="Player 2" />
+		</div>
+
+		<div id="player3input" class="player-input">
+			Player 3: <input type="text" id="player3name" title="Player name" maxlength="16" value="Player 3" />
+		</div>
+
+		<div id="player4input" class="player-input">
+			Player 4: <input type="text" id="player4name" title="Player name" maxlength="16" value="Player 4" />
+		</div>
+
+		<div id="player5input" class="player-input">
+			Player 5: <input type="text" id="player5name" title="Player name" maxlength="16" value="Player 5" />
+		</div>
+
+		<div id="player6input" class="player-input">
+			Player 6: <input type="text" id="player6name" title="Player name" maxlength="16" value="Player 6" />
+		</div>
+
+		<div style="margin: 20px 0px;">
+			<input id="startbutton" type="button" value="Start Game" title="Begin playing." />
+		</div>
+
+		<div id="noF5">Note: Refreshing this page or navigating away from it may end your game without warning.</div>
+	</div>
+
+	<div id="control">
+		<table>
+			<tr>
+				<td style="text-align: left; vertical-align: top; border: none;">
+					<div id="menu">
+						<table id="menutable" cellspacing="0">
+							<tr>
+								<td class="menu-item" id="buy-menu-item">
+
+									<a href="javascript:void(0);" title="View alerts and buy the property you landed on.">Buy</a>
+								</td>
+								<td class="menu-item" id="manage-menu-item">
+
+									<a href="javascript:void(0);" title="View, and improve your property. ">Manage</a>
+								</td>
+								<!--<td class="menu-item" id="trade-menu-item">
+
+									<a href="javascript:void(0);" title="Exchange property with other players.">Trade</a>
+								</td>-->
+								<td class="menu-item" id="credit-menu-item">
+
+									<a href="javascript:void(0);" title="Kredit aufnehmen oder tilgen.">Credit</a>
+								</td>
+							</tr>
+						</table>
+					</div>
+
+					<div id="buy">
+						<div id="alert"></div>
+						<div id="landed"></div>
+					</div>
+
+					<div id="manage">
+						<div id="option">
+							<div id="buildings" title="Available buildings"></div>
+							<input type="button" value="Buy house" id="buyhousebutton"/>
+							<input type="button" value="Mortgage" id="mortgagebutton" />
+							<input type="button" value="Sell house" id="sellhousebutton"/>
+						</div>
+						<div id="owned"></div>
+					</div>
+				</td>
+				<td style="vertical-align: top; border: none;">
+					<div id="quickstats" style="">
+							<div><span id="pname" >Player 1</span>:</div>
+							<div><span id="pmoney">$1500</span></div>
+					</div>
+					<div>
+						<div id="die0" title="Die" class="die die-no-img"></div>
+					</div>
+
+				</td>
+			</tr><tr>
+				<td colspan="2" style="border: none">
+					<div style="padding-top: 8px;">
+						<input type="button" id="nextbutton" title="Roll the dice and move your token accordingly." value="Roll Dice"/>
+						<input type="button" id="resignbutton" title="If you cannot pay your debt then you must resign from the game." value="Resign"/>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</div>
+
+	<!-- <div id="trade">
+		<table style="border-spacing: 3px;">
+			<tr>
+				<td class="trade-cell">
+					<div id="trade-leftp-name"></div>
+				</td>
+				<td class="trade-cell">
+					<div id="trade-rightp-name"></div>
+				</td>
+			</tr>
+			<tr>
+				<td class="trade-cell">
+					$&nbsp;<input id="trade-leftp-money" value="0" title="Enter amount to exchange with the other player." />
+				</td>
+				<td class="trade-cell">
+					$&nbsp;<input id="trade-rightp-money" value="0" title="Enter amount to exchange with the other player." />
+				</td>
+			</tr>
+			<tr>
+				<td id="trade-leftp-property" class="trade-cell"></td>
+				<td id="trade-rightp-property" class="trade-cell"></td>
+			</tr>
+			<tr>
+				<td colspan="2" class="trade-cell">
+					<input type="button" id="proposetradebutton" value="Propose Trade" onclick="game.proposeTrade();" title="Exchange the money and properties that are checked above." />
+					<input type="button" id="canceltradebutton" value="Cancel Trade" onclick='game.cancelTrade();' title="Cancel the trade." />
+					<input type="button" id="accepttradebutton" value="Accept Trade" onclick="game.acceptTrade();" title="Accept the proposed trade." />
+					<input type="button" id="rejecttradebutton" value="Reject Trade" onclick='game.cancelTrade();' title="Reject the proposed trade." />
+				</td>
+			</tr>
+		</table>
+	</div> -->
+
+	<div id="credit">
+		<table style="border-spacing: 3px;">
+			<tr>
+				<td class="credit-cell">
+					<div id="credit-leftp-name"></div>
+				</td>
+			</tr>
+			<tr>
+				<td class="credit-cell">
+					$&nbsp;<input id="credit-leftp-money" value="0" title="Gewünschte Höhe des Kredits eingeben." />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" class="credit-cell">
+					<input type="button" id="kreditaufnehmenbutton" value="Kredit aufnehmen" title="Kredit aufnehmen." />
+					<input type="button" id="kredittilgenbutton" value="Kredit tilgen" title="Kredit tilgen." />
+				</td>
+			</tr>
+		</table>
+	</div>
+
+    <script>
+
+        /*var chatText = document.getElementById('chat-text');
+        var chatInput = document.getElementById('chat-input');
+        var chatForm = document.getElementById('chat-form');
+    
+    
+        var playersBox = document.getElementById('playersBox');
+        var botImage = document.getElementById('botImage');
+        var playerImage = document.getElementById('playerImage');
+        var utilText = document.getElementById('utilText');*/
+        
+        var socket = io();
+        var typing = false;
+        
+        var playerId;
+
+        var start = document.getElementById('startbutton');
+
+        start.onclick = function(e){
+            //prevent the form from refreshing the page
+            e.preventDefault();
+           
+            var isKapitalismus = document.getElementById('capitalism').value == "Kapitalismus";
+            socket.emit('setup', isKapitalismus);
+        }
+
+        var kreditaufnehmen = document.getElementById('kreditaufnehmenbutton');
+        var kredittilgen = document.getElementById('kredittilgenbutton');
+        var kredit = document.getElementById('credit-leftp-money');
+    
+        kreditaufnehmen.onclick = function(e){
+            //prevent the form from refreshing the page
+            e.preventDefault();
+
+            if (isNaN(document.getElementById("credit-leftp-money").value)) {
+                document.getElementById("credit-leftp-money").value = "This value must be a number.";
+                document.getElementById("credit-leftp-money").style.color = "red";
+                return false;
+            }
+
+            var money = kredit.value;
+            //var initiator = player[turn];
+
+            //initiator.update()
+            /*if (initiator.sumKredit + money > initiator.verfuegbareHypothek) {
+                document.getElementById("credit-leftp-money").value = initiator.name + " does not have $" + money + ".";
+                document.getElementById("credit-leftp-money").style.color = "red"; //TODO 
+                return false;
+            } 	
+
+            if (!confirm(initiator.name + ", möchtest Du wirklich einen Kredit aufnehmen?")) {
+                return false; //TODO 
+            }*/
+           
+            socket.emit('kreditaufnehmen', money);
+            kredit.value = "0";
+        }
+
+        kredittilgen.onclick = function(e){
+            //prevent the form from refreshing the page
+            e.preventDefault();
+
+            if (isNaN(document.getElementById("credit-leftp-money").value)) {
+                document.getElementById("credit-leftp-money").value = "This value must be a number.";
+                document.getElementById("credit-leftp-money").style.color = "red";
+                return false;
+            }
+           
+            socket.emit('kredittilgen', kredit.value);
+            kredit.value = "0";
+        }
+
+        var next = document.getElementById('nextbutton');
+        var resign = document.getElementById('resignbutton');
+    
+        next.onclick = function(e){
+            //prevent the form from refreshing the page
+            e.preventDefault();
+           
+            socket.emit('next');
+        }
+
+        resign.onclick = function(e){
+            //prevent the form from refreshing the page
+            e.preventDefault();
+
+            popup("<p>Are you sure you want to resign?</p>", doResign, "Yes/No");
+        }
+
+        function doResign() {
+            socket.emit('resign');
+        }
+
+        var buyhouse = document.getElementById('buyhousebutton');
+        var mortgage = document.getElementById('mortgagebutton');
+        var sellhouse = document.getElementById('sellhousebutton');
+
+        buyhouse.onclick = function(e){
+            //prevent the form from refreshing the page
+            e.preventDefault();
+           
+            socket.emit('buyhouse');
+        }
+
+        mortgage.onclick = function(e){
+            //prevent the form from refreshing the page
+            e.preventDefault();
+           
+            socket.emit('mortgage');
+        }
+
+        sellhouse.onclick = function(e){
+            //prevent the form from refreshing the page
+            e.preventDefault();
+           
+            socket.emit('sellhouse');
+        }
+
+
+        //TODO: trade
+        /*var proposetrade = document.getElementById('proposetradebutton');
+        var canceltrade = document.getElementById('canceltradebutton');
+        var accepttrade = document.getElementById('accepttradebutton');
+        var rejecttrade = document.getElementById('rejecttradebutton');
+        var trade = document.getElementById('trade-leftp-money');
+    
+        proposetrade.onclick = function(e){
+            //prevent the form from refreshing the page
+            e.preventDefault();
+           
+            socket.emit('proposetrade', kredit.value);
+            trade.value = "0";
+        }
+
+        canceltrade.onclick = function(e){
+            //prevent the form from refreshing the page
+            e.preventDefault();
+           
+            socket.emit('canceltrade', kredit.value);
+            trade.value = "0";
+        }*/
+        
+        //add a chat cell to our chat list view, and scroll to the bottom
+        /*socket.on('addToChat',function(data){
+                  
+            console.log('got a chat message');
+            chatText.innerHTML += '<div class="chatCell">' + data + '</div>';
+            chatText.scrollTop = chatText.scrollHeight;
+                  
+        });*/
+        
+        socket.on('setPlayerId',function(data){
+                  
+            playerId = data;
+                  
+        });
+
+        socket.on('addAlert', function(alertText) {
+            $alert = $("#alert");
+
+            $(document.createElement("div")).text(alertText).appendTo($alert);
+
+            // Animate scrolling down alert element.
+            $alert.stop().animate({"scrollTop": $alert.prop("scrollHeight")}, 1000);
+        })
+
+        socket.on('eliminatePlayer', function(HTML, action) {
+            document.getElementById("popuptext").innerHTML = HTML;
+            document.getElementById("popup").style.width = "300px";
+            document.getElementById("popup").style.top = "0px";
+            document.getElementById("popup").style.left = "0px";
+
+            option = action;
+
+            option = option ? option.toLowerCase() : "";
+
+            if (typeof action !== "function") {
+                action = null;
+            }
+
+            
+            $("#popuptext").append("<div><input type='button' value='OK' id='popupclose' /></div>");
+            $("#popupclose").focus();
+
+            $("#popupclose").on("click", function() {
+                $("#popupwrap").hide();
+                $("#popupbackground").fadeOut(400);
+            }).on("click", eliminatePlayer);
+
+            
+
+            // Show using animation.
+            $("#popupbackground").fadeIn(400, function() {
+                $("#popupwrap").show();
+            });
+        });
+
+        function eliminatePlayer() {
+            socket.emit('eliminate');
+        }
+
+        socket.on('updateMoney', function(player, turn, meineBank, meinStaat) {
+            var p = player[turn];
+
+            document.getElementById("pmoney").innerHTML = "$" + p.money;
+            $(".money-bar-row").hide();
+
+            for (var i = 1; i <= pcount; i++) {
+                p_i = player[i];
+
+                $("#moneybarrow" + i).show();
+                document.getElementById("p" + i + "moneybar").style.border = "2px solid " + p_i.color;
+                document.getElementById("p" + i + "money").innerHTML = p_i.money;
+                document.getElementById("p" + i + "moneyname").innerHTML = p_i.name;
+                document.getElementById("p" + i + "credit").innerHTML = p_i.sumKredit;
+            }
+
+            //var bank = player[0];
+
+            $("#moneybarrow7").show();
+            document.getElementById("p7moneybar").style.border = "2px solid " + "black";
+            document.getElementById("p7money").innerHTML = meineBank.geldMenge;
+            document.getElementById("p7credit").innerHTML = meineBank.zinsenLotto;
+
+            $("#moneybarrow8").show();
+            document.getElementById("p8moneybar").style.border = "2px solid " + "black";
+            document.getElementById("p8money").innerHTML = meinStaat.staatsSchuld;
+            document.getElementById("p8credit").innerHTML = meinStaat.steuer;
+
+            if (document.getElementById("landed").innerHTML === "") {
+                $("#landed").hide();
+            }
+
+            document.getElementById("quickstats").style.borderColor = p.color;
+
+            if (p.money < 0) {
+                // document.getElementById("nextbutton").disabled = true;
+                $("#resignbutton").show();
+                $("#nextbutton").hide();
+            } else {
+                // document.getElementById("nextbutton").disabled = false;
+                $("#resignbutton").hide();
+                $("#nextbutton").show();
+            }
+        });
+
+        socket.on('updateDice', function(die0){
+
+            $("#die0").show();
+
+            if (document.images) {
+                var element0 = document.getElementById("die0");
+
+                element0.classList.remove("die-no-img");
+
+                element0.title = "Die (" + die0 + " spots)";
+
+                if (element0.firstChild) {
+                    element0 = element0.firstChild;
+                } else {
+                    element0 = element0.appendChild(document.createElement("img"));
+                }
+
+                element0.src = "images/Die_" + die0 + ".png";
+                element0.alt = die0;
+            } else {
+                document.getElementById("die0").textContent = die0;
+
+                document.getElementById("die0").title = "Die";
+            }
+        });
+
+        socket.on('updateOwned', function(player, checkedproperty, square) {
+            var p = player[playerId];
+            $("#option").show();
+            $("#owned").show();
+
+            var HTML = "",
+            firstproperty = -1;
+
+            var mortgagetext = "",
+            housetext = "";
+            var sq;
+
+            for (var i = 0; i < 12; i++) {
+                sq = square[i];
+                if (sq.groupNumber && sq.owner === 0) {
+                    $("#cell" + i + "owner").hide();
+                } else if (sq.groupNumber && sq.owner > 0) {
+                    var currentCellOwner = document.getElementById("cell" + i + "owner");
+
+                    currentCellOwner.style.display = "block";
+                    currentCellOwner.style.backgroundColor = player[sq.owner].color;
+                    currentCellOwner.title = player[sq.owner].name;
+                }
+            }
+
+            for (var i = 0; i < 12; i++) {
+                sq = square[i];
+                if (sq.owner == playerId) {
+
+                    mortgagetext = "";
+                    if (sq.mortgage) {
+                        mortgagetext = "title='Mortgaged' style='color: grey;'";
+                    }
+
+                    housetext = "";
+                    if (sq.house >= 1 && sq.house <= 2) {
+                        for (var x = 1; x <= sq.house; x++) {
+                            housetext += "<img src='images/house.png' alt='' title='House' class='house' />";
+                        }
+                    } 
+
+                    if (HTML === "") {
+                        HTML += "<table>";
+                        firstproperty = i;
+                    }
+
+                    HTML += "<tr class='property-cell-row'><td class='propertycellcheckbox'><input type='checkbox' id='propertycheckbox" + i + "' /></td><td class='propertycellcolor' style='background: " + sq.color + ";";
+
+                    HTML += "' onmouseover='showdeed(" + i + ");' onmouseout='hidedeed();'></td><td class='propertycellname' " + mortgagetext + ">" + sq.name + housetext + "</td></tr>";
+                }
+            }
+
+            if (HTML === "") {
+                HTML = p.name + ", you don't have any properties.";
+                $("#option").hide();
+            } else {
+                HTML += "</table>";
+            }
+
+            document.getElementById("owned").innerHTML = HTML;
+
+            // Select previously selected property.
+            if (checkedproperty > -1 && document.getElementById("propertycheckbox" + checkedproperty)) {
+                document.getElementById("propertycheckbox" + checkedproperty).checked = true;
+            } else if (firstproperty > -1) {
+                document.getElementById("propertycheckbox" + firstproperty).checked = true;
+            }
+            $(".property-cell-row").click(function() {
+                var row = this;
+
+                // Toggle check the current checkbox.
+                $(this).find(".propertycellcheckbox > input").prop("checked", function(index, val) {
+                    return !val;
+                });
+
+                // Set all other checkboxes to false.
+                $(".propertycellcheckbox > input").prop("checked", function(index, val) {
+                    if (!$.contains(row, this)) {
+                        return false;
+                    }
+                });
+
+                socket.emit('updateOption');
+            });
+        });
+
+        socket.on('updateOption', function(checkedproperty, sq){
+            $("#option").show();
+
+            if (checkedproperty < 0 || checkedproperty >= 12) {
+                $("#buyhousebutton").hide();
+                $("#sellhousebutton").hide();
+                $("#mortgagebutton").hide();
+
+                return;
+            }
+
+            $("#buildings").hide();
+
+            buyhousebutton = document.getElementById("buyhousebutton");
+            sellhousebutton = document.getElementById("sellhousebutton");
+
+            $("#mortgagebutton").show();
+            document.getElementById("mortgagebutton").disabled = false;
+
+            if (sq.mortgage) {
+                document.getElementById("mortgagebutton").value = "Unmortgage ($" + sq.price + ")";
+                document.getElementById("mortgagebutton").title = "Unmortgage " + sq.name + " for $" + sq.price + ".";
+                $("#buyhousebutton").hide();
+                $("#sellhousebutton").hide();
+
+                allGroupUnmortgaged = false;
+            } else {
+                document.getElementById("mortgagebutton").value = "Mortgage ($" + sq.price + ")";
+                document.getElementById("mortgagebutton").title = "Mortgage " + sq.name + " for $" + sq.price + ".";
+            }
+
+                
+            $("#buyhousebutton").show();
+            $("#sellhousebutton").show();
+            buyhousebutton.disabled = false;
+            sellhousebutton.disabled = false;
+
+            if (sq.house == 0) {
+                $("#sellhousebutton").hide();
+                buyhousebutton.value = "Buy house (" + sq.houseprice + ")";
+                buyhousebutton.title = "Buy a house for " + sq.houseprice;
+            }
+            
+
+            if (sq.house >= 1) {
+                $("#buyhousebutton").hide();
+                sellhousebutton.value = "Sell house (" + (sq.houseprice) + ")";
+                sellhousebutton.title = "Sell a house for " + (sq.houseprice);
+
+                $("#mortgagebutton").show();
+                document.getElementById("mortgagebutton").disabled = false;
+
+                if (sq.mortgage) {
+                    document.getElementById("mortgagebutton").value = "Unmortgage ($" + sq.price + ")";
+                    document.getElementById("mortgagebutton").title = "Unmortgage " + sq.name + " for $" + sq.price + ".";
+                    $("#buyhousebutton").hide();
+                    $("#sellhousebutton").hide();
+
+                    allGroupUnmortgaged = false;
+                } else {
+                    document.getElementById("mortgagebutton").value = "Mortgage ($" + sq.price + ")";
+                    document.getElementById("mortgagebutton").title = "Mortgage " + sq.name + " for $" + sq.price + ".";
+                }
+            }
+            
+        });
+        
+
+        socket.on('showdeed', function(sq) {
+            $("#deed").show();
+
+            $("#deed-normal").hide();
+            $("#deed-mortgaged").hide();
+            $("#deed-special").hide();
+
+            if (sq.mortgage) {
+                $("#deed-mortgaged").show();
+                document.getElementById("deed-mortgaged-name").textContent = sq.name;
+                document.getElementById("deed-mortgaged-mortgage").textContent = (sq.price / 2);
+
+            } else {
+
+                $("#deed-normal").show();
+                document.getElementById("deed-header").style.backgroundColor = sq.color;
+                document.getElementById("deed-name").textContent = sq.name;
+                document.getElementById("deed-rent").textContent = sq.rent;
+                document.getElementById("deed-mortgage").textContent = (sq.price);
+                document.getElementById("deed-houseprice").textContent = sq.houseprice;
+            }
+        });
+        
+        socket.on('hidedeed', function() {$("#deed").hide();});
+
+        socket.on('showstats', function(HTML) {
+            document.getElementById("statstext").innerHTML = HTML;
+            // Show using animation.
+            $("#statsbackground").fadeIn(400, function() {
+                $("#statswrap").show();
+            });
+        });
+
+        socket.on('changeButton', function(button, value, title){
+            document.getElementById(button).value = value;
+	        document.getElementById(button).title = title;
+        });
+
+        socket.on('focusbutton', function(button) {
+            document.getElementById(button).focus();
+        });
+
+        socket.on('roll', function() {
+            $("#option").hide();
+            $("#buy").show();
+            $("#manage").hide();
+
+            document.getElementById("nextbutton").focus();
+        });
+
+        socket.on('setHTML', function(element, text) {
+            document.getElementById(element).innerHTML = text;
+        });
+
+        socket.on('show', function(element, isShow) {
+            if (isShow) {
+                $(element).show();
+            } else {
+                $(element).hide();
+            }
+            
+        });
+        
+
+        /*socket.on('gameResultState',function(botMove, playerWin, playerList){
+        
+            var player = playerList[playerId];
+            botImage.src = './client/' + botMove + '.png';
+            if(playerWin == 0){
+            utilText.style = 'color:red'
+            utilText.innerHTML = 'Loss';
+            }
+            else{
+            utilText.style = 'color:green'
+            utilText.innerHTML = 'Win';
+            }
+            utilText.style.display = 'block';
+                    
+            playersBox.innerHTML = '';
+            for(var i in playerList){
+            var thisPlayer = playerList[i];
+            var newPlayer = document.createElement("div");
+            newPlayer.setAttribute("class", "playerCell");
+            playersBox.appendChild(newPlayer);
+                    
+            var playerNameValue = 'Player ' + thisPlayer.id;
+                    
+            //if this id matches client owner id, set identifier text to "You"
+            if(thisPlayer.id == playerId){
+            playerNameValue = 'You';
+            }
+            newPlayer.innerHTML = '<div class="playerName">' + playerNameValue + '</div><div class="playerScore">' + thisPlayer.score + '</div>';
+                    
+            }
+            console.log("newPlayer", newPlayer.innerHTML)
+        });
+        
+        
+        
+        function playerChose(move) {
+            
+            console.log('sending player move of ' + move);
+            socket.emit('playerMove', move);
+            document.getElementById('buttonBar').style.display = 'none';
+            playerImage.src = './client/' + move + '.png';
+            playerImage.style = 'display:inline-block';
+            utilText.innerHTML = 'VS';
+            utilText.style = 'color:red'
+            utilText.style.display = 'block';
+            
+        }
+    
+        socket.on('gameSelectionState',function(botMove, playerList){
+              
+                  
+                
+            utilText.style = 'display:none';
+            playerImage.style = 'display:none';
+                
+        
+            document.getElementById('buttonBar').style.display = 'block';
+            botImage.src = './client/question_mark.png';
+              
+        });
+        
+        
+        chatForm.onsubmit = function(e){
+            //prevent the form from refreshing the page
+            e.preventDefault();
+           
+            //call sendMsgToServer socket function, with form text value as argument
+            socket.emit('sendMsgToServer', chatInput.value);
+            chatInput.value = "";
+    
+            
+        }*/
+
+        var pcount;
+
+        function playernumber_onchange() {
+            pcount = parseInt(document.getElementById("playernumber").value, 10);
+
+            $(".player-input").hide();
+
+            for (var i = 1; i <= pcount; i++) {
+                $("#player" + i + "input").show();
+            }
+
+            capitalism_onchange()
+        }
+
+        function capitalism_onchange() {
+            if (document.getElementById("capitalism").value != "Kapitalismus") {
+                $("#nietenfield").hide()
+                return;
+            }
+
+            $("#nietenfield").show()
+            
+            pcount = parseInt(document.getElementById("playernumber").value, 10);
+
+            $("#nieten0").hide();
+            $("#nieten1").hide();
+            $("#nieten2").hide();
+            $("#nieten4").hide();
+            $("#nieten7").hide();
+            $("#nieten8").hide();
+            $("#nieten10").hide();
+
+            switch (pcount) {
+                case 3:
+                    $("#nieten1").show();
+                    $("#nieten4").show();
+                    $("#nieten7").show();
+                    break;
+                case 4:
+                    $("#nieten0").show();
+                    $("#nieten4").show();
+                    $("#nieten8").show();
+                    break;
+                case 5:
+                    $("#nieten2").show();
+                    $("#nieten7").show();
+                    break;
+                case 6:
+                    $("#nieten4").show();
+                    $("#nieten10").show();
+                    break;
+            }
+        }
+        
+        /*
+        
+        // Define event handlers:
+
+        var tradeMoneyOnKeyDown = function (e) {
+            var key = 0;
+            var isCtrl = false;
+            var isShift = false;
+
+            if (window.event) {
+                key = window.event.keyCode;
+                isCtrl = window.event.ctrlKey;
+                isShift = window.event.shiftKey;
+            } else if (e) {
+                key = e.keyCode;
+                isCtrl = e.ctrlKey;
+                isShift = e.shiftKey;
+            }
+
+            if (isNaN(key)) {
+                return true;
+            }
+
+            if (key === 13) {
+                return false;
+            }
+
+            // Allow backspace, tab, delete, arrow keys, or if control was pressed, respectively.
+            if (key === 8 || key === 9 || key === 46 || (key >= 35 && key <= 40) || isCtrl) {
+                return true;
+            }
+
+            if (isShift) {
+                return false;
+            }
+
+            // Only allow number keys.
+            return (key >= 48 && key <= 57) || (key >= 96 && key <= 105);
+        };
+
+        var tradeMoneyOnFocus = function () {
+            this.style.color = "black";
+            if (isNaN(this.value) || this.value === "0") {
+                this.value = "";
+            }
+        };
+
+        var tradeMoneyOnChange = function(e) {
+            $("#proposetradebutton").show();
+            $("#canceltradebutton").show();
+            $("#accepttradebutton").hide();
+            $("#rejecttradebutton").hide();
+
+            var amount = this.value;
+
+            if (isNaN(amount)) {
+                this.value = "This value must be a number.";
+                this.style.color = "red";
+                return false;
+            }
+
+            amount = Math.round(amount) || 0;
+            this.value = amount;
+
+            if (amount < 0) {
+                this.value = "This value must be greater than 0.";
+                this.style.color = "red";
+                return false;
+            }
+
+            return true;
+        };
+
+        document.getElementById("trade-leftp-money").onkeydown = tradeMoneyOnKeyDown;
+        document.getElementById("trade-rightp-money").onkeydown = tradeMoneyOnKeyDown;
+        document.getElementById("trade-leftp-money").onfocus = tradeMoneyOnFocus;
+        document.getElementById("trade-rightp-money").onfocus = tradeMoneyOnFocus;
+        document.getElementById("trade-leftp-money").onchange = tradeMoneyOnChange;
+        document.getElementById("trade-rightp-money").onchange = tradeMoneyOnChange;
+
+        */
+
+        function popup(HTML, action, option) {
+            document.getElementById("popuptext").innerHTML = HTML;
+            document.getElementById("popup").style.width = "300px";
+            document.getElementById("popup").style.top = "0px";
+            document.getElementById("popup").style.left = "0px";
+
+            if (!option && typeof action === "string") {
+                option = action;
+            }
+
+            option = option ? option.toLowerCase() : "";
+
+            if (typeof action !== "function") {
+                action = null;
+            }
+
+            // Yes/No
+            if (option === "yes/no") {
+                document.getElementById("popuptext").innerHTML += "<div><input type=\"button\" value=\"Yes\" id=\"popupyes\" /><input type=\"button\" value=\"No\" id=\"popupno\" /></div>";
+
+                $("#popupyes, #popupno").on("click", function() {
+                    $("#popupwrap").hide();
+                    $("#popupbackground").fadeOut(400);
+                });
+
+                $("#popupyes").on("click", action);
+
+            // Ok
+            } else if (option !== "blank") {
+                $("#popuptext").append("<div><input type='button' value='OK' id='popupclose' /></div>");
+                $("#popupclose").focus();
+
+                $("#popupclose").on("click", function() {
+                    $("#popupwrap").hide();
+                    $("#popupbackground").fadeOut(400);
+                }).on("click", action);
+
+            }
+
+            // Show using animation.
+            $("#popupbackground").fadeIn(400, function() {
+                $("#popupwrap").show();
+            });
+
+        }
+    
+            
+        document.addEventListener('DOMContentLoaded', function() {
+                                  
+            document.getElementById('chat-input').addEventListener('focus', function() {
+                                                                                typing = true;
+                                                                                    });
+            document.getElementById('chat-input').addEventListener('blur', function() {
+                                                                                typing = false;
+                                                                                    });
+                });
+            
+        
+        document.onkeyup = function(event){
+            
+            //user pressed and released enter key
+            if(event.keyCode === 13){
+                
+                if(!typing){
+                    //user is not already typing, focus our chat text form
+                    chatInput.focus();
+                    
+                }
+                
+                else {
+                    
+                    //user sent a message, unfocus our chat form
+                    chatInput.blur();
+                }
+                
+            }
+        }
+    
+        
+    </script>
+
+</body>
+</html>
