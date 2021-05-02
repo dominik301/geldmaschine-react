@@ -117,6 +117,7 @@
 					<td id="p1moneybar" class="moneybarcell">
 						<div><span id="p1moneyname" >Player 1</span>:</div>
 						<div>$<span id="p1money">1500</span></div>
+						<div>$<span id="p1credit">1500</span></div>
 					</td>
 				</tr>
 				<tr id="moneybarrow2" class="money-bar-row">
@@ -124,6 +125,7 @@
 					<td id="p2moneybar" class="moneybarcell">
 						<div><span id="p2moneyname" >Player 2</span>:</div>
 						<div>$<span id="p2money">1500</span></div>
+						<div>$<span id="p2credit">1500</span></div>
 					</td>
 				</tr>
 				<tr id="moneybarrow3" class="money-bar-row">
@@ -131,6 +133,7 @@
 					<td id="p3moneybar" class="moneybarcell">
 						<div><span id="p3moneyname" >Player 3</span>:</div>
 						<div>$<span id="p3money">1500</span></div>
+						<div>$<span id="p3credit">1500</span></div>
 					</td>
 				</tr>
 				<tr id="moneybarrow4" class="money-bar-row">
@@ -138,6 +141,7 @@
 					<td id="p4moneybar" class="moneybarcell">
 						<div><span id="p4moneyname" >Player 4</span>:</div>
 						<div>$<span id="p4money">1500</span></div>
+						<div>$<span id="p4credit">1500</span></div>
 					</td>
 				</tr>
 				<tr id="moneybarrow5" class="money-bar-row">
@@ -145,6 +149,7 @@
 					<td id="p5moneybar" class="moneybarcell">
 						<div><span id="p5moneyname" >Player 5</span>:</div>
 						<div>$<span id="p5money">1500</span></div>
+						<div>$<span id="p5credit">1500</span></div>
 					</td>
 				</tr>
 				<tr id="moneybarrow6" class="money-bar-row">
@@ -152,13 +157,23 @@
 					<td id="p6moneybar" class="moneybarcell">
 						<div><span id="p6moneyname" >Player 6</span>:</div>
 						<div>$<span id="p6money">1500</span></div>
+						<div>$<span id="p6credit">1500</span></div>
 					</td>
 				</tr>
 				<tr id="moneybarrow7" class="money-bar-row">
 					<td class="moneybararrowcell"><img src="images/arrow.png" id="p7arrow" class="money-bar-arrow" alt=">" /></td>
 					<td id="p7moneybar" class="moneybarcell">
-						<div><span id="p7moneyname" >Player 7</span>:</div>
+						<div><span id="p7moneyname" >Bank</span>:</div>
 						<div>$<span id="p7money">1500</span></div>
+						<div>$<span id="p7credit">1500</span></div>
+					</td>
+				</tr>
+				<tr id="moneybarrow8" class="money-bar-row">
+					<td class="moneybararrowcell"><img src="images/arrow.png" id="p8arrow" class="money-bar-arrow" alt=">" /></td>
+					<td id="p8moneybar" class="moneybarcell">
+						<div><span id="p8moneyname" >Staat</span>:</div>
+						<div>$<span id="p8money">1500</span></div>
+						<div>$<span id="p8credit">1500</span></div>
 					</td>
 				</tr>
 				<tr id="moneybarrowbutton">
@@ -179,13 +194,33 @@
 				<option selected="selected">4</option>
 				<option>5</option>
 				<option>6</option>
-				<option>7</option>
+			</select>
+		</div>
+
+		<div style="margin-bottom: 20px;">
+			Chancengleichheit oder Kapitalismus?
+			<select id="capitalism" title="Wähle zwischen Chancengleichheit und Kapitalismus.">
+				<option selected="selected">Chancengleichheit</option>
+				<option>Kapitalismus</option>
+			</select>
+		</div>
+
+		<div id="nietenfield" style="margin-bottom: 20px;">
+			Anzahl Nieten
+			<select id="nieten" title="Wähle die Anzahl der Nieten.">
+				<option id="nieten0">0</option>
+				<option id="nieten1">1</option>
+				<option id="nieten2">2</option>
+				<option id="nieten4">4</option>
+				<option id="nieten7">7</option>
+				<option id="nieten8">8</option>
+				<option id="nieten10">10</option>
 			</select>
 		</div>
 
 		<div id="player1input" class="player-input">
 			Player 1: <input type="text" id="player1name" title="Player name" maxlength="16" value="Player 1" />
-			<select id="player1color" title="Player color">
+			<!--<select id="player1color" title="Player color">
 				<option selected="selected" style="color: yellow;">Gelb</option>
 				<option style="color: red;">Rot</option>
 				<option style="color: beige;">Creme</option>
@@ -196,12 +231,12 @@
 			<select id="player1ai" title="Choose whether this player is controled by a human or by the computer." onclick="document.getElementById('player1name').disabled = this.value !== '0';">
 				<option value="0" selected="selected">Human</option>
 				<option value="1">AI (Test)</option>
-			</select>
+			</select>-->
 		</div>
 
 		<div id="player2input" class="player-input">
 			Player 2: <input type="text" id="player2name" title="Player name" maxlength="16" value="Player 2" />
-			<select id="player2color" title="Player color">
+			<!--<select id="player2color" title="Player color">
 				<option style="color: yellow;">Gelb</option>
 				<option selected="selected" style="color: red;">Rot</option>
 				<option style="color: beige;">Creme</option>
@@ -212,12 +247,12 @@
 			<select id="player2ai" title="Choose whether this player is controled by a human or by the computer." onclick="document.getElementById('player2name').disabled = this.value !== '0';">
 				<option value="0" selected="selected">Human</option>
 				<option value="1">AI (Test)</option>
-			</select>
+			</select>-->
 		</div>
 
 		<div id="player3input" class="player-input">
 			Player 3: <input type="text" id="player3name" title="Player name" maxlength="16" value="Player 3" />
-			<select id="player3color" title="Player color">
+			<!--<select id="player3color" title="Player color">
 				<option style="color: yellow;">Gelb</option>
 				<option style="color: red;">Rot</option>
 				<option selected="selected" style="color: beige;">Creme</option>
@@ -228,12 +263,12 @@
 			<select id="player3ai" title="Choose whether this player is controled by a human or by the computer." onclick="document.getElementById('player3name').disabled = this.value !== '0';">
 				<option value="0" selected="selected">Human</option>
 				<option value="1">AI (Test)</option>
-			</select>
+			</select>-->
 		</div>
 
 		<div id="player4input" class="player-input">
 			Player 4: <input type="text" id="player4name" title="Player name" maxlength="16" value="Player 4" />
-			<select id="player4color" title="Player color">
+			<!--<select id="player4color" title="Player color">
 				<option style="color: yellow;">Gelb</option>
 				<option style="color: red;">Rot</option>
 				<option style="color: beige;">Creme</option>
@@ -244,12 +279,12 @@
 			<select id="player4ai" title="Choose whether this player is controled by a human or by the computer." onclick="document.getElementById('player4name').disabled = this.value !== '0';">
 				<option value="0" selected="selected">Human</option>
 				<option value="1">AI (Test)</option>
-			</select>
+			</select>-->
 		</div>
 
 		<div id="player5input" class="player-input">
 			Player 5: <input type="text" id="player5name" title="Player name" maxlength="16" value="Player 5" />
-			<select id="player5color" title="Player color">
+			<!--<select id="player5color" title="Player color">
 				<option style="color: yellow;">Gelb</option>
 				<option style="color: red;">Rot</option>
 				<option tyle="color: beige;">Creme</option>
@@ -260,12 +295,12 @@
 			<select id="player5ai" title="Choose whether this player is controled by a human or by the computer." onclick="document.getElementById('player5name').disabled = this.value !== '0';">
 				<option value="0" selected="selected">Human</option>
 				<option value="1">AI (Test)</option>
-			</select>
+			</select>-->
 		</div>
 
 		<div id="player6input" class="player-input">
 			Player 6: <input type="text" id="player6name" title="Player name" maxlength="16" value="Player 6" />
-			<select id="player6color" title="Player color">
+			<!--<select id="player6color" title="Player color">
 				<option style="color: yellow;">Gelb</option>
 				<option style="color: red;">Rot</option>
 				<option style="color: beige;">Creme</option>
@@ -276,23 +311,7 @@
 			<select id="player6ai" title="Choose whether this player is controled by a human or by the computer." onclick="document.getElementById('player6name').disabled = this.value !== '0';">
 				<option value="0" selected="selected">Human</option>
 				<option value="1">AI (Test)</option>
-			</select>
-		</div>
-
-		<div id="player7input" class="player-input">
-			Player 7: <input type="text" id="player7name" title="Player name" maxlength="16" value="Player 7" />
-			<select id="player7color" title="Player color">
-				<option style="color: yellow;">Gelb</option>
-				<option style="color: red;">Rot</option>
-				<option style="color: beige;">Creme</option>
-				<option style="color: purple;">Lila</option>
-				<option style="color: orange;">Orange</option>
-				<option selected="selected" style="color: violet;">Violett</option>
-			</select>
-			<select id="player7ai" title="Choose whether this player is controled by a human or by the computer." onclick="document.getElementById('player7name').disabled = this.value !== '0';">
-				<option value="0" selected="selected">Human</option>
-				<option value="1">AI (Test)</option>
-			</select>
+			</select>-->
 		</div>
 
 		<div style="margin: 20px 0px;">

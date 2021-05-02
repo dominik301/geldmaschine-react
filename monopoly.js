@@ -6,7 +6,7 @@ function Game() {
 	var derivatePrivat=0;
 	var derivateBank=0;
 	var figuren;
-	var zinssatz=10;
+	this.zinssatz = 10;
 
 	this.rollDice = function() {
 		die1 = Math.floor(Math.random() * 6) + 1;
@@ -864,6 +864,9 @@ function Player(name, color) {
 			this.money += amount;
 			this.sumKredit += amount;
 
+			//bank.kreditTilgung -= amount;
+			meineBank.geldMenge += amount;
+
 			updateMoney();
 
 			return true;
@@ -876,6 +879,9 @@ function Player(name, color) {
 		if (amount <= this.money) {
 			this.money -= amount;
 			this.sumKredit -= amount;
+
+			//bank.kreditTilgung += amount;
+			meineBank.geldMenge -= amount;
 
 			updateMoney();
 
@@ -894,7 +900,7 @@ function Bank(name="bank", color="black") {
 	this.bidding = true;
 	this.human = true;
 	//this.sumKredit = 0; //equals this.money
-	this.kreditTilgung = 0;
+	//this.kreditTilgung = 0;
 	this.geldMenge = 0;
 	this.zinsenLotto = 0;
 	this.derivateBank;
@@ -919,13 +925,13 @@ function Bank(name="bank", color="black") {
 
 	this.buyDerivate = function (amount) {
 		this.derivateBank += amount;
-		this.zinsenLotto -= amount;
+		//this.zinsenLotto -= amount;
 		this.update()
 	};
 
 	this.buyAnleihen = function (amount) {
 		this.anleihenBank += amount;
-		this.zinsenLotto -= amount;
+		//this.zinsenLotto -= amount;
 		this.update()
 	};
 
@@ -1137,7 +1143,20 @@ function updateMoney() {
 		document.getElementById("p" + i + "moneybar").style.border = "2px solid " + p_i.color;
 		document.getElementById("p" + i + "money").innerHTML = p_i.money;
 		document.getElementById("p" + i + "moneyname").innerHTML = p_i.name;
+		document.getElementById("p" + i + "credit").innerHTML = p_i.sumKredit;
 	}
+
+	//var bank = player[0];
+
+	$("#moneybarrow7").show();
+	document.getElementById("p7moneybar").style.border = "2px solid " + "black";
+	document.getElementById("p7money").innerHTML = meineBank.geldMenge;
+	document.getElementById("p7credit").innerHTML = meineBank.zinsenLotto;
+
+	$("#moneybarrow8").show();
+	document.getElementById("p8moneybar").style.border = "2px solid " + "black";
+	document.getElementById("p8money").innerHTML = meinStaat.staatsSchuld;
+	document.getElementById("p8credit").innerHTML = meinStaat.steuer;
 
 	if (document.getElementById("landed").innerHTML === "") {
 		$("#landed").hide();
@@ -1374,6 +1393,8 @@ function payeachplayer(amount, cause) {
 	var p = player[turn];
 	var total = 0;
 
+	amount = Math.floor(amount / (pcount - 1));
+
 	for (var i = 1; i <= pcount; i++) {
 		if (i != turn) {
 			player[i].money += amount;
@@ -1387,7 +1408,7 @@ function payeachplayer(amount, cause) {
 	addAlert(p.name + " lost $" + total + " from " + cause + ".");
 }
 
-function collectfromeachplayer(amount, cause) {
+/*function collectfromeachplayer(amount, cause) {
 	var p = player[turn];
 	var total = 0;
 
@@ -1407,17 +1428,18 @@ function collectfromeachplayer(amount, cause) {
 	}
 
 	addAlert(p.name + " received $" + total + " from " + cause + ".");
-}
+}*/
 
 function advance(destination, pass) {
 	var p = player[turn];
-
+	//TODO
 	if (typeof pass === "number") {
 		if (p.position < pass) {
 			p.position = pass;
 		} else {
 			p.position = pass;
-			p.money += 200;
+			p.money -= p.sumKredit * game.zinssatz / 100;
+			meineBank.zinsenLotto += p.sumKredit * game.zinssatz / 100;
 			addAlert(p.name + " collected a $200 salary for passing GO.");
 		}
 	}
@@ -1425,14 +1447,15 @@ function advance(destination, pass) {
 		p.position = destination;
 	} else {
 		p.position = destination;
-		p.money += 200;
+		p.money -= p.sumKredit * game.zinssatz / 100;
+		meineBank.zinsenLotto += p.sumKredit * game.zinssatz / 100;
 		addAlert(p.name + " collected a $200 salary for passing GO.");
 	}
 
 	land();
 }
 
-function streetrepairs(houseprice, hotelprice) {
+/*function streetrepairs(houseprice, hotelprice) {
 	var cost = 0;
 	for (var i = 0; i < 12; i++) {
 		var s = square[i];
@@ -1457,12 +1480,12 @@ function streetrepairs(houseprice, hotelprice) {
 		}
 	}
 
-}
+}*/
 
 function payplayer(position, amount) {
 	var receiver = turn + position;
-	var nPlayer = player.length
-
+	var nPlayer = pcount
+	
 	if (receiver < 0) {
 		receiver = nPlayer - 1;
 	}
@@ -1485,7 +1508,14 @@ function payState(amount) {
 
 	meinStaat.steuer += amount;
 
-	p.pay(amount, 0); //TODO: Staat
+	if (meinStaat.steuer < 0) {
+		meineBank.geldMenge -= meinStaat.steuer;
+		meineBank.buyAnleihen(meinStaat.steuer);
+		meinStaat.staatsSchuld += meinStaat.steuer;
+		meinStaat.steuer = 0;
+	}
+
+	p.pay(amount, 0);
 
 	addAlert(p.name + " lost $" + amount + ".");
 }
@@ -1515,7 +1545,7 @@ function buyHouse(index) {
 			return;
 		}
 
-		p.pay(sq.houseprice, 0);
+		payeachplayer(sq.houseprice, "buying a house"); //p.pay?
 
 		updateOwned();
 		updateMoney();
@@ -1765,9 +1795,9 @@ function land(increasedRent) {
 	}
 
 	// City Tax
-	if (p.position === 4) {
+	/*if (p.position === 6) {
 		citytax();
-	}
+	}*/
 
 	updateMoney();
 	updatePosition();
@@ -1827,15 +1857,20 @@ function roll() {
 	
 	updateDice(die1);
 
+	p_old = p.position;
 	// Move player
 	p.position += die1;
 
 	//TODO
-	// Collect $200 salary as you pass GO
+	// Pay taxes as you pass GO
+	if (p_old < 6 && p.position >= 6) {
+		citytax();
+	}
 	if (p.position >= 12) {
 		p.position -= 12;
-		p.money += 200;
-		addAlert(p.name + " collected a $200 salary for passing GO.");
+		meineBank.zinsenLotto += p.sumKredit * game.zinssatz / 100;
+		p.money -= p.sumKredit * game.zinssatz / 100;
+		addAlert(p.name + " payed taxes for passing GO.");
 	}
 
 	land();
@@ -1887,33 +1922,67 @@ function setup() {
 
 	playerArray.randomize();
 
+	var colors = ["yellow", "red", "beige", "purple", "orange", "violet"]
+
 	var properties = new Array(1,2,4,5,7,8,10,11);
+	
+	var verteilung = document.getElementById("capitalism").value;
+	var kapitalismus = verteilung == "Kapitalismus";
+
+	var nieten = 0;
+	
+	if (kapitalismus) {
+		nieten = document.getElementById("nieten").value;
+
+		for (i = 0; i < nieten; i++) {
+			properties.push(-1);
+		}
+	}
+
 	properties.sort(function() { return 0.5 - Math.random();});
 
 	for (var i = 1; i <= pcount; i++) {
+		p = player[i];
+		p.color = colors.shift();
+
 		p = player[playerArray[i - 1]];
-
-
-		p.color = document.getElementById("player" + i + "color").value.toLowerCase();
-
-		if (document.getElementById("player" + i + "ai").value === "0") {
-			p.name = document.getElementById("player" + i + "name").value;
-			p.human = true;
-		}
-
+		
+		p.name = document.getElementById("player" + i + "name").value;
+		p.human = true;
+		
+		
 		//Immobilienkarten verteilen
-		var n = pcount <= 4 ? 2 : 1;
-		for (var j = 0; j < n; j++) {
-			var pos = properties.pop();
-			var property = square[pos];
 
-			property.owner = playerArray[i - 1];
-			addAlert(p.name + " received " + property.name + ".");
+		if (!kapitalismus) {
+			var n = pcount <= 4 ? 2 : 1;
+			for (var j = 0; j < n; j++) {
+				var pos = properties.pop();
+				var property = square[pos];
 
-			//updateOwned();
-		}
+				property.owner = playerArray[i - 1];
+				addAlert(p.name + " received " + property.name + ".");
+
+				//updateOwned();
+			}
+		}		
 		
 		//end:Immobilienkarten verteilen
+	}
+
+	if (kapitalismus) {
+		while (properties.length != 0) {
+			for (var i = 1; i <= pcount; i++) {
+				p = player[playerArray[i - 1]];
+				var pos = properties.pop();
+				if (pos == -1) {
+					continue;
+				}
+				
+				var property = square[pos];
+				property.owner = playerArray[i - 1];
+				addAlert(p.name + " received " + property.name + ".");
+			}
+		}
 	}
 
 	$("#board, #moneybar").show();
@@ -1946,6 +2015,48 @@ function playernumber_onchange() {
 	for (var i = 1; i <= pcount; i++) {
 		$("#player" + i + "input").show();
 	}
+
+	capitalism_onchange()
+}
+
+function capitalism_onchange() {
+	if (document.getElementById("capitalism").value != "Kapitalismus") {
+		$("#nietenfield").hide()
+		return;
+	}
+
+	$("#nietenfield").show()
+	
+	pcount = parseInt(document.getElementById("playernumber").value, 10);
+
+	$("#nieten0").hide();
+	$("#nieten1").hide();
+	$("#nieten2").hide();
+	$("#nieten4").hide();
+	$("#nieten7").hide();
+	$("#nieten8").hide();
+	$("#nieten10").hide();
+
+	switch (pcount) {
+		case 3:
+			$("#nieten1").show();
+			$("#nieten4").show();
+			$("#nieten7").show();
+			break;
+		case 4:
+			$("#nieten0").show();
+			$("#nieten4").show();
+			$("#nieten8").show();
+			break;
+		case 5:
+			$("#nieten2").show();
+			$("#nieten7").show();
+			break;
+		case 6:
+			$("#nieten4").show();
+			$("#nieten10").show();
+			break;
+	}
 }
 
 function menuitem_onmouseover(element) {
@@ -1961,7 +2072,7 @@ function menuitem_onmouseout(element) {
 window.onload = function() {
 	game = new Game();
 
-	for (var i = 0; i <= 7; i++) {
+	for (var i = 0; i <= 6; i++) {
 		player[i] = new Player("", "");
 		player[i].index = i;
 	}
@@ -1969,7 +2080,7 @@ window.onload = function() {
 	var groupPropertyArray = [];
 	var groupNumber;
 
-	for (var i = 0; i < 12; i++) {
+	/*for (var i = 0; i < 12; i++) {
 		groupNumber = square[i].groupNumber;
 
 		if (groupNumber > 0) {
@@ -1979,9 +2090,9 @@ window.onload = function() {
 
 			groupPropertyArray[groupNumber].push(i);
 		}
-	}
+	}*/
 
-	for (var i = 0; i < 12; i++) {
+	/*for (var i = 0; i < 12; i++) {
 		groupNumber = square[i].groupNumber;
 
 		if (groupNumber > 0) {
@@ -1989,7 +2100,7 @@ window.onload = function() {
 		}
 
 		square[i].index = i;
-	}
+	}*/
 
 	player[1].human = true;
 	player[0].name = "the bank";
@@ -2007,6 +2118,9 @@ window.onload = function() {
 
 	$("#playernumber").on("change", playernumber_onchange);
 	playernumber_onchange();
+
+	$("#capitalism").on("change", capitalism_onchange);
+	capitalism_onchange();
 
 	$("#nextbutton").click(game.next);
 	$("#noscript").hide();
