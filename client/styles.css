@@ -287,7 +287,7 @@ td {
 	border-left: none;
 }
 
-#trade-menu-item {
+#credit-menu-item {
 	color: #AAAAAA;
 	border-right: none;
 	margin-right: 2px;
@@ -543,9 +543,9 @@ td {
 	border: none;
 	border-right: 2px solid white;
 	height: 30px;
-	min-width: 90px;
-	width: 90px;
-	max-width: 90px;
+	min-width: 70px;
+	width: 70px;
+	max-width: 70px;
 	overflow: hidden;
 }
 
@@ -568,6 +568,10 @@ td {
 	height: 19px;
 	vertical-align: middle;
 	float: right;
+}
+
+.player-credit {
+	color: red;
 }
 
 /*begin: TODO*/

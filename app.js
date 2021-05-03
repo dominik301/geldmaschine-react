@@ -156,7 +156,7 @@ io.sockets.on('connection', function(socket){
 	
 });
 
-server.listen(4141);
+server.listen(4141, "0.0.0.0");
 
 
 //Start: Old code monopoly.js
@@ -727,6 +727,7 @@ function payState(amount) {
 }
 
 function receiveBankguthaben() {
+  var p = player[turn];
 	p.money += meineBank.zinsenLotto;
 	meineBank.zinsenLotto = 0;
 }
@@ -954,7 +955,7 @@ function chanceCommunityChest() {
 	if (p.position === 3 || p.position === 9) {
 		var chanceIndex = chanceCards.deck[chanceCards.index];
 
-		popup("<img src='./client/images/chance_icon.png' style='height: 50px; width: 26px; float: left; margin: 8px 8px 8px 0px;' /><div style='font-weight: bold; font-size: 16px; '>Chance:</div><div style='text-align: justify;'>" + chanceCards[chanceIndex].text + "</div>"); //TODO
+		popup("<img src='./client/images/chance_icon.png' style='height: 50px; width: 26px; float: left; margin: 8px 8px 8px 0px;' /><div style='font-weight: bold; font-size: 16px; '>" + chanceCards[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards[chanceIndex].text + "</div>"); //TODO
 
     chanceAction(chanceIndex);
 
@@ -1173,8 +1174,9 @@ function Square(name, pricetext, color, rent, houseprice) {
   this.groupNumber = this.price != 0 ? 1 : 0
 }
 
-function Card(text, action) {
-	this.text = text;
+function Card(title, text, action) {
+	this.title = title;
+  this.text = text;
 	this.action = action;
 }
 
@@ -1211,36 +1213,36 @@ square[11] = new Square("Nasse Gasse 2", "Miete:18.000", "blue", 18000, 54000);
 
 var chanceCards = [];
 
-chanceCards[0] = new Card("TÜV\nDein Auto muss zum TÜV. Zahle 5.000 an die Werkstatt: Linke/r Mitspieler*in.", function() { payplayer(1, 5000);});
-chanceCards[1] = new Card("Konsum\nDu kaufst ein Motorrad. Überweise 8.000 an die Person rechts neben Dir.", function() { payplayer(-1, 8000);});
-chanceCards[2] = new Card("Urlaub\nMache Urlaub im Umland. Überweise 6.000 anteilig an alle, da sie für Dich kochen, putzen, singen...", function() { payeachplayer(6000,"Ereignisfeld");});
-chanceCards[3] = new Card("Lobbyarbeit\nDer Besuch des Opernballs kostet Dich 3.000. Überweise an den Staat.", function() { payState(3000);});
-chanceCards[4] = new Card("Geburtstag\nDu hast einen runden Geburtstag. Die Party kostet 6.000. Überweise an alle Mitspieler*innen.", function() { payeachplayer(6000,"Ereignisfeld");});
-chanceCards[5] = new Card("KFZ-Steuer\nZahle für Deinen Fahrzeugpark 4.000 Kfz-Steuer am den Staat.", function() { payState(4000);});
-chanceCards[6] = new Card("Strafticket\nDu musst Deine Fahrerlaubnis erneuern. Überweise 3.000 an den Staat.", function() { payState(3000);});
-chanceCards[7] = new Card("Hauptgewinn\nGlückwunsch! Du hast im Lotto gewonnen und erhältst das gesamte Bankguthaben als Gewinn.", function() { receiveBankguthaben();});
-chanceCards[8] = new Card("Zuzahlung\nDu warst zur Kur und musst 2.000 zuzahlen. Überweise an den Staat.", function() { payState(2000);});
-chanceCards[9] = new Card("Banküberfall\nDu hast die Bank überfallen und den Tresor geräumt. Die Bank überweist Dir ihr gesamtes Guthaben.", function() { receiveBankguthaben();});
-chanceCards[10] = new Card("Finanzamt\nRücke direkt ins Finanzamt vor und zahle Steuern auf dein aktuelles Guthaben. Du kannst vorher andere Geschäfte tätigen.", function() { advance(6);}); //TODO
+chanceCards[0] = new Card("TÜV","Dein Auto muss zum TÜV. Zahle 5.000 an die Werkstatt: Linke/r Mitspieler*in.", function() { payplayer(1, 5000);});
+chanceCards[1] = new Card("Konsum","Du kaufst ein Motorrad. Überweise 8.000 an die Person rechts neben Dir.", function() { payplayer(-1, 8000);});
+chanceCards[2] = new Card("Urlaub","Mache Urlaub im Umland. Überweise 6.000 anteilig an alle, da sie für Dich kochen, putzen, singen...", function() { payeachplayer(6000,"Ereignisfeld");});
+chanceCards[3] = new Card("Lobbyarbeit","Der Besuch des Opernballs kostet Dich 3.000. Überweise an den Staat.", function() { payState(3000);});
+chanceCards[4] = new Card("Geburtstag","Du hast einen runden Geburtstag. Die Party kostet 6.000. Überweise an alle Mitspieler*innen.", function() { payeachplayer(6000,"Ereignisfeld");});
+chanceCards[5] = new Card("KFZ-Steuer","Zahle für Deinen Fahrzeugpark 4.000 Kfz-Steuer am den Staat.", function() { payState(4000);});
+chanceCards[6] = new Card("Strafticket","Du musst Deine Fahrerlaubnis erneuern. Überweise 3.000 an den Staat.", function() { payState(3000);});
+chanceCards[7] = new Card("Hauptgewinn","Glückwunsch! Du hast im Lotto gewonnen und erhältst das gesamte Bankguthaben als Gewinn.", function() { receiveBankguthaben();});
+chanceCards[8] = new Card("Zuzahlung","Du warst zur Kur und musst 2.000 zuzahlen. Überweise an den Staat.", function() { payState(2000);});
+chanceCards[9] = new Card("Banküberfall","Du hast die Bank überfallen und den Tresor geräumt. Die Bank überweist Dir ihr gesamtes Guthaben.", function() { receiveBankguthaben();});
+chanceCards[10] = new Card("Finanzamt","Rücke direkt ins Finanzamt vor und zahle Steuern auf dein aktuelles Guthaben. Du kannst vorher andere Geschäfte tätigen.", function() { advance(6);}); //TODO
 chanceCards[11] = new Card("Du verkaufst an die Person mit dem aktuell niedrigsten Saldo ein Auto. Lass Dir 4.000 überweisen. Kreditaufnahme für Kauf möglich.", function() { sellPoorest(4000);}); //TODO
-chanceCards[12] = new Card("Spende\nSpende 10.000 für das Gemeinwohl. Überweise an den Staat.", function() { payState(10000);});
-chanceCards[13] = new Card("GEMA\nDie GEMA fordert 1.000 für die Musikbeschallung in deiner Firma. Überweise an den Staat.", function() { payState(1000);});
-chanceCards[14] = new Card("Steuererstattung\nDu bekommst 5.000 vom Finanzamt (Staat) erstattet.", function() { payState(-5000);});
+chanceCards[12] = new Card("Spende","Spende 10.000 für das Gemeinwohl. Überweise an den Staat.", function() { payState(10000);});
+chanceCards[13] = new Card("GEMA","Die GEMA fordert 1.000 für die Musikbeschallung in deiner Firma. Überweise an den Staat.", function() { payState(1000);});
+chanceCards[14] = new Card("Steuererstattung","Du bekommst 5.000 vom Finanzamt (Staat) erstattet.", function() { payState(-5000);});
 
 var chanceCards2 = [];
 
-chanceCards2[0] = new Card("Steuerforderung\nZahle 10.000 an den Staat.", function() { payState(10000);});
-chanceCards2[1] = new Card("Konsum\nDu verkaufst der/dem Reichsten eine Yacht für 40.000.", function() { payplayer(-1, 8000);});
-chanceCards2[2] = new Card("Wasserrohrbruch\nZahle für die Reparatur 8.000 an Deine*n rechte*n Mitspieler*in", function() { payRichest(8000);}); //TODO
-chanceCards2[3] = new Card("Studiengebühren\nDeine Tochter macht ein Auslandssemester. Du unterstützt sie mit 15.000. Überweise an den Staat.", function() { payState(15000);});
-chanceCards2[4] = new Card("Investitionsbeihilfe\nDer Staat übernimmt 10% deiner Baukosten, wenn du ein 2. Haus auf eins Deiner Grundstücke baust. Du darfst keine Miete dafür erhenem. Steuerbegünstigter Leerstand um Geld in Umlauf zu bringen! Du kannst Kredit aufnehmen.", function() { secondHouse(percent=0.1);}); //TODO
-chanceCards2[5] = new Card("Feuerschaden\nNach Hausbrand zahlt die Versicherung (Staat) 48.000. Du renovierst und überweist das Geld anteilig an alle.", function() { payState(4000);});
-chanceCards2[6] = new Card("Heizungsreparatur\nFür die Reparatur bekommst du 10.000 von der Person rechts neben Dir. Zum Bezahlen kann außerplanmäßig ein Kredit aufgenommen werden.", function() { payState(3000);});
-chanceCards2[7] = new Card("Steuerfahndung\nDir wurde Steuerhinterziehung nachgewiesen. Überweise 50% Deines Guthabens an den Staat.", function(p) { steuerHinterziehung(p.money * 0.5);});
-chanceCards2[8] = new Card("Fensterreparatur\nDu hast im Haus auf diesem Feld die Fenster repariert. Der/die Eigentümer*in zahlt Dir 15.000. Dafür ist Kreditaufnahme möglich.", function() { payState(2000);}); //?
-chanceCards2[9] = new Card("Feinstaubplaketten\nKaufe Plaketten für deinen Fahrzeugpark. Zahle 1.000 an den Staat.", function() { receiveBankguthaben();});
-chanceCards2[10] = new Card("Investitionsbeihilfe\nWenn Du jetzt baust, zahlt der Staat 20.000 dazu. Du darfst ein 2. Haus auf eins Deiner Grundstücke bauen, aber keine Miete dafür erheben. Steuerbegünstigter Leerstand um Geld in Umlauf zu bringen! Du kannst Kredit aufnehmen.", function() { secondHouse(amount=20000);}); //TODO
-chanceCards2[11] = new Card("Hackerangriff\nDu hast die Bank gehackt und 80.000 erpresst. Die Bank schöpft das Geld durch Emission von Derivaten.", function() { receiveFromBank(80000);}); //TODO
-chanceCards2[12] = new Card("Einbauküche\nDu kaufst für 24.000 eine Einbauküche. Überweise den Betrag anteilig an alle Mitspieler*innen", function() { payeachplayer(24000);});
-chanceCards2[13] = new Card("Erbstreit\nWegen eines Erbstreits musst Du ein Grundstück versteigern. Die Hälfte des Erlöses zahlst du anteilig an alle aus.", function() { auctionHouse();}); //TODO
-chanceCards2[14] = new Card("Beitragserhöhung\nDeine Krankenkasse erhöht die Beiträge. Zahle 3.000 an den Staat.", function() { payState(3000);});
+chanceCards2[0] = new Card("Steuerforderung","Zahle 10.000 an den Staat.", function() { payState(10000);});
+chanceCards2[1] = new Card("Konsum","Du verkaufst der/dem Reichsten eine Yacht für 40.000.", function() { payplayer(-1, 8000);});
+chanceCards2[2] = new Card("Wasserrohrbruch","Zahle für die Reparatur 8.000 an Deine*n rechte*n Mitspieler*in", function() { payRichest(8000);}); //TODO
+chanceCards2[3] = new Card("Studiengebühren","Deine Tochter macht ein Auslandssemester. Du unterstützt sie mit 15.000. Überweise an den Staat.", function() { payState(15000);});
+chanceCards2[4] = new Card("Investitionsbeihilfe","Der Staat übernimmt 10% deiner Baukosten, wenn du ein 2. Haus auf eins Deiner Grundstücke baust. Du darfst keine Miete dafür erhenem. Steuerbegünstigter Leerstand um Geld in Umlauf zu bringen! Du kannst Kredit aufnehmen.", function() { secondHouse(percent=0.1);}); //TODO
+chanceCards2[5] = new Card("Feuerschaden","Nach Hausbrand zahlt die Versicherung (Staat) 48.000. Du renovierst und überweist das Geld anteilig an alle.", function() { payState(4000);});
+chanceCards2[6] = new Card("Heizungsreparatur","Für die Reparatur bekommst du 10.000 von der Person rechts neben Dir. Zum Bezahlen kann außerplanmäßig ein Kredit aufgenommen werden.", function() { payState(3000);});
+chanceCards2[7] = new Card("Steuerfahndung","Dir wurde Steuerhinterziehung nachgewiesen. Überweise 50% Deines Guthabens an den Staat.", function(p) { steuerHinterziehung(p.money * 0.5);});
+chanceCards2[8] = new Card("Fensterreparatur","Du hast im Haus auf diesem Feld die Fenster repariert. Der/die Eigentümer*in zahlt Dir 15.000. Dafür ist Kreditaufnahme möglich.", function() { payState(2000);}); //?
+chanceCards2[9] = new Card("Feinstaubplaketten","Kaufe Plaketten für deinen Fahrzeugpark. Zahle 1.000 an den Staat.", function() { receiveBankguthaben();});
+chanceCards2[10] = new Card("Investitionsbeihilfe","Wenn Du jetzt baust, zahlt der Staat 20.000 dazu. Du darfst ein 2. Haus auf eins Deiner Grundstücke bauen, aber keine Miete dafür erheben. Steuerbegünstigter Leerstand um Geld in Umlauf zu bringen! Du kannst Kredit aufnehmen.", function() { secondHouse(amount=20000);}); //TODO
+chanceCards2[11] = new Card("Hackerangriff","Du hast die Bank gehackt und 80.000 erpresst. Die Bank schöpft das Geld durch Emission von Derivaten.", function() { receiveFromBank(80000);}); //TODO
+chanceCards2[12] = new Card("Einbauküche","Du kaufst für 24.000 eine Einbauküche. Überweise den Betrag anteilig an alle Mitspieler*innen", function() { payeachplayer(24000);});
+chanceCards2[13] = new Card("Erbstreit","Wegen eines Erbstreits musst Du ein Grundstück versteigern. Die Hälfte des Erlöses zahlst du anteilig an alle aus.", function() { auctionHouse();}); //TODO
+chanceCards2[14] = new Card("Beitragserhöhung","Deine Krankenkasse erhöht die Beiträge. Zahle 3.000 an den Staat.", function() { payState(3000);});
