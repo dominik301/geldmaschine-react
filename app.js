@@ -50,25 +50,29 @@ io.sockets.on('connection', function(socket){
     buyHouse(checkedProperty);        
   });
 
-  socket.on('mortgage',function(){
+  socket.on('mortgage',function(checkedProperty){
 
     var s = square[checkedProperty];
 
     if (s.mortgage) {
         if (player[s.owner].money < s.houseprice) {
-            //popup("<p>You need $" + (s.price - player[s.owner].money) + " more to unmortgage " + s.name + ".</p>");
+            popup("<p>You need $" + (s.price - player[s.owner].money) + " more to unmortgage " + s.name + ".</p>");
 
         } else {
-            /*popup("<p>" + player[s.owner].name + ", are you sure you want to unmortgage " + s.name + " for $" + s.price + "?</p>", function() {
-                unmortgage(checkedProperty);
-            }, "Yes/No");*/
-            unmortgage(checkedProperty);
+            popup("<p>" + player[s.owner].name + ", are you sure you want to unmortgage " + s.name + " for $" + s.price + "?</p>", "Yes/No", true);
         }
     } else {
-        /*popup("<p>" + player[s.owner].name + ", are you sure you want to mortgage " + s.name + " for $" + s.price + "?</p>", function() {
-            socket.emit('mortgage', checkedProperty);
-        }, "Yes/No");*/
-        mortgage(checkedProperty);        
+        popup("<p>" + player[s.owner].name + ", are you sure you want to mortgage " + s.name + " for $" + s.price + "?</p>", "Yes/No", true);
+    } 
+  });
+
+  socket.on('doMortgage', function (checkedProperty){
+    var s = square[checkedProperty];
+
+    if (s.mortgage) {
+      unmortgage(checkedProperty);
+    } else {
+      mortgage(checkedProperty);        
     } 
   });
 
@@ -105,7 +109,6 @@ io.sockets.on('connection', function(socket){
         thisPlayer.name = name;
       }
     });
-    console.log(player)
   });
 
   socket.on('showdeed', function(property) {
@@ -131,9 +134,6 @@ function Game() {
 	var die1;
 	var areDiceRolled = false;
 
-	var derivateGesamt=0;
-	var derivatePrivat=0;
-	var derivateBank=0;
 	this.zinssatz = 10;
 
 	this.rollDice = function() {
@@ -158,56 +158,6 @@ function Game() {
 	};
 
 	// Credit functions:
-
-	/*var resetCredit = function(initiator) {
-
-		currentInitiator = initiator;
-
-		document.getElementById("credit-leftp-name").textContent = initiator.name;
-		document.getElementById("credit-leftp-money").value = "0";
-
-	};
-
-	this.credit = function(creditObj) {
-		$("#board").hide();
-		$("#control").hide();
-		$("#trade").hide();
-		$("#credit").hide();
-		$("#kreditaufnehmenbutton").show();
-		$("#kredittilgenbutton").show();
-
-		if (creditObj instanceof Credit) {
-			writeCredit(tradeObj);
-		} else {
-			var initiator = player[turn];
-
-			currentInitiator = initiator;
-
-			resetCredit(initiator);
-		}
-	};
-
-	var readCredit = function() {
-		var initiator = currentInitiator;
-		var money;
-
-		money = parseInt(document.getElementById("credit-leftp-money").value, 10) || 0;
-
-		var credit = new Credit(initiator, money);
-
-		return credit;
-	};
-
-	var writeCredit = function(creditObj) {
-		resetTrade(creditObj.getInitiator(), creditObj.getRecipient(), false);
-
-		if (creditObj.getMoney() > 0) {
-			document.getElementById("trade-leftp-money").value = creditObj.getMoney() + "";
-		} else {
-			document.getElementById("trade-rightp-money").value = (-creditObj.getMoney()) + "";
-		}
-
-	};*/
 
 	this.kreditAufnehmen = function(amount) {
     var initiator = player[turn];
@@ -717,6 +667,8 @@ function Game() {
 			}
 		}
 
+    //TODO: socket list
+
 		pcount--;
 		turn--;
 
@@ -728,11 +680,10 @@ function Game() {
 
 		if (pcount === 1) {
 			updateMoney();
-			/*$("#control").hide();
-			$("#board").hide();
-			$("#refresh").show();
+      SOCKET_LIST[turn].emit('show', '#control, #board', false); //TODO
+      SOCKET_LIST[turn].emit('show', '#refresh', true);
 
-			popup("<p>Congratulations, " + player[1].name + ", you have won the game.</p><div>");*/ //TODO: winner
+			popup("<p>Congratulations, " + player[1].name + ", you have won the game.</p><div>");
 
 		} else {
 			play();
@@ -775,7 +726,8 @@ function Game() {
 
     SOCKET_LIST[turn].emit('eliminatePlayer', HTML);
 
-		//popup(HTML, game.eliminatePlayer);
+		popup(HTML);
+    game.eliminatePlayer(); //TODO
 	};
 
 	this.resign = function() {
@@ -825,12 +777,14 @@ function Game() {
 
 		updateMoney();
 
-		/*if (pcount === 2 || bankruptcyUnmortgageFee === 0 || p.creditor === 0) {
+		if (pcount === 2 || bankruptcyUnmortgageFee === 0 || p.creditor === 0) {
 			game.eliminatePlayer();
 		} else {
 			addAlert(pcredit.name + " paid $" + bankruptcyUnmortgageFee + " interest on the mortgaged properties received from " + p.name + ".");
-			popup("<p>" + pcredit.name + ", you must pay $" + bankruptcyUnmortgageFee + " interest on the mortgaged properties you received from " + p.name + ".</p>", function() {player[pcredit.index].pay(bankruptcyUnmortgageFee, 0); game.bankruptcyUnmortgage();});
-		}*/ //TODO: elimination
+			popup("<p>" + pcredit.name + ", you must pay $" + bankruptcyUnmortgageFee + " interest on the mortgaged properties you received from " + p.name + ".</p>");
+      player[pcredit.index].pay(bankruptcyUnmortgageFee, 0); 
+      game.bankruptcyUnmortgage();
+		} //TODO: elimination
 	};
 
 }
@@ -897,8 +851,6 @@ function Player(name, color) {
 	};
 
 	this.kreditAufnehmen = function (amount) {
-    console.log("Kreditaufnahme", this.sumKredit, amount, this.verfuegbareHypothek);
-    console.log(this.sumKredit + amount < this.verfuegbareHypothek);
 		if (this.sumKredit + amount <= this.verfuegbareHypothek) {
 			this.money += amount;
 			this.sumKredit += amount;
@@ -1060,52 +1012,9 @@ function addAlert(alertText) {
 
 
 function updatePosition() {
-	// Reset borders
-	/*for (var i = 0; i < 12; i++) {
-		document.getElementById("cell" + i).style.border = "1px solid black";
-		document.getElementById("cell" + i + "positionholder").innerHTML = "";
-
-	}*/
-
-	var sq, left, top;
-
-	/*for (var x = 0; x < 12; x++) {
-		sq = square[x];
-		left = 0;
-		top = 0;
-
-		for (var y = turn; y <= pcount; y++) {
-
-			if (player[y].position == x) {
-
-				document.getElementById("cell" + x + "positionholder").innerHTML += "<div class='cell-position' title='" + player[y].name + "' style='background-color: " + player[y].color + "; left: " + left + "px; top: " + top + "px;'></div>";
-				if (left == 36) {
-					left = 0;
-					top = 12;
-				} else
-					left += 12;
-			}
-		}
-
-		for (var y = 1; y < turn; y++) {
-
-			if (player[y].position == x) {
-				document.getElementById("cell" + x + "positionholder").innerHTML += "<div class='cell-position' title='" + player[y].name + "' style='background-color: " + player[y].color + "; left: " + left + "px; top: " + top + "px;'></div>";
-				if (left == 36) {
-					left = 0;
-					top = 12;
-				} else
-					left += 12;
-			}
-		}
-	}*/ //TODO: add marker
-
-	left = 0;
-	top = 53;
-
-	p = player[turn];
-
-	//document.getElementById("cell" + p.position).style.border = "1px solid " + p.color;	
+  for (var i in SOCKET_LIST) {
+    SOCKET_LIST[i].emit("updatePosition", square, turn, player);
+  }
 }
 
 function updateMoney() {
@@ -1141,22 +1050,6 @@ function chanceAction(chanceIndex) {
 	updateMoney();
 }
 
-function addamount(amount, cause) {
-	var p = player[turn];
-
-	p.money += amount;
-
-	addAlert(p.name + " received $" + amount + " from " + cause + ".");
-}
-
-function subtractamount(amount, cause) {
-	var p = player[turn];
-
-	p.pay(amount, 0);
-
-	addAlert(p.name + " lost $" + amount + " from " + cause + ".");
-}
-
 
 function payeachplayer(amount, cause) {
 	var p = player[turn];
@@ -1179,7 +1072,7 @@ function payeachplayer(amount, cause) {
 
 function advance(destination, pass) {
 	var p = player[turn];
-	//TODO
+	
 	if (typeof pass === "number") {
 		if (p.position < pass) {
 			p.position = pass;
@@ -1187,7 +1080,7 @@ function advance(destination, pass) {
 			p.position = pass;
 			p.money -= p.sumKredit * game.zinssatz / 100;
 			meineBank.zinsenLotto += p.sumKredit * game.zinssatz / 100;
-			addAlert(p.name + " collected a $200 salary for passing GO.");
+			addAlert(p.name + " payed interest for passing GO.");
 		}
 	}
 	if (p.position < destination) {
@@ -1196,7 +1089,7 @@ function advance(destination, pass) {
 		p.position = destination;
 		p.money -= p.sumKredit * game.zinssatz / 100;
 		meineBank.zinsenLotto += p.sumKredit * game.zinssatz / 100;
-		addAlert(p.name + " collected a $200 salary for passing GO.");
+		addAlert(p.name + " payed interest for passing GO.");
 	}
 
 	land();
@@ -1253,7 +1146,7 @@ function buyHouse(index) {
   var houseSum = 0;
 
   if (p.money < sq.houseprice) {
-    //popup("<p>You need $" + (sq.houseprice - player[sq.owner].money) + " more to buy a house for " + sq.name + ".</p>"); //TODO
+    popup("<p>You need $" + (sq.houseprice - player[sq.owner].money) + " more to buy a house for " + sq.name + ".</p>");
     return false;
   }
 
@@ -1262,7 +1155,7 @@ function buyHouse(index) {
   }
 
   if (sq.house < 2 && houseSum >= 11) {
-      //popup("<p>All 11 houses are owned. You must wait until one becomes available.</p>"); //TODO
+      popup("<p>All 11 houses are owned. You must wait until one becomes available.</p>");
       return false;
   } 
 
@@ -1273,7 +1166,7 @@ function buyHouse(index) {
     return;
   }
 
-  payeachplayer(sq.houseprice, "buying a house"); //p.pay?
+  payeachplayer(sq.houseprice, "buying a house");
 
   updateOwned();
   updateMoney();
@@ -1369,7 +1262,7 @@ function buy() {
     SOCKET_LIST[turn].emit('show', "#landed", false);
 
 	} else {
-		//popup("<p>" + p.name + ", you need $" + (property.price - p.money) + " more to buy " + property.name + ".</p>"); //TODO
+		popup("<p>" + p.name + ", you need $" + (property.price - p.money) + " more to buy " + property.name + ".</p>");
 	}
 }
 
@@ -1386,8 +1279,8 @@ function mortgage(index) {
 	sq.mortgage = true;
 	p.money += mortgagePrice;
 
-  value = "Unmortgage for $" + mortgagePrice;
-  title = "Unmortgage " + sq.name + " for $" + mortgagePrice + ".";
+  var value = "Unmortgage for $" + mortgagePrice;
+  var title = "Unmortgage " + sq.name + " for $" + mortgagePrice + ".";
 
   SOCKET_LIST[turn].emit('changeButton', "mortgagebutton", value, title);
 
@@ -1468,9 +1361,7 @@ function chanceCommunityChest() {
 	if (p.position === 3 || p.position === 9) {
 		var chanceIndex = chanceCards.deck[chanceCards.index];
 
-		/*popup("<img src='images/chance_icon.png' style='height: 50px; width: 26px; float: left; margin: 8px 8px 8px 0px;' /><div style='font-weight: bold; font-size: 16px; '>Chance:</div><div style='text-align: justify;'>" + chanceCards[chanceIndex].text + "</div>", function() {
-			
-		}); */ //TODO
+		popup("<img src='./client/images/chance_icon.png' style='height: 50px; width: 26px; float: left; margin: 8px 8px 8px 0px;' /><div style='font-weight: bold; font-size: 16px; '>Chance:</div><div style='text-align: justify;'>" + chanceCards[chanceIndex].text + "</div>"); //TODO
 
     chanceAction(chanceIndex);
 
@@ -1532,7 +1423,6 @@ function play() {
 	}
 
   SOCKET_LIST[turn].emit('show', "#nextbutton", true);
-  console.log(turn, "should see the button now")
 
 	var p = player[turn];
 	game.resetDice();
@@ -1585,13 +1475,11 @@ function setup(isKapitalismus, playernumber, nieten) {
 		p = player[i];
 		p.color = colors.shift();
 
-    console.log(player, playerArray)
 
 		p = player[playerArray[i - 1]];
 		
 		//p.name = document.getElementById("player" + i + "name").value; //TODO
 		p.human = true;
-		console.log(p);
 		
 		//Immobilienkarten verteilen
 
@@ -1629,7 +1517,7 @@ function setup(isKapitalismus, playernumber, nieten) {
 
   for(var i in SOCKET_LIST){
     SOCKET_LIST[i].emit('show', "#control, #board, #moneybar", true);
-    SOCKET_LIST[i].emit('show', "#setup", false);
+    SOCKET_LIST[i].emit('show', "#setup, #nextbutton, #resignbutton", false);
   }
 
   
@@ -1644,15 +1532,9 @@ function setup(isKapitalismus, playernumber, nieten) {
 	play();
 }
 
-/*function menuitem_onmouseover(element) {
-	element.className = "menuitem menuitem_hover";
-	return;
+function popup(HTML, option, doMortgage) {
+  SOCKET_LIST[turn].emit('popup', HTML, option, doMortgage);
 }
-
-function menuitem_onmouseout(element) {
-	element.className = "menuitem";
-	return;
-}*/
 
 function loadWindow() {
   game = new Game();
@@ -1703,9 +1585,6 @@ function Card(text, action) {
 	this.action = action;
 }
 
-function corrections() {
-}
-
 function citytax() {
 	addAlert(player[turn].name + " landed on Staat/Finanzamt.");
 	//TODO: ask to buy Vermögensgegenstände
@@ -1725,17 +1604,17 @@ function citytax() {
 var square = [];
 
 square[0] = new Square("Start/Bank", "Wer auf oder über dieses Feld zieht, zahlt Zinsen für alle offenen Kredite.", "yellow");
-square[1] = new Square("Kiesweg 1", "12.000", "yellow", 12000, 36000);
-square[2] = new Square("Kiesweg 2", "14.000", "yellow", 14000, 42000);
+square[1] = new Square("Kiesweg 1", "Miete:12.000", "yellow", 12000, 36000);
+square[2] = new Square("Kiesweg 2", "Miete:14.000", "yellow", 14000, 42000);
 square[3] = new Square("Ereignisfeld", "", "green");
-square[4] = new Square("Alleenring 1", "22.000", "green", 22000, 66000);
-square[5] = new Square("Alleenring 2", "24.000", "green", 24000, 72000);
+square[4] = new Square("Alleenring 1", "Miete:22.000", "green", 22000, 66000);
+square[5] = new Square("Alleenring 2", "Miete:24.000", "green", 24000, 72000);
 square[6] = new Square("Staat/Finanzamt", "Wer auf oder über dieses Feld zieht, zahlt 10% Steuern aufs aktuelle Guthaben. Zieht Gelb auf oder über dieses Feld zahlt der Staat Zinsen auf alle Anleihen.", "yellow");
-square[7] = new Square("Ziegelstraße 1", "16.000", "red", 16000, 48000);
-square[8] = new Square("Ziegelstraße 2", "16.000", "red", 16000, 48000);
+square[7] = new Square("Ziegelstraße 1", "Miete:16.000", "red", 16000, 48000);
+square[8] = new Square("Ziegelstraße 2", "Miete:16.000", "red", 16000, 48000);
 square[9] = new Square("Ereignisfeld", "", "green");
-square[10] = new Square("Nasse Gasse 1", "18.000", "blue", 18000, 54000);
-square[11] = new Square("Nasse Gasse 2", "18.000", "blue", 18000, 54000);
+square[10] = new Square("Nasse Gasse 1", "Miete:18.000", "blue", 18000, 54000);
+square[11] = new Square("Nasse Gasse 2", "Miete:18.000", "blue", 18000, 54000);
 
 var chanceCards = [];
 

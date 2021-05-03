@@ -367,16 +367,6 @@
 	</div>
 
     <script>
-
-        /*var chatText = document.getElementById('chat-text');
-        var chatInput = document.getElementById('chat-input');
-        var chatForm = document.getElementById('chat-form');
-    
-    
-        var playersBox = document.getElementById('playersBox');
-        var botImage = document.getElementById('botImage');
-        var playerImage = document.getElementById('playerImage');
-        var utilText = document.getElementById('utilText');*/
         
         var socket = io();
         var typing = false;
@@ -389,6 +379,8 @@
         start.onclick = function(e){
             //prevent the form from refreshing the page
             e.preventDefault();
+
+            socket.emit("windowload");
            
             var isKapitalismus = document.getElementById('capitalism').value == "Kapitalismus";
             var nieten = document.getElementById("nieten").value;
@@ -1054,14 +1046,11 @@
             $("#setup, #noF5").show();
             $("credit").hide();
 
-            socket.emit("windowload");
-
             //corrections();
 
             // Create event handlers for hovering and draging.
 
             var drag, dragX, dragY, dragObj, dragTop, dragLeft;
-
 
             $("body").on("mousemove", function(e) {
                 var object;
@@ -1199,6 +1188,11 @@
                 currentCellAnchor.id = "cell" + i + "anchor";
                 currentCellAnchor.className = "cell-anchor";
 
+                currentCellColor = currentCellAnchor.appendChild(document.createElement("div"));
+                currentCellColor.id = "cell" + i + "color";
+                currentCellColor.className = "cell-color";
+                currentCellColor.style.backgroundColor = s.color;
+
                 currentCellPositionHolder = currentCellAnchor.appendChild(document.createElement("div"));
                 currentCellPositionHolder.id = "cell" + i + "positionholder";
                 currentCellPositionHolder.className = "cell-position-holder";
@@ -1208,6 +1202,11 @@
                 currentCellName.id = "cell" + i + "name";
                 currentCellName.className = "cell-name";
                 currentCellName.textContent = s.name;
+
+                currentCellPrice = currentCellAnchor.appendChild(document.createElement("div"));
+                currentCellPrice.id = "cell" + i + "price";
+                currentCellPrice.className = "cell-price";
+                currentCellPrice.textContent = s.pricetext;
 
                 if (square[i].groupNumber) {
                     currentCellOwner = currentCellAnchor.appendChild(document.createElement("div"));
@@ -1224,6 +1223,23 @@
             // Add images to enlarges.
             document.getElementById("enlarge0token").innerHTML += '<img src="./client/images/arrow_icon.png" height="40" width="136" alt="" />';
             document.getElementById("enlarge6token").innerHTML += '<img src="./client/images/tax_icon.png" height="60" width="70" alt="" style="position: relative; top: -20px;" />';
+
+            /*$(".cell-position-holder").on("mouseover", function(){
+                $("#" + this.enlargeId).show();
+
+            }).on("mouseout", function() {
+                $("#" + this.enlargeId).hide();
+            }).on("mousemove", function(e) {
+                var element = document.getElementById(this.enlargeId);
+
+                if (e.clientY + 20 > window.innerHeight - 204) {
+                    element.style.top = (window.innerHeight - 204) + "px";
+                } else {
+                    element.style.top = (e.clientY + 20) + "px";
+                }
+
+                element.style.left = (e.clientX + 10) + "px";
+            });*/
         }
 
         function showCreditMenu() {
@@ -1241,6 +1257,65 @@
         function showStats() {
             socket.emit('showstats');
         }
+
+        socket.on('popup', function(HTML, option, mortgage=false) {
+            if (mortgage) {
+                popup(HTML, doMortgage, option);
+            } else {
+                popup(HTML, option);
+            }
+        })
+
+        function doMortgage() {
+            socket.emit("doMortgage", getCheckedProperty());
+        }
+
+        socket.on('updatePosition', function(square, turn, player){
+            // Reset borders
+            for (var i = 0; i < 12; i++) {
+                document.getElementById("cell" + i).style.border = "1px solid black";
+                document.getElementById("cell" + i + "positionholder").innerHTML = "";
+
+            }
+
+            var sq, left, top;
+
+            for (var x = 0; x < 12; x++) {
+                sq = square[x];
+                left = 0;
+                top = 0;
+
+                for (var y = turn; y <= pcount; y++) {
+
+                    if (player[y].position == x) {
+
+                        document.getElementById("cell" + x + "positionholder").innerHTML += "<div class='cell-position' title='" + player[y].name + "' style='background-color: " + player[y].color + "; left: " + left + "px; top: " + top + "px;'></div>";
+                        if (left == 36) {
+                            left = 0;
+                            top = 12;
+                        } else
+                            left += 12;
+                    }
+                }
+
+                for (var y = 1; y < turn; y++) {
+
+                    if (player[y].position == x) {
+                        document.getElementById("cell" + x + "positionholder").innerHTML += "<div class='cell-position' title='" + player[y].name + "' style='background-color: " + player[y].color + "; left: " + left + "px; top: " + top + "px;'></div>";
+                        if (left == 36) {
+                            left = 0;
+                            top = 12;
+                        } else
+                            left += 12;
+                    }
+                }
+            }
+
+            var p = player[turn];
+
+            document.getElementById("cell" + p.position).style.border = "1px solid " + p.color;	
+
+        });
 
         function popup(HTML, action, option) {
             document.getElementById("popuptext").innerHTML = HTML;
@@ -1300,7 +1375,15 @@
             socket.emit('showdeed', property)
         }
     
-        
+        function menuitem_onmouseover(element) {
+            element.className = "menuitem menuitem_hover";
+            return;
+        }
+
+        function menuitem_onmouseout(element) {
+            element.className = "menuitem";
+            return;
+        }
     </script>
 
 </body>
