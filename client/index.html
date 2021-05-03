@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<title>Monopoly</title>
+	<title>Geldmaschine</title>
 	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -263,10 +263,10 @@
 
 									<a href="javascript:void(0);" title="View, and improve your property. ">Manage</a>
 								</td>
-								<!--<td class="menu-item" id="trade-menu-item">
+								<td class="menu-item" id="trade-menu-item">
 
 									<a href="javascript:void(0);" title="Exchange property with other players.">Trade</a>
-								</td>-->
+								</td>
 								<td class="menu-item" id="credit-menu-item">
 
 									<a href="javascript:void(0);" title="Kredit aufnehmen oder tilgen.">Credit</a>
@@ -311,7 +311,7 @@
 		</table>
 	</div>
 
-	<!--<div id="trade">
+	<div id="trade">
 		<table style="border-spacing: 3px;">
 			<tr>
 				<td class="trade-cell">
@@ -335,14 +335,14 @@
 			</tr>
 			<tr>
 				<td colspan="2" class="trade-cell">
-					<input type="button" id="proposetradebutton" value="Propose Trade" onclick="game.proposeTrade();" title="Exchange the money and properties that are checked above." />
-					<input type="button" id="canceltradebutton" value="Cancel Trade" onclick='game.cancelTrade();' title="Cancel the trade." />
-					<input type="button" id="accepttradebutton" value="Accept Trade" onclick="game.acceptTrade();" title="Accept the proposed trade." />
-					<input type="button" id="rejecttradebutton" value="Reject Trade" onclick='game.cancelTrade();' title="Reject the proposed trade." />
+					<input type="button" id="proposetradebutton" value="Propose Trade" onclick="proposeTrade();" title="Exchange the money and properties that are checked above." />
+					<input type="button" id="canceltradebutton" value="Cancel Trade" onclick='cancelTrade();' title="Cancel the trade." />
+					<input type="button" id="accepttradebutton" value="Accept Trade" onclick="acceptTrade();" title="Accept the proposed trade." />
+					<input type="button" id="rejecttradebutton" value="Reject Trade" onclick='cancelTrade();' title="Reject the proposed trade." />
 				</td>
 			</tr>
 		</table>
-	</div>-->
+	</div>
 
 	<div id="credit">
 		<table style="border-spacing: 3px;">
@@ -498,7 +498,419 @@
             socket.emit('sellhouse', getCheckedProperty());
         }
 
+        var currentInitiator;
+	    var currentRecipient;
 
+        var tradeObj;
+
+        socket.on('tradeObj', function(data) {
+            tradeObj = data;
+        });
+        
+
+        function readTrade() {
+            var initiator = currentInitiator;
+            var recipient = currentRecipient;
+            var property = new Array(12);
+            var money;
+
+            for (var i = 0; i < 12; i++) {
+
+                if (document.getElementById("tradeleftcheckbox" + i) && document.getElementById("tradeleftcheckbox" + i).checked) {
+                    property[i] = 1;
+                } else if (document.getElementById("traderightcheckbox" + i) && document.getElementById("traderightcheckbox" + i).checked) {
+                    property[i] = -1;
+                } else {
+                    property[i] = 0;
+                }
+            }
+
+            money = parseInt(document.getElementById("trade-leftp-money").value, 10) || 0;
+            money -= parseInt(document.getElementById("trade-rightp-money").value, 10) || 0;
+            
+            socket.emit('newTrade', initiator, recipient, money, property);
+        };
+
+        function writeTrade(tradeObj) {
+            resetTrade(tradeObj.initiator, tradeObj.recipient, false);
+
+            for (var i = 0; i < 12; i++) {
+
+                if (document.getElementById("tradeleftcheckbox" + i)) {
+                    document.getElementById("tradeleftcheckbox" + i).checked = false;
+                    if (tradeObj.property[i] === 1) {
+                        document.getElementById("tradeleftcheckbox" + i).checked = true;
+                    }
+                }
+
+                if (document.getElementById("traderightcheckbox" + i)) {
+                    document.getElementById("traderightcheckbox" + i).checked = false;
+                    if (tradeObj.property[i]=== -1) {
+                        document.getElementById("traderightcheckbox" + i).checked = true;
+                    }
+                }
+            }
+
+            if (tradeObj.money > 0) {
+                document.getElementById("trade-leftp-money").value = tradeObj.money + "";
+            } else {
+                document.getElementById("trade-rightp-money").value = (-tradeObj.money) + "";
+            }
+
+        };
+
+        function proposeTrade() {
+            if (isNaN(document.getElementById("trade-leftp-money").value)) {
+                document.getElementById("trade-leftp-money").value = "This value must be a number.";
+                document.getElementById("trade-leftp-money").style.color = "red";
+                return false;
+            }
+
+            if (isNaN(document.getElementById("trade-rightp-money").value)) {
+                document.getElementById("trade-rightp-money").value = "This value must be a number.";
+                document.getElementById("trade-rightp-money").style.color = "red";
+                return false;
+            }
+
+            readTrade();
+
+            setTimeout(() => { finishProposeTrade();}, 100);
+
+        }
+
+        function finishProposeTrade() {
+            var money = tradeObj.money;
+            var initiator = tradeObj.initiator;
+            var recipient = tradeObj.recipient;
+            var reversedTradeProperty = [];
+
+            if (money > 0 && money > initiator.money) {
+                document.getElementById("trade-leftp-money").value = initiator.name + " does not have $" + money + ".";
+                document.getElementById("trade-leftp-money").style.color = "red";
+                return false;
+            } else if (money < 0 && -money > recipient.money) {
+                document.getElementById("trade-rightp-money").value = recipient.name + " does not have $" + (-money) + ".";
+                document.getElementById("trade-rightp-money").style.color = "red";
+                return false;
+            }
+
+            var isAPropertySelected = 0;
+
+            // Ensure that some properties are selected.
+            for (var i = 0; i < 12; i++) {
+                reversedTradeProperty[i] = -tradeObj.property[i];
+                isAPropertySelected |= tradeObj.property[i];
+            }
+
+            /*if (isAPropertySelected === 0) {
+                popup("<p>One or more properties must be selected in order to trade.</p>");
+
+                return false;
+            }*/
+
+            if (!confirm(initiator.name + ", are you sure you want to make this offer to " + recipient.name + "?")) {
+                return false;
+            }
+
+            socket.emit('newTrade', recipient, initiator, -money, reversedTradeProperty);
+            socket.emit('sendOffer');
+
+            cancelTrade();
+        };
+
+        socket.on('receiveOffer', function(tradeObj) {
+            initiator = tradeObj.initiator;
+            recipient = tradeObj.recipient;
+            
+            showTradeMenu();
+            setTimeout(() => { writeTrade(tradeObj); }, 100);
+            
+            $("#proposetradebutton").hide();
+            $("#canceltradebutton").hide();
+            $("#accepttradebutton").show();
+            $("#rejecttradebutton").show();
+
+            addAlert(initiator.name + " initiated a trade with " + recipient.name + ".");
+            popup("<p>" + initiator.name + " has proposed a trade with you, " + recipient.name + ". You may accept, reject, or modify the offer.</p>");
+            
+        });
+
+        function cancelTrade() {
+            $("#board").show();
+            $("#control").show();
+            $("#trade").hide();
+            $("#credit").hide();
+        };
+        function acceptTrade() {
+            if (isNaN(document.getElementById("trade-leftp-money").value)) {
+                document.getElementById("trade-leftp-money").value = "This value must be a number.";
+                document.getElementById("trade-leftp-money").style.color = "red";
+                return false;
+            }
+
+            if (isNaN(document.getElementById("trade-rightp-money").value)) {
+                document.getElementById("trade-rightp-money").value = "This value must be a number.";
+                document.getElementById("trade-rightp-money").style.color = "red";
+                return false;
+            }
+
+            var showAlerts = true;
+
+            if (tradeObj) {
+                showAlerts = false;
+            } else {
+                readTrade();
+            }
+
+            setTimeout(() => { finishAcceptTrade(showAlerts);}, 100);
+        }
+
+        function finishAcceptTrade(showAlerts) {
+            var money;
+            var initiator;
+            var recipient;
+
+            money = tradeObj.money;
+            initiator = tradeObj.initiator;
+            recipient = tradeObj.recipient;
+
+
+            if (money > 0 && money > initiator.money) {
+                document.getElementById("trade-leftp-money").value = initiator.name + " does not have $" + money + ".";
+                document.getElementById("trade-leftp-money").style.color = "red";
+                return false;
+            } else if (money < 0 && -money > recipient.money) {
+                document.getElementById("trade-rightp-money").value = recipient.name + " does not have $" + (-money) + ".";
+                document.getElementById("trade-rightp-money").style.color = "red";
+                return false;
+            }
+
+            var isAPropertySelected = 0;
+
+            // Ensure that some properties are selected.
+            for (var i = 0; i < 12; i++) {
+                isAPropertySelected |= tradeObj.property[i];
+            }
+
+            if (isAPropertySelected === 0) {
+                popup("<p>One or more properties must be selected in order to trade.</p>");
+
+                return false;
+            }
+
+            if (showAlerts && !confirm(initiator.name + ", are you sure you want to make this exchange with " + recipient.name + "?")) {
+                return false;
+            }
+
+            // Exchange properties
+            for (var i = 0; i < 12; i++) {
+
+                if (tradeObj.property[i] === 1) {
+                    socket.emit('changeOwner', i, recipient.index);
+                    addAlert(recipient.name + " received " + square[i].name + " from " + initiator.name + ".");
+                } else if (tradeObj.property[i] === -1) {
+                    socket.emit('changeOwner', i, initiator.index);
+                    addAlert(initiator.name + " received " + square[i].name + " from " + recipient.name + ".");
+                }
+
+            }
+
+            // Exchange money.
+            if (money > 0) {
+                socket.emit('pay', initiator, recipient, money);
+
+                addAlert(recipient.name + " received $" + money + " from " + initiator.name + ".");
+            } else if (money < 0) {
+                socket.emit('pay', recipient, initiator, -money);
+
+                addAlert(initiator.name + " received $" + (-money) + " from " + recipient.name + ".");
+            }
+
+            socket.emit('updateOwned');
+            socket.emit('updateMoney');
+
+            $("#board").show();
+            $("#control").show();
+            $("#trade").hide();
+            $("#credit").hide();
+        };
+
+        var square;
+        socket.on('updateSquare', function(msquare) {
+            square = msquare;
+        });
+
+        var player;
+        socket.on('updatePlayer', function(mplayer) {
+            player = mplayer;
+        });
+
+        //square, player
+        function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
+            var currentSquare;
+            var currentTableRow;
+            var currentTableCell;
+            var currentTableCellCheckbox;
+            var nameSelect;
+            var currentOption;
+            var currentName;
+
+            var tableRowOnClick = function(e) {
+                var checkboxElement = this.firstChild.firstChild;
+
+                if (checkboxElement !== e.srcElement) {
+                    checkboxElement.checked = !checkboxElement.checked;
+                }
+
+                $("#proposetradebutton").show();
+                $("#canceltradebutton").show();
+                $("#accepttradebutton").hide();
+                $("#rejecttradebutton").hide();
+            };
+
+            var initiatorProperty = document.getElementById("trade-leftp-property");
+            var recipientProperty = document.getElementById("trade-rightp-property");
+
+            currentInitiator = initiator;
+            currentRecipient = recipient;
+
+            // Empty elements.
+            while (initiatorProperty.lastChild) {
+                initiatorProperty.removeChild(initiatorProperty.lastChild);
+            }
+
+            while (recipientProperty.lastChild) {
+                recipientProperty.removeChild(recipientProperty.lastChild);
+            }
+
+            var initiatorSideTable = document.createElement("table");
+            var recipientSideTable = document.createElement("table");
+
+            for (var i = 0; i < 12; i++) {
+                currentSquare = square[i];
+
+                // Offered properties.
+                if (currentSquare.owner === initiator.index) {
+                    currentTableRow = initiatorSideTable.appendChild(document.createElement("tr"));
+                    currentTableRow.onclick = tableRowOnClick;
+
+                    currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+                    currentTableCell.className = "propertycellcheckbox";
+                    currentTableCellCheckbox = currentTableCell.appendChild(document.createElement("input"));
+                    currentTableCellCheckbox.type = "checkbox";
+                    currentTableCellCheckbox.id = "tradeleftcheckbox" + i;
+                    currentTableCellCheckbox.title = "Check this box to include " + currentSquare.name + " in the trade.";
+
+                    currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+                    currentTableCell.className = "propertycellcolor";
+                    currentTableCell.style.backgroundColor = currentSquare.color;
+
+                    if (currentSquare.groupNumber == 1 || currentSquare.groupNumber == 2) {
+                        currentTableCell.style.borderColor = "grey";
+                    } else {
+                        currentTableCell.style.borderColor = currentSquare.color;
+                    }
+
+                    currentTableCell.propertyIndex = i;
+                    currentTableCell.onmouseover = function() {showdeed(this.propertyIndex);};
+                    currentTableCell.onmouseout = hidedeed;
+
+                    currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+                    currentTableCell.className = "propertycellname";
+                    if (currentSquare.mortgage) {
+                        currentTableCell.title = "Mortgaged";
+                        currentTableCell.style.color = "grey";
+                    }
+                    currentTableCell.textContent = currentSquare.name;
+
+                // Requested properties.
+                } else if (currentSquare.owner === recipient.index) {
+                    currentTableRow = recipientSideTable.appendChild(document.createElement("tr"));
+                    currentTableRow.onclick = tableRowOnClick;
+
+                    currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+                    currentTableCell.className = "propertycellcheckbox";
+                    currentTableCellCheckbox = currentTableCell.appendChild(document.createElement("input"));
+                    currentTableCellCheckbox.type = "checkbox";
+                    currentTableCellCheckbox.id = "traderightcheckbox" + i;
+                    currentTableCellCheckbox.title = "Check this box to include " + currentSquare.name + " in the trade.";
+
+                    currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+                    currentTableCell.className = "propertycellcolor";
+                    currentTableCell.style.backgroundColor = currentSquare.color;
+
+                    if (currentSquare.groupNumber == 1 || currentSquare.groupNumber == 2) {
+                        currentTableCell.style.borderColor = "grey";
+                    } else {
+                        currentTableCell.style.borderColor = currentSquare.color;
+                    }
+
+                    currentTableCell.propertyIndex = i;
+                    currentTableCell.onmouseover = function() {showdeed(this.propertyIndex);};
+                    currentTableCell.onmouseout = hidedeed;
+
+                    currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+                    currentTableCell.className = "propertycellname";
+                    if (currentSquare.mortgage) {
+                        currentTableCell.title = "Mortgaged";
+                        currentTableCell.style.color = "grey";
+                    }
+                    currentTableCell.textContent = currentSquare.name;
+                }
+            }
+
+            if (initiatorSideTable.lastChild) {
+                initiatorProperty.appendChild(initiatorSideTable);
+            } else {
+                initiatorProperty.textContent = initiator.name + " has no properties to trade.";
+            }
+
+            if (recipientSideTable.lastChild) {
+                recipientProperty.appendChild(recipientSideTable);
+            } else {
+                recipientProperty.textContent = recipient.name + " has no properties to trade.";
+            }
+
+            document.getElementById("trade-leftp-name").textContent = initiator.name;
+
+            currentName = document.getElementById("trade-rightp-name");
+
+            if (allowRecipientToBeChanged && pcount > 2) {
+                // Empty element.
+                while (currentName.lastChild) {
+                    currentName.removeChild(currentName.lastChild);
+                }
+
+                nameSelect = currentName.appendChild(document.createElement("select"));
+                for (var i = 1; i <= pcount; i++) {
+                    if (i === initiator.index) {
+                        continue;
+                    }
+
+                    currentOption = nameSelect.appendChild(document.createElement("option"));
+                    currentOption.value = i + "";
+                    currentOption.style.color = player[i].color;
+                    currentOption.textContent = player[i].name;
+
+                    if (i === recipient.index) {
+                        currentOption.selected = "selected";
+                    }
+                }
+
+                nameSelect.onchange = function() {
+                    resetTrade(currentInitiator, player[parseInt(this.value, 10)], true);
+                };
+
+                nameSelect.title = "Select a player to trade with.";
+            } else {
+                currentName.textContent = recipient.name;
+            }
+
+            document.getElementById("trade-leftp-money").value = "0";
+            document.getElementById("trade-rightp-money").value = "0";
+
+        };
+        
         //TODO: trade
 
         /*var proposetrade = document.getElementById('proposetradebutton');
@@ -523,14 +935,7 @@
             trade.value = "0";
         }*/
         
-        //add a chat cell to our chat list view, and scroll to the bottom
-        /*socket.on('addToChat',function(data){
-                  
-            console.log('got a chat message');
-            chatText.innerHTML += '<div class="chatCell">' + data + '</div>';
-            chatText.scrollTop = chatText.scrollHeight;
-                  
-        });*/
+        
         
         socket.on('setPlayerId',function(data){
                   
@@ -556,6 +961,15 @@
             // Animate scrolling down alert element.
             $alert.stop().animate({"scrollTop": $alert.prop("scrollHeight")}, 1000);
         })
+
+        function addAlert(alertText) {
+            $alert = $("#alert");
+
+            $(document.createElement("div")).text(alertText).appendTo($alert);
+
+            // Animate scrolling down alert element.
+            $alert.stop().animate({"scrollTop": $alert.prop("scrollHeight")}, 1000);
+        }
 
         socket.on('eliminatePlayer', function(HTML, action) {
             document.getElementById("popuptext").innerHTML = HTML;
@@ -1146,7 +1560,7 @@
             });
 
 
-            //$("#trade-menu-item").click(game.trade); /TODO
+            $("#trade-menu-item").on("click", showTradeMenu); //TODO
 
             $("#credit-menu-item").on("click", showCreditMenu);
 
@@ -1223,23 +1637,6 @@
             // Add images to enlarges.
             document.getElementById("enlarge0token").innerHTML += '<img src="./client/images/arrow_icon.png" height="40" width="136" alt="" />';
             document.getElementById("enlarge6token").innerHTML += '<img src="./client/images/tax_icon.png" height="60" width="70" alt="" style="position: relative; top: -20px;" />';
-
-            /*$(".cell-position-holder").on("mouseover", function(){
-                $("#" + this.enlargeId).show();
-
-            }).on("mouseout", function() {
-                $("#" + this.enlargeId).hide();
-            }).on("mousemove", function(e) {
-                var element = document.getElementById(this.enlargeId);
-
-                if (e.clientY + 20 > window.innerHeight - 204) {
-                    element.style.top = (window.innerHeight - 204) + "px";
-                } else {
-                    element.style.top = (e.clientY + 20) + "px";
-                }
-
-                element.style.left = (e.clientX + 10) + "px";
-            });*/
         }
 
         function showCreditMenu() {
@@ -1252,6 +1649,32 @@
 
             document.getElementById("credit-leftp-name").textContent = initiator.name;
 		    document.getElementById("credit-leftp-money").value = "0";
+        }
+
+        function showTradeMenu() {
+            $("#board").hide();
+            $("#control").hide();
+            $("#trade").show();
+            //$("#credit").show();
+            $("#proposetradebutton").show();
+            $("#canceltradebutton").show();
+            $("#accepttradebutton").hide();
+            $("#rejecttradebutton").hide();
+
+            socket.emit('updateSquare');
+            socket.emit('updatePlayer');
+            setTimeout(() => { finishTradeMenu();}, 100);
+        };
+
+        function finishTradeMenu() {
+
+            var initiator = player[playerId];
+            var recipient = playerId === 1 ? player[2] : player[1];
+
+            currentInitiator = initiator;
+            currentRecipient = recipient;
+
+            resetTrade(initiator, recipient, true);
         }
 
         function showStats() {
