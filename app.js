@@ -27,23 +27,15 @@ io.sockets.on('connection', function(socket){
 
   var playerId = playerNo++;
   SOCKET_LIST[playerId] = socket;
-  remote_players[playerId] = {id:playerId, score:0, move:null}
   //inform client of player's id
   socket.emit('setPlayerId', playerId);
 
-  /*socket.on('playerMove',function(data){
-    Object.keys(SOCKET_LIST).forEach(function eachKey(key) {
-      if(SOCKET_LIST[key] == socket){
-        console.log('player selected: ' + data);
-        var thisPlayer = remote_players[key];
-        thisPlayer.move = data;
-      }
-    });
-      
-  });*/
+  for(var i in SOCKET_LIST){
+    SOCKET_LIST[i].emit('playerno', playerNo-1);
+  }
 
-  socket.on('setup',function(isKapitalismus){
-    setup(isKapitalismus);         
+  socket.on('setup',function(isKapitalismus, pnumber, nieten){
+    setup(isKapitalismus, pnumber, nieten);         
   });
 
   socket.on('next',function(){
@@ -54,102 +46,83 @@ io.sockets.on('connection', function(socket){
     game.resign();        
   });
 
-  socket.on('buyhouse',function(){
-    buyHouse();        
+  socket.on('buyhouse',function(checkedProperty){
+    buyHouse(checkedProperty);        
   });
 
   socket.on('mortgage',function(){
-    mortgage();        
+
+    var s = square[checkedProperty];
+
+    if (s.mortgage) {
+        if (player[s.owner].money < s.houseprice) {
+            //popup("<p>You need $" + (s.price - player[s.owner].money) + " more to unmortgage " + s.name + ".</p>");
+
+        } else {
+            /*popup("<p>" + player[s.owner].name + ", are you sure you want to unmortgage " + s.name + " for $" + s.price + "?</p>", function() {
+                unmortgage(checkedProperty);
+            }, "Yes/No");*/
+            unmortgage(checkedProperty);
+        }
+    } else {
+        /*popup("<p>" + player[s.owner].name + ", are you sure you want to mortgage " + s.name + " for $" + s.price + "?</p>", function() {
+            socket.emit('mortgage', checkedProperty);
+        }, "Yes/No");*/
+        mortgage(checkedProperty);        
+    } 
   });
 
-  socket.on('sellhouse',function(){
-    sellHouse();        
+  socket.on('sellhouse',function(checkedProperty){
+    sellHouse(checkedProperty);        
   });
 
   socket.on('kreditaufnehmen',function(data){
-    game.kreditAufnehmen(data);        
+    game.kreditAufnehmen(parseInt(data));        
   });
 
   socket.on('kredittilgen',function(data){
-    game.kreditTilgen(data);        
+    game.kreditTilgen(parseInt(data));        
   });
 
-  socket.on('eliminate',function(data){
+  socket.on('eliminate',function(){
     game.eliminatePlayer();        
   });
 
   socket.on('updateOption',function(){
     updateOption();        
   });
-        
-  /*socket.on('sendMsgToServer',function(data){
-  
-    console.log('someone sent a message!');
-    for(var i in SOCKET_LIST){
-      SOCKET_LIST[i].emit('addToChat', data);
-  
-    }
-    
-  });*/
+
+  socket.on('showstats', function() {
+    showStats();
+  });
+
+  socket.on('windowload', loadWindow); 
+
+  socket.on('setName', function(name) {
+    Object.keys(SOCKET_LIST).forEach(function eachKey(key) {
+      if(SOCKET_LIST[key] == socket){
+        var thisPlayer = player[key];
+        thisPlayer.name = name;
+      }
+    });
+    console.log(player)
+  });
+
+  socket.on('showdeed', function(property) {
+    showdeed(property);
+  })
 
   socket.on('disconnect',function(){
               
     delete SOCKET_LIST[socket.id];
 		
 	});
+
+  socket.on('buy', buy);
 	
 });
 
 server.listen(4141);
-/*
-//0 is selection, 1 is results
-var gameState = 0;
-//the ai's move selection
-var botSelection = 0;
-function selectMove () {
-    //generate a random number 0, 1, or 2 to decide what move to make for the AI
-    var botSelection = Math.floor(Math.random() * Math.floor(3));
-    //game is in result state
-    gameState = 1;
-    //send the ai's move to all connected remote_players
-    for(var i in remote_players){
-        var playerWin = playerWinCheck(remote_players[i].move);
-        if(playerWin){
-            remote_players[i].score += 1;
-        }
-        SOCKET_LIST[i].emit('gameResultState', botSelection, playerWin, remote_players);
-    }
-}*/
-/*
-function playerWinCheck (move){
-    var playerWins = false;
-    //player chose rock
-    if(move == 0){
-    //rock beats scissors
-      if(botSelection == 2){
-        playerWins = true;
-        }
-    }
-    //player chose paper
-    if(move == 1){
-    //paper beats rock
-      if(botSelection == 0){
-        playerWins = true;
-        }
-    }
-    //player chose scissors
-    if(move == 2){
-        //scissors beats paper
-      if(botSelection == 1){
-        playerWins = true;
-        }
-    }
-    return playerWins;
-}
-setInterval(function(){
-            //select a move every 3 seconds
-            selectMove();
-            }, 3000);*/
 
 
 //Start: Old code monopoly.js
@@ -237,7 +210,8 @@ function Game() {
 	};*/
 
 	this.kreditAufnehmen = function(amount) {
-
+    var initiator = player[turn];
+    initiator.update();
 		/*var creditObj = readCredit();
 		var money = creditObj.getMoney();
 		var initiator = player[turn];
@@ -257,7 +231,7 @@ function Game() {
 	}
 
 	this.kreditTilgen = function(amount) {
-
+    var initiator = player[turn];
 		/*var creditObj = readCredit();
 		var money = creditObj.getMoney();
 		var initiator = player[turn];
@@ -923,6 +897,8 @@ function Player(name, color) {
 	};
 
 	this.kreditAufnehmen = function (amount) {
+    console.log("Kreditaufnahme", this.sumKredit, amount, this.verfuegbareHypothek);
+    console.log(this.sumKredit + amount < this.verfuegbareHypothek);
 		if (this.sumKredit + amount <= this.verfuegbareHypothek) {
 			this.money += amount;
 			this.sumKredit += amount;
@@ -1077,7 +1053,7 @@ Array.prototype.randomize = function(length) {
 };
 
 function addAlert(alertText) {
-	for(var i in remote_players){
+	for(var i in SOCKET_LIST){
     SOCKET_LIST[i].emit('addAlert', alertText);
   }
 }
@@ -1133,28 +1109,28 @@ function updatePosition() {
 }
 
 function updateMoney() {
-  for(var i in remote_players){
+  for(var i in SOCKET_LIST){
     SOCKET_LIST[i].emit('updateMoney', player, turn, meineBank, meinStaat);
   }
 }
 
 function updateDice() {
 	var die0 = game.getDie();
-  for(var i in remote_players){
+  for(var i in SOCKET_LIST){
     SOCKET_LIST[i].emit('updateDice', die0);
   }
 }
 
 function updateOwned() {
-	var checkedproperty = getCheckedProperty();
-  SOCKET_LIST[i].emit('updateOwned', player, checkedproperty, square);
+  for(var i in SOCKET_LIST){
+    SOCKET_LIST[i].emit('updateOwned', player, square);
+  }
+  
   updateOption();
 }
 
 function updateOption() {
-  var checkedproperty = getCheckedProperty();
-  var sq = square[checkedproperty];
-  SOCKET_LIST[turn].emit('updateOption', checkedproperty, sq);
+  SOCKET_LIST[turn].emit('updateOption', square);
 }
 
 function chanceAction(chanceIndex) {
@@ -1270,30 +1246,38 @@ function receiveBankguthaben() {
 }
 
 function buyHouse(index) {
+
 	var sq = square[index];
 	var p = player[sq.owner];
 
-	if (p.money - sq.houseprice < 0) {
-		if (sq.house == 4) {
-			return false;
-		} else {
-			return false;
-		}
+  var houseSum = 0;
 
-	} else {
+  if (p.money < sq.houseprice) {
+    //popup("<p>You need $" + (sq.houseprice - player[sq.owner].money) + " more to buy a house for " + sq.name + ".</p>"); //TODO
+    return false;
+  }
 
-		if (sq.house < 1) {
-			sq.house++;
-			addAlert(p.name + " placed a house on " + sq.name + ".");
-		} else {
-			return;
-		}
+  for (var i = 0; i < 12; i++) {
+      houseSum += square[i].house;
+  }
 
-		payeachplayer(sq.houseprice, "buying a house"); //p.pay?
+  if (sq.house < 2 && houseSum >= 11) {
+      //popup("<p>All 11 houses are owned. You must wait until one becomes available.</p>"); //TODO
+      return false;
+  } 
 
-		updateOwned();
-		updateMoney();
-	}
+  if (sq.house < 1) {
+    sq.house++;
+    addAlert(p.name + " placed a house on " + sq.name + ".");
+  } else {
+    return;
+  }
+
+  payeachplayer(sq.houseprice, "buying a house"); //p.pay?
+
+  updateOwned();
+  updateMoney();
+	
 }
 
 function sellHouse(index) {
@@ -1340,7 +1324,7 @@ function showStats() {
 				}
 
 				if (sq.house > 0) {
-					housetext += "<span style='float: right; font-weight: bold;'>" + sq.house + "&nbsp;x&nbsp;<img src='images/house.png' alt='' title='House' class='house' style='float: none;' /></span>";
+					housetext += "<span style='float: right; font-weight: bold;'>" + sq.house + "&nbsp;x&nbsp;<img src='./client/images/house.png' alt='' title='House' class='house' style='float: none;' /></span>";
 				}
 
 				HTML += "<tr><td class='statscellcolor' style='background: " + sq.color + ";";
@@ -1366,10 +1350,6 @@ function showdeed(property) {
 
 	var sq = square[property];
   SOCKET_LIST[turn].emit('showdeed', sq);
-}
-
-function hidedeed() {
-	SOCKET_LIST[turn].emit('hidedeed');
 }
 
 function buy() {
@@ -1488,9 +1468,11 @@ function chanceCommunityChest() {
 	if (p.position === 3 || p.position === 9) {
 		var chanceIndex = chanceCards.deck[chanceCards.index];
 
-		popup("<img src='images/chance_icon.png' style='height: 50px; width: 26px; float: left; margin: 8px 8px 8px 0px;' /><div style='font-weight: bold; font-size: 16px; '>Chance:</div><div style='text-align: justify;'>" + chanceCards[chanceIndex].text + "</div>", function() {
-			chanceAction(chanceIndex);
-		});
+		/*popup("<img src='images/chance_icon.png' style='height: 50px; width: 26px; float: left; margin: 8px 8px 8px 0px;' /><div style='font-weight: bold; font-size: 16px; '>Chance:</div><div style='text-align: justify;'>" + chanceCards[chanceIndex].text + "</div>", function() {
+			
+		}); */ //TODO
+
+    chanceAction(chanceIndex);
 
 		chanceCards.index++;
 
@@ -1542,12 +1524,15 @@ function roll() {
 	land();
 }
 
-function play() {
+function play() {  
 
 	turn++;
 	if (turn > pcount) {
 		turn -= pcount;
 	}
+
+  SOCKET_LIST[turn].emit('show', "#nextbutton", true);
+  console.log(turn, "should see the button now")
 
 	var p = player[turn];
 	game.resetDice();
@@ -1577,7 +1562,7 @@ function play() {
 }
 
 function setup(isKapitalismus, playernumber, nieten) {
-	pcount = parseInt(document.getElementById("playernumber").value, 10);
+	pcount = playernumber;
 
 	var playerArray = new Array(pcount);
 	var p;
@@ -1587,12 +1572,8 @@ function setup(isKapitalismus, playernumber, nieten) {
 	var colors = ["yellow", "red", "beige", "purple", "orange", "violet"]
 
 	var properties = new Array(1,2,4,5,7,8,10,11);
-
-	var nieten = 0;
 	
 	if (isKapitalismus) {
-		nieten = document.getElementById("nieten").value;
-
 		for (i = 0; i < nieten; i++) {
 			properties.push(-1);
 		}
@@ -1604,11 +1585,13 @@ function setup(isKapitalismus, playernumber, nieten) {
 		p = player[i];
 		p.color = colors.shift();
 
+    console.log(player, playerArray)
+
 		p = player[playerArray[i - 1]];
 		
-		p.name = document.getElementById("player" + i + "name").value; //TODO
+		//p.name = document.getElementById("player" + i + "name").value; //TODO
 		p.human = true;
-		
+		console.log(p);
 		
 		//Immobilienkarten verteilen
 
@@ -1645,7 +1628,7 @@ function setup(isKapitalismus, playernumber, nieten) {
 	}
 
   for(var i in SOCKET_LIST){
-    SOCKET_LIST[i].emit('show', "#board, #moneybar", true);
+    SOCKET_LIST[i].emit('show', "#control, #board, #moneybar", true);
     SOCKET_LIST[i].emit('show', "#setup", false);
   }
 
@@ -1661,15 +1644,6 @@ function setup(isKapitalismus, playernumber, nieten) {
 	play();
 }
 
-function getCheckedProperty() {
-	for (var i = 0; i < 12; i++) {
-		if (document.getElementById("propertycheckbox" + i) && document.getElementById("propertycheckbox" + i).checked) {
-			return i;
-		}
-	}
-	return -1; // No property is checked.
-}
-
 /*function menuitem_onmouseover(element) {
 	element.className = "menuitem menuitem_hover";
 	return;
@@ -1680,8 +1654,8 @@ function menuitem_onmouseout(element) {
 	return;
 }*/
 
-window.onload = function() {
-	game = new Game();
+function loadWindow() {
+  game = new Game();
 
 	for (var i = 0; i <= 6; i++) {
 		player[i] = new Player("", "");
@@ -1702,237 +1676,10 @@ window.onload = function() {
 	// Shuffle Chance and Community Chest decks.
 	chanceCards.deck.sort(function() {return Math.random() - 0.5;});
 
-	$("#playernumber").on("change", playernumber_onchange);
-	playernumber_onchange();
-
-	$("#capitalism").on("change", capitalism_onchange);
-	capitalism_onchange();
-
-	$("#nextbutton").click(game.next);
-	$("#noscript").hide();
-	$("#setup, #noF5").show();
-
-	var enlargeWrap = document.body.appendChild(document.createElement("div"));
-
-	enlargeWrap.id = "enlarge-wrap";
-
-	var HTML = "";
-	for (var i = 0; i < 12; i++) {
-		HTML += "<div id='enlarge" + i + "' class='enlarge'>";
-		HTML += "<div id='enlarge" + i + "color' class='enlarge-color'></div><br /><div id='enlarge" + i + "name' class='enlarge-name'></div>";
-		HTML += "<br /><div id='enlarge" + i + "price' class='enlarge-price'></div>";
-		HTML += "<br /><div id='enlarge" + i + "token' class='enlarge-token'></div></div>";
-	}
-
-	enlargeWrap.innerHTML = HTML;
-
-	var currentCell;
-	var currentCellAnchor;
-	var currentCellPositionHolder;
-	var currentCellName;
-	var currentCellOwner;
-
-	for (var i = 0; i < 12; i++) {
-		s = square[i];
-
-		currentCell = document.getElementById("cell" + i);
-
-		currentCellAnchor = currentCell.appendChild(document.createElement("div"));
-		currentCellAnchor.id = "cell" + i + "anchor";
-		currentCellAnchor.className = "cell-anchor";
-
-		currentCellPositionHolder = currentCellAnchor.appendChild(document.createElement("div"));
-		currentCellPositionHolder.id = "cell" + i + "positionholder";
-		currentCellPositionHolder.className = "cell-position-holder";
-		currentCellPositionHolder.enlargeId = "enlarge" + i;
-
-		currentCellName = currentCellAnchor.appendChild(document.createElement("div"));
-		currentCellName.id = "cell" + i + "name";
-		currentCellName.className = "cell-name";
-		currentCellName.textContent = s.name;
-
-		if (square[i].groupNumber) {
-			currentCellOwner = currentCellAnchor.appendChild(document.createElement("div"));
-			currentCellOwner.id = "cell" + i + "owner";
-			currentCellOwner.className = "cell-owner";
-		}
-
-		document.getElementById("enlarge" + i + "color").style.backgroundColor = s.color;
-		document.getElementById("enlarge" + i + "name").textContent = s.name;
-		document.getElementById("enlarge" + i + "price").textContent = s.pricetext;
-	}
-
-
-	// Add images to enlarges.
-	document.getElementById("enlarge0token").innerHTML += '<img src="images/arrow_icon.png" height="40" width="136" alt="" />';
-	document.getElementById("enlarge6token").innerHTML += '<img src="images/tax_icon.png" height="60" width="70" alt="" style="position: relative; top: -20px;" />';
-
-	corrections();
-
-	// Create event handlers for hovering and draging.
-
-	var drag, dragX, dragY, dragObj, dragTop, dragLeft;
-
-
-	$("body").on("mousemove", function(e) {
-		var object;
-
-		if (e.target) {
-			object = e.target;
-		} else if (window.event && window.event.srcElement) {
-			object = window.event.srcElement;
-		}
-
-
-		if (object.classList.contains("propertycellcolor") || object.classList.contains("statscellcolor")) {
-			if (e.clientY + 20 > window.innerHeight - 279) {
-				document.getElementById("deed").style.top = (window.innerHeight - 279) + "px";
-			} else {
-				document.getElementById("deed").style.top = (e.clientY + 20) + "px";
-			}
-			document.getElementById("deed").style.left = (e.clientX + 10) + "px";
-
-
-		} else if (drag) {
-			if (e) {
-				dragObj.style.left = (dragLeft + e.clientX - dragX) + "px";
-				dragObj.style.top = (dragTop + e.clientY - dragY) + "px";
-
-			} else if (window.event) {
-				dragObj.style.left = (dragLeft + window.event.clientX - dragX) + "px";
-				dragObj.style.top = (dragTop + window.event.clientY - dragY) + "px";
-			}
-		}
-	});
-
-
-	$("body").on("mouseup", function() {
-
-		drag = false;
-	});
-	document.getElementById("statsdrag").onmousedown = function(e) {
-		dragObj = document.getElementById("stats");
-		dragObj.style.position = "relative";
-
-		dragTop = parseInt(dragObj.style.top, 10) || 0;
-		dragLeft = parseInt(dragObj.style.left, 10) || 0;
-
-		if (window.event) {
-			dragX = window.event.clientX;
-			dragY = window.event.clientY;
-		} else if (e) {
-			dragX = e.clientX;
-			dragY = e.clientY;
-		}
-
-		drag = true;
-	};
-
-	document.getElementById("popupdrag").onmousedown = function(e) {
-		dragObj = document.getElementById("popup");
-		dragObj.style.position = "relative";
-
-		dragTop = parseInt(dragObj.style.top, 10) || 0;
-		dragLeft = parseInt(dragObj.style.left, 10) || 0;
-
-		if (window.event) {
-			dragX = window.event.clientX;
-			dragY = window.event.clientY;
-		} else if (e) {
-			dragX = e.clientX;
-			dragY = e.clientY;
-		}
-
-		drag = true;
-	};
-
-	$("#mortgagebutton").click(function() {
-		var checkedProperty = getCheckedProperty();
-		var s = square[checkedProperty];
-
-		if (s.mortgage) {
-			if (player[s.owner].money < s.houseprice) {
-				popup("<p>You need $" + (s.price - player[s.owner].money) + " more to unmortgage " + s.name + ".</p>");
-
-			} else {
-				popup("<p>" + player[s.owner].name + ", are you sure you want to unmortgage " + s.name + " for $" + s.price + "?</p>", function() {
-					unmortgage(checkedProperty);
-				}, "Yes/No");
-			}
-		} else {
-			popup("<p>" + player[s.owner].name + ", are you sure you want to mortgage " + s.name + " for $" + s.price + "?</p>", function() {
-				mortgage(checkedProperty);
-			}, "Yes/No");
-		}
-
-	});
-
-	$("#buyhousebutton").on("click", function() {
-		var checkedProperty = getCheckedProperty();
-		var s = square[checkedProperty];
-		var p = player[s.owner];
-		var houseSum = 0;
-		var hotelSum = 0;
-
-		if (p.money < s.houseprice) {
-			if (s.house === 4) {
-				popup("<p>You need $" + (s.houseprice - player[s.owner].money) + " more to buy a hotel for " + s.name + ".</p>");
-				return;
-			} else {
-				popup("<p>You need $" + (s.houseprice - player[s.owner].money) + " more to buy a house for " + s.name + ".</p>");
-				return;
-			}
-		}
-
-		for (var i = 0; i < 12; i++) {
-			if (square[i].hotel === 1) {
-				hotelSum++;
-			} else {
-				houseSum += square[i].house;
-			}
-		}
-
-		if (s.house < 4 && houseSum >= 32) {
-			popup("<p>All 32 houses are owned. You must wait until one becomes available.</p>");
-			return;
-		} else if (s.house === 4 && hotelSum >= 12) {
-			popup("<p>All 12 hotels are owned. You must wait until one becomes available.</p>");
-			return;
-		}
-
-		buyHouse(checkedProperty);
-
-	});
-
-	$("#sellhousebutton").click(function() { sellHouse(getCheckedProperty()); });
-
-	$("#viewstats").on("click", showStats);
-	$("#statsclose, #statsbackground").on("click", function() {
-		$("#statswrap").hide();
-		$("#statsbackground").fadeOut(400);
-	});
-
-	$("#buy-menu-item").click(function() {
-		$("#buy").show();
-		$("#manage").hide();
-
-		// Scroll alerts to bottom.
-		$("#alert").scrollTop($("#alert").prop("scrollHeight"));
-	});
-
-
-	$("#manage-menu-item").click(function() {
-		$("#manage").show();
-		$("#buy").hide();
-	});
-
-
-	$("#trade-menu-item").click(game.trade);
-
-	$("#credit-menu-item").click(game.credit);
-
-
-};
+  for(var i in SOCKET_LIST){
+    SOCKET_LIST[i].emit('setupsquares', square);
+  }
+}
 
 //Start old code: classicedition.js
 
@@ -1948,6 +1695,7 @@ function Square(name, pricetext, color, rent, houseprice) {
 	this.rent = (rent || 0);
 	this.landcount = 0;
 	this.houseprice = (houseprice || 0);
+  this.groupNumber = this.price != 0 ? 1 : 0
 }
 
 function Card(text, action) {
@@ -1971,7 +1719,7 @@ function citytax() {
 		}
 	}
 
-	$("#landed").show().text("You landed on Staat/Finanzamt. Zahle 10% von Deinem Guthaben.");
+	//$("#landed").show().text("You landed on Staat/Finanzamt. Zahle 10% von Deinem Guthaben."); //TODO
 }
 
 var square = [];
