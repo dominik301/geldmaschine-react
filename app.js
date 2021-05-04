@@ -17,6 +17,7 @@ console.log("Server started.");
 SOCKET_LIST = {};
 
 var playerNo = 1;
+var playerNames = {};
 
 var io = require('socket.io')(server);
 io.sockets.on('connection', function(socket){
@@ -37,6 +38,11 @@ io.sockets.on('connection', function(socket){
   socket.on('setup',function(isKapitalismus, pnumber, nieten){
     setup(isKapitalismus, pnumber, nieten);         
   });
+
+  socket.on('zinssatz', function(data) {
+	game.zinssatz = parseInt(data);
+	console.log('zinssatz changed to', game.zinssatz)
+  })
 
   socket.on('next',function(){
     game.next();        
@@ -101,7 +107,11 @@ io.sockets.on('connection', function(socket){
   });
 
   socket.on('showstats', function() {
-    showStats();
+	Object.keys(SOCKET_LIST).forEach(function eachKey(key) {
+		if(SOCKET_LIST[key] == socket){
+			showStats(key);
+		}
+	});
   });
 
   socket.on('windowload', loadWindow); 
@@ -109,14 +119,17 @@ io.sockets.on('connection', function(socket){
   socket.on('setName', function(name) {
     Object.keys(SOCKET_LIST).forEach(function eachKey(key) {
       if(SOCKET_LIST[key] == socket){
-        var thisPlayer = player[key];
-        thisPlayer.name = name;
-      }
+        playerNames[key] = name;
+	  }
     });
   });
 
   socket.on('showdeed', function(property) {
-    showdeed(property);
+	Object.keys(SOCKET_LIST).forEach(function eachKey(key) {
+		if(SOCKET_LIST[key] == socket){
+			showdeed(property, key);
+		}
+	});
   })
 
   socket.on('updateSquare', function() {
@@ -398,21 +411,25 @@ function Player(name, color) {
 		if (amount <= this.money) {
 			this.money -= amount;
 
-			updateMoney();
+			this.update();
 
 			return true;
 		} else {
 			this.money -= amount;
 			this.creditor = creditor;
 
-			updateMoney();
+			this.update();
 
 			return false;
 		}
 	};
 
 	this.buyDerivate = function (amount) {
+		if (this.money < amount || meineBank.derivateBank < amount) {
+			return false;
+		}
 		this.derivate += amount;
+		meineBank.derivateBank -= amount;
 		this.money -= amount;
 		this.update();
 	};
@@ -424,13 +441,15 @@ function Player(name, color) {
 	};
 
 	this.update = function() {
+		updateMoney();
 		var sq;
 		this.gesamtHypothek = 0;
 
 		for (var i = 0; i < 12; i++) {
 			sq = square[i];
 			if (player[sq.owner] == this) {
-				this.gesamtHypothek += sq.price * (1 + sq.house)
+				if(!sq.mortgage)
+					this.gesamtHypothek += sq.price * (1 + sq.house)
 			}
 		}
 
@@ -477,8 +496,8 @@ function Bank(name="bank", color="black") {
 	this.human = true;
 	this.geldMenge = 0;
 	this.zinsenLotto = 0;
-	this.derivateBank;
-	this.anleihenBank;
+	this.derivateBank = 0;
+	this.anleihenBank = 0;
 
 	this.pay = function (amount, creditor) {
 		if (amount <= this.money) {
@@ -497,20 +516,19 @@ function Bank(name="bank", color="black") {
 		}
 	};
 
-	this.buyDerivate = function (amount) {
-		this.derivateBank += amount;
-		//this.zinsenLotto -= amount;
-		this.update()
+	this.derivateEmittieren = function (amount=80000) {
+		this.derivateBank *= 1.25*amount;
+		this.zinsenLotto += amount;
+		this.geldMenge += amount;
+
+		updateMoney();
 	};
 
 	this.buyAnleihen = function (amount) {
 		this.anleihenBank += amount;
-		//this.zinsenLotto -= amount;
-		this.update()
-	};
 
-	this.update = function() {
-		this.verfuegbareHypothek = this.gesamtHypothek + this.anleihen + this.derivate;
+		updateMoney();
+		//this.zinsenLotto -= amount;
 	};
 }
 
@@ -693,10 +711,10 @@ function payplayer(position, amount) {
 	var nPlayer = pcount
 	
 	if (receiver < 0) {
-		receiver = nPlayer - 1;
+		receiver = nPlayer;
 	}
-	if (receiver == nPlayer) {
-		receiver = 0;
+	if (receiver > nPlayer) {
+		receiver = 1;
 	}
 
 	var p = player[turn];
@@ -724,6 +742,36 @@ function payState(amount) {
 	p.pay(amount, 0);
 
 	addAlert(p.name + " lost $" + amount + ".");
+}
+
+function sellRichest(amount) {
+	
+	richest;
+	idx = 0;
+	money = -1e6;
+	for (var i = 1; i <= pcount; i++) {
+		p = player[i];
+		if (p.money >= money) {
+			richest = p;
+			money = p.money;
+			idx = i;
+		}
+	}
+
+	var p = player[turn];
+
+	p.money += amount;
+
+	richest.pay(amount, idx);
+
+	addAlert(richest.name + " lost $" + amount + "to " + p.name);
+}
+
+function receiveFromBank(amount) {
+	var p = player[turn];
+	p.money += amount
+	meineBank.DerivateEmittieren(amount);
+	meineBank.zinsenLotto -= amount;
 }
 
 function receiveBankguthaben() {
@@ -767,6 +815,10 @@ function buyHouse(index) {
 	
 }
 
+function secondHouse(percent=0, amount=0) {
+
+}
+
 function sellHouse(index) {
 	sq = square[index];
 	p = player[sq.owner];
@@ -779,7 +831,7 @@ function sellHouse(index) {
 	updateMoney();
 }
 
-function showStats() {
+function showStats(key=turn) {
 	var HTML, sq, p;
 	var mortgagetext,
 	housetext;
@@ -830,13 +882,13 @@ function showStats() {
 	}
 	HTML += "</tr></table><div id='titledeed'></div>";
 
-  SOCKET_LIST[turn].emit('showstats', HTML);
+  SOCKET_LIST[key].emit('showstats', HTML);
 }
 
-function showdeed(property) {
+function showdeed(property, key=turn) {
 
 	var sq = square[property];
-  SOCKET_LIST[turn].emit('showdeed', sq);
+  SOCKET_LIST[key].emit('showdeed', sq);
 }
 
 function buy() {
@@ -852,6 +904,7 @@ function buy() {
 		addAlert(p.name + " bought " + property.name + " for " + property.pricetext + ".");
 
 		updateOwned();
+		p.update();
 
     SOCKET_LIST[turn].emit('show', "#landed", false);
 
@@ -1040,9 +1093,10 @@ function play() {
 	updatePosition();
 	updateOwned();
 
-  SOCKET_LIST[turn].emit('show', ".money-bar-arrow", false);
-  SOCKET_LIST[turn].emit('show', "#p" + turn + "arrow", true);
-
+	for (var i in SOCKET_LIST) {
+		SOCKET_LIST[i].emit('show', ".money-bar-arrow", false);
+  		SOCKET_LIST[i].emit('show', "#p" + turn + "arrow", true);
+	}
 }
 
 function setup(isKapitalismus, playernumber, nieten) {
@@ -1068,7 +1122,7 @@ function setup(isKapitalismus, playernumber, nieten) {
 	for (var i = 1; i <= pcount; i++) {
 		p = player[i];
 		p.color = colors.shift();
-
+		p.name = playerNames[i] ? playerNames[i] : 'Player ' + i;
 
 		p = player[playerArray[i - 1]];
 		
@@ -1088,7 +1142,9 @@ function setup(isKapitalismus, playernumber, nieten) {
 
 				//updateOwned();
 			}
-		}		
+			p.update();
+		}	
+
 		
 		//end:Immobilienkarten verteilen
 	}
@@ -1105,6 +1161,7 @@ function setup(isKapitalismus, playernumber, nieten) {
 				var property = square[pos];
 				property.owner = playerArray[i - 1];
 				addAlert(p.name + " received " + property.name + ".");
+				p.update();
 			}
 		}
 	}
@@ -1190,7 +1247,17 @@ function citytax() {
 	if (player[turn].color == "yellow") {
 		for (var i = 0; i < pcount; i++) {
 			player[i+1].money += player[i+1].anleihen * (game.zinssatz / 100);
+			meinStaat.steuer -= player[i+1].anleihen * (game.zinssatz / 100);
 		}
+		meineBank.zinsenLotto += meineBank.anleihenBank * (game.zinssatz / 100);
+		meinStaat.zinsenLotto -= meineBank.anleihenBank * (game.zinssatz / 100);
+	}
+
+	if (meinStaat.steuer < 0) {
+		meineBank.geldMenge -= meinStaat.steuer;
+		meineBank.buyAnleihen(meinStaat.steuer);
+		meinStaat.staatsSchuld += meinStaat.steuer;
+		meinStaat.steuer = 0;
 	}
 
 	//$("#landed").show().text("You landed on Staat/Finanzamt. Zahle 10% von Deinem Guthaben."); //TODO
@@ -1232,17 +1299,17 @@ chanceCards[14] = new Card("Steuererstattung","Du bekommst 5.000 vom Finanzamt (
 var chanceCards2 = [];
 
 chanceCards2[0] = new Card("Steuerforderung","Zahle 10.000 an den Staat.", function() { payState(10000);});
-chanceCards2[1] = new Card("Konsum","Du verkaufst der/dem Reichsten eine Yacht für 40.000.", function() { payplayer(-1, 8000);});
-chanceCards2[2] = new Card("Wasserrohrbruch","Zahle für die Reparatur 8.000 an Deine*n rechte*n Mitspieler*in", function() { payRichest(8000);}); //TODO
+chanceCards2[1] = new Card("Konsum","Du verkaufst der/dem Reichsten eine Yacht für 40.000.", function() { sellRichest(40000);});
+chanceCards2[2] = new Card("Wasserrohrbruch","Zahle für die Reparatur 8.000 an Deine*n rechte*n Mitspieler*in", function() { payplayer(-1, 8000);});
 chanceCards2[3] = new Card("Studiengebühren","Deine Tochter macht ein Auslandssemester. Du unterstützt sie mit 15.000. Überweise an den Staat.", function() { payState(15000);});
-chanceCards2[4] = new Card("Investitionsbeihilfe","Der Staat übernimmt 10% deiner Baukosten, wenn du ein 2. Haus auf eins Deiner Grundstücke baust. Du darfst keine Miete dafür erhenem. Steuerbegünstigter Leerstand um Geld in Umlauf zu bringen! Du kannst Kredit aufnehmen.", function() { secondHouse(percent=0.1);}); //TODO
-chanceCards2[5] = new Card("Feuerschaden","Nach Hausbrand zahlt die Versicherung (Staat) 48.000. Du renovierst und überweist das Geld anteilig an alle.", function() { payState(4000);});
-chanceCards2[6] = new Card("Heizungsreparatur","Für die Reparatur bekommst du 10.000 von der Person rechts neben Dir. Zum Bezahlen kann außerplanmäßig ein Kredit aufgenommen werden.", function() { payState(3000);});
-chanceCards2[7] = new Card("Steuerfahndung","Dir wurde Steuerhinterziehung nachgewiesen. Überweise 50% Deines Guthabens an den Staat.", function(p) { steuerHinterziehung(p.money * 0.5);});
+chanceCards2[4] = new Card("Investitionsbeihilfe","Der Staat übernimmt 10% deiner Baukosten, wenn du ein 2. Haus auf eins Deiner Grundstücke baust. Du darfst keine Miete dafür erheben. Steuerbegünstigter Leerstand um Geld in Umlauf zu bringen! Du kannst Kredit aufnehmen.", function() { secondHouse(percent=0.1);}); //TODO
+chanceCards2[5] = new Card("Feuerschaden","Nach Hausbrand zahlt die Versicherung (Staat) 48.000. Du renovierst und überweist das Geld anteilig an alle.", function() { payState(4000);}); //TODO
+chanceCards2[6] = new Card("Heizungsreparatur","Für die Reparatur bekommst du 10.000 von der Person rechts neben Dir. Zum Bezahlen kann außerplanmäßig ein Kredit aufgenommen werden.", function() { payState(3000);}); //TODO
+chanceCards2[7] = new Card("Steuerfahndung","Dir wurde Steuerhinterziehung nachgewiesen. Überweise 50% Deines Guthabens an den Staat.", function(p) { steuerHinterziehung(p.money * 0.5);}); //TODO
 chanceCards2[8] = new Card("Fensterreparatur","Du hast im Haus auf diesem Feld die Fenster repariert. Der/die Eigentümer*in zahlt Dir 15.000. Dafür ist Kreditaufnahme möglich.", function() { payState(2000);}); //?
-chanceCards2[9] = new Card("Feinstaubplaketten","Kaufe Plaketten für deinen Fahrzeugpark. Zahle 1.000 an den Staat.", function() { receiveBankguthaben();});
+chanceCards2[9] = new Card("Feinstaubplaketten","Kaufe Plaketten für deinen Fahrzeugpark. Zahle 1.000 an den Staat.", function() { payState(1000);});
 chanceCards2[10] = new Card("Investitionsbeihilfe","Wenn Du jetzt baust, zahlt der Staat 20.000 dazu. Du darfst ein 2. Haus auf eins Deiner Grundstücke bauen, aber keine Miete dafür erheben. Steuerbegünstigter Leerstand um Geld in Umlauf zu bringen! Du kannst Kredit aufnehmen.", function() { secondHouse(amount=20000);}); //TODO
-chanceCards2[11] = new Card("Hackerangriff","Du hast die Bank gehackt und 80.000 erpresst. Die Bank schöpft das Geld durch Emission von Derivaten.", function() { receiveFromBank(80000);}); //TODO
+chanceCards2[11] = new Card("Hackerangriff","Du hast die Bank gehackt und 80.000 erpresst. Die Bank schöpft das Geld durch Emission von Derivaten.", function() { receiveFromBank(80000);});
 chanceCards2[12] = new Card("Einbauküche","Du kaufst für 24.000 eine Einbauküche. Überweise den Betrag anteilig an alle Mitspieler*innen", function() { payeachplayer(24000);});
 chanceCards2[13] = new Card("Erbstreit","Wegen eines Erbstreits musst Du ein Grundstück versteigern. Die Hälfte des Erlöses zahlst du anteilig an alle aus.", function() { auctionHouse();}); //TODO
 chanceCards2[14] = new Card("Beitragserhöhung","Deine Krankenkasse erhöht die Beiträge. Zahle 3.000 an den Staat.", function() { payState(3000);});

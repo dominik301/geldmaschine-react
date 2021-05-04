@@ -45,23 +45,31 @@
 	<div id="deed">
 		<div id="deed-normal" style="display: none;">
 			<div id="deed-header">
-				<div style="margin: 5px; font-size: 11px;">T I T L E&nbsp;&nbsp;D E E D</div>
+				<div style="margin: 5px; font-size: 11px;">Immobilienkarte</div>
 				<div id="deed-name"></div>
 			</div>
 			<table id="deed-table">
 				<tr>
-					<td colspan="2">
-						RENT&nbsp;$<span id="deed-baserent">12</span>.
+                    <td colspan="2">
+						Grundstückswert = Summe der Baukosten
+					</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;"><b>Baukosten je Haus: </b></td>
+					<td style="text-align: right;"><b><span id="deed-houseprice">12</span></b></td>
+                </tr>
+                <tr style="border-bottom:1px solid black">
+                    <td colspan="2">
+						Baukosten werden sofort anteilig an alle Mitspielenden ausgezahlt.
 					</td>
 				</tr>
 				<tr>
-					<td style="text-align: left;">With 1 House</td>
-					<td style="text-align: right;">$&nbsp;&nbsp;&nbsp;<span id="deed-rent">60</span>.</td>
-				</tr>
-				<tr>
-					<td colspan="2">
-						<div>Mortgage Value $<span id="deed-mortgage">80</span>.</div>
-						<div>Houses cost $<span id="deed-houseprice">100</span>.</div>
+                    <td style="text-align: left;"><b>Miete: </b></td>
+					<td style="text-align: right;"><b><span id="deed-rent">60</span></b></td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+						Fällig, wenn ein Spielzug auf diesem Feld endet.
 					</td>
 				</tr>
 			</table>
@@ -116,7 +124,10 @@
 					<td id="p1moneybar" class="moneybarcell">
 						<div><span id="p1moneyname" >Player 1</span>:</div>
 						<div>Umsatz: <span id="p1money">1500</span></div>
-						<div>Kredit: <span id="p1credit" class="player-credit">1500</span></div>
+						<div>Kredit: <span id="p1credit" class="player-credit">0</span></div>
+                        <div>verfügbare Kreditsumme: <span id="p1avcredit" class="player-avcredit">0</span></div>
+                        <div>Anleihen: <span id="p1anleihen" class="player-anleihen">0</span></div>
+                        <div>Derivate: <span id="p1derivate" class="player-derivate">0</span></div>
 					</td>
 				</tr>
 				<tr id="moneybarrow2" class="money-bar-row">
@@ -125,6 +136,9 @@
 						<div><span id="p2moneyname" >Player 2</span>:</div>
 						<div>Umsatz: <span id="p2money">1500</span></div>
 						<div>Kredit: <span id="p2credit" class="player-credit">1500</span></div>
+                        <div>verfügbare Kreditsumme: <span id="p2avcredit" class="player-avcredit">0</span></div>
+                        <div>Anleihen: <span id="p2anleihen" class="player-anleihen">0</span></div>
+                        <div>Derivate: <span id="p2derivate" class="player-derivate">0</span></div>
 					</td>
 				</tr>
 				<tr id="moneybarrow3" class="money-bar-row">
@@ -133,6 +147,9 @@
 						<div><span id="p3moneyname" >Player 3</span>:</div>
 						<div>Umsatz: <span id="p3money">1500</span></div>
 						<div>Kredit: <span id="p3credit" class="player-credit">1500</span></div>
+                        <div>verfügbare Kreditsumme: <span id="p3avcredit" class="player-avcredit">0</span></div>
+                        <div>Anleihen: <span id="p3anleihen" class="player-anleihen">0</span></div>
+                        <div>Derivate: <span id="p3derivate" class="player-derivate">0</span></div>
 					</td>
 				</tr>
 				<tr id="moneybarrow4" class="money-bar-row">
@@ -141,6 +158,9 @@
 						<div><span id="p4moneyname" >Player 4</span>:</div>
 						<div>Umsatz: <span id="p4money">1500</span></div>
 						<div>Kredit: <span id="p4credit" class="player-credit">1500</span></div>
+                        <div>verfügbare Kreditsumme: <span id="p4avcredit" class="player-avcredit">0</span></div>
+                        <div>Anleihen: <span id="p4anleihen" class="player-anleihen">0</span></div>
+                        <div>Derivate: <span id="p4derivate" class="player-derivate">0</span></div>
 					</td>
 				</tr>
 				<tr id="moneybarrow5" class="money-bar-row">
@@ -149,6 +169,9 @@
 						<div><span id="p5moneyname" >Player 5</span>:</div>
 						<div>Umsatz: <span id="p5money">1500</span></div>
 						<div>Kredit: <span id="p5credit" class="player-credit">1500</span></div>
+                        <div>verfügbare Kreditsumme: <span id="p5avcredit" class="player-avcredit">0</span></div>
+                        <div>Anleihen: <span id="p5anleihen" class="player-anleihen">0</span></div>
+                        <div>Derivate: <span id="p5derivate" class="player-derivate">0</span></div>
 					</td>
 				</tr>
 				<tr id="moneybarrow6" class="money-bar-row">
@@ -157,6 +180,9 @@
 						<div><span id="p6moneyname" >Player 6</span>:</div>
 						<div>Umsatz: <span id="p6money">1500</span></div>
 						<div>Kredit: <span id="p6credit" class="player-credit">1500</span></div>
+                        <div>verfügbare Kreditsumme: <span id="p6avcredit" class="player-avcredit">0</span></div>
+                        <div>Anleihen: <span id="p6anleihen" class="player-anleihen">0</span></div>
+                        <div>Derivate: <span id="p6derivate" class="player-derivate">0</span></div>
 					</td>
 				</tr>
 				<tr id="moneybarrow7" class="money-bar-row">
@@ -165,6 +191,8 @@
 						<div><span id="p7moneyname" >Bank</span>:</div>
 						<div>Geldmenge: <span id="p7money">1500</span></div>
 						<div>Zinsen: <span id="p7credit">1500</span></div>
+                        <div>Anleihen: <span id="p7anleihen" class="player-anleihen">0</span></div>
+                        <div>Derivate: <span id="p7derivate" class="player-derivate">0</span></div>
 					</td>
 				</tr>
 				<tr id="moneybarrow8" class="money-bar-row">
@@ -182,6 +210,9 @@
 					</td>
 				</tr>
 			</table>
+            <div id="zinsen">
+                Zinssatz <input type="text" id="zinssatzInput" title="Zinssatz" maxlength="3" value="5" /> % <input type="button" value="Ändern" id="zinsbutton"/>
+            </div>
 		</div>
 	</div>
 
@@ -196,7 +227,7 @@
 			</select>
 		</div>-->
 
-		<div style="margin-bottom: 20px;">
+		<div id="verteilung" style="margin-bottom: 20px;">
 			Chancengleichheit oder Kapitalismus?
 			<select id="capitalism" title="Wähle zwischen Chancengleichheit und Kapitalismus.">
 				<option selected="selected">Chancengleichheit</option>
@@ -945,6 +976,12 @@
                 var name = document.getElementById("player" + playerId + "name").value;
                 socket.emit('setName', name);
             });
+
+            if (playerId != 1) {
+                $("#zinsen").hide();
+                $("#verteilung").hide();
+                $("#startbutton").hide();
+            }
                   
         });
 
@@ -1020,6 +1057,9 @@
                 document.getElementById("p" + i + "money").innerHTML = p_i.money;
                 document.getElementById("p" + i + "moneyname").innerHTML = p_i.name;
                 document.getElementById("p" + i + "credit").innerHTML = -p_i.sumKredit;
+                document.getElementById("p" + i + "avcredit").innerHTML = p_i.verfuegbareHypothek;
+                document.getElementById("p" + i + "anleihen").innerHTML = p_i.anleihen;
+                document.getElementById("p" + i + "derivate").innerHTML = p_i.derivate;
             }
 
             //var bank = player[0];
@@ -1028,6 +1068,8 @@
             document.getElementById("p7moneybar").style.border = "2px solid " + "black";
             document.getElementById("p7money").innerHTML = meineBank.geldMenge;
             document.getElementById("p7credit").innerHTML = meineBank.zinsenLotto;
+            document.getElementById("p" + i + "anleihen").innerHTML = meineBank.anleihenBank;
+            document.getElementById("p" + i + "derivate").innerHTML = meineBank.derivateBank;
 
             $("#moneybarrow8").show();
             document.getElementById("p8moneybar").style.border = "2px solid " + "black";
@@ -1254,7 +1296,7 @@
                 document.getElementById("deed-header").style.backgroundColor = sq.color;
                 document.getElementById("deed-name").textContent = sq.name;
                 document.getElementById("deed-rent").textContent = sq.rent;
-                document.getElementById("deed-mortgage").textContent = (sq.price);
+                //document.getElementById("deed-mortgage").textContent = (sq.price);
                 document.getElementById("deed-houseprice").textContent = sq.houseprice;
             }
         });
@@ -1309,10 +1351,17 @@
             for (var i = 1; i <= pcount; i++) {
                 $("#player" + i + "input").show();
                 $("#name" + i + "button").hide();
+                if (i != playerId) document.getElementById("player" + i + "name").disabled = true;
             }
             $("#name" + playerId + "button").show();
 
             capitalism_onchange()
+
+            if (playerId == 1 && pcount > 2 && pcount < 7) {
+                $("#startbutton").show();
+            } else {
+                $("#startbutton").hide();
+            }
         }
 
         function capitalism_onchange() {
@@ -1564,6 +1613,9 @@
 
             $("#credit-menu-item").on("click", showCreditMenu);
 
+            $("#zinsbutton").on("click", function() {
+                socket.emit("zinssatz", parseInt(document.getElementById("zinssatzInput").value))
+            });
 
         };
 
@@ -1783,10 +1835,6 @@
             $("#popupbackground").fadeIn(400, function() {
                 $("#popupwrap").show();
             });
-
-        }
-    
-        function showdeed(property) {
 
         }
 
