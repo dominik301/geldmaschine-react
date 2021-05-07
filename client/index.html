@@ -360,6 +360,22 @@
 					$&nbsp;<input id="trade-rightp-money" value="0" title="Enter amount to exchange with the other player." />
 				</td>
 			</tr>
+            <tr>
+				<td class="trade-cell">
+					$&nbsp;<input id="trade-leftp-derivate" value="0" title="Enter amount to exchange with the other player." />
+				</td>
+				<td class="trade-cell">
+					$&nbsp;<input id="trade-rightp-derivate" value="0" title="Enter amount to exchange with the other player." />
+				</td>
+			</tr>
+            <tr>
+				<td class="trade-cell">
+					$&nbsp;<input id="trade-leftp-anleihen" value="0" title="Enter amount to exchange with the other player." />
+				</td>
+				<td class="trade-cell">
+					$&nbsp;<input id="trade-rightp-anleihen" value="0" title="Enter amount to exchange with the other player." />
+				</td>
+			</tr>
 			<tr>
 				<td id="trade-leftp-property" class="trade-cell"></td>
 				<td id="trade-rightp-property" class="trade-cell"></td>
@@ -374,6 +390,51 @@
 			</tr>
 		</table>
 	</div>
+
+    <!--<div id="boerse">
+		<table style="border-spacing: 3px;">
+			<tr>
+				<td class="trade-cell">
+					<div id="boerse-leftp-name"></div>
+				</td>
+				<td class="trade-cell">
+					<div id="boerse-rightp-name"></div>
+				</td>
+			</tr>
+			<tr>
+				<td class="trade-cell">
+					$&nbsp;<input id="boerse-leftp-money" value="0" title="Enter amount to exchange with the other player." />
+				</td>
+				<td class="trade-cell">
+					$&nbsp;<input id="boerse-rightp-money" value="0" title="Enter amount to exchange with the other player." />
+				</td>
+			</tr>
+            <tr>
+				<td class="trade-cell">
+					$&nbsp;<input id="boerse-leftp-derivate" value="0" title="Enter amount to exchange with the other player." />
+				</td>
+				<td class="trade-cell">
+					$&nbsp;<input id="boerse-rightp-derivate" value="0" title="Enter amount to exchange with the other player." />
+				</td>
+			</tr>
+            <tr>
+				<td class="trade-cell">
+					$&nbsp;<input id="boerse-leftp-anleihen" value="0" title="Enter amount to exchange with the other player." />
+				</td>
+				<td class="trade-cell">
+					$&nbsp;<input id="boerse-rightp-anleihen" value="0" title="Enter amount to exchange with the other player." />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" class="trade-cell">
+					<input type="button" id="proposeExchangebutton" value="Propose Exchange" onclick="proposeExchange();" title="ausgewähltes Vermögen, Anleihen und Derivate tauschen." />
+					<input type="button" id="cancelExchangebutton" value="Cancel Exchange" onclick='cancelExchange();' title="Cancel the Exchange." />
+					<input type="button" id="acceptExchangebutton" value="Accept Exchange" onclick="acceptExchange();" title="Accept the proposed Exchange." />
+					<input type="button" id="rejectExchangebutton" value="Reject Exchange" onclick='cancelExchange();' title="Reject the proposed Exchange." />
+				</td>
+			</tr>
+		</table>
+	</div>-->
 
 	<div id="credit">
 		<table style="border-spacing: 3px;">
@@ -544,6 +605,8 @@
             var recipient = currentRecipient;
             var property = new Array(12);
             var money;
+            var anleihen;
+            var derivate;
 
             for (var i = 0; i < 12; i++) {
 
@@ -558,8 +621,14 @@
 
             money = parseInt(document.getElementById("trade-leftp-money").value, 10) || 0;
             money -= parseInt(document.getElementById("trade-rightp-money").value, 10) || 0;
+
+            anleihen = parseInt(document.getElementById("trade-leftp-anleihen").value, 10) || 0;
+            anleihen -= parseInt(document.getElementById("trade-rightp-anleihen").value, 10) || 0;
+
+            derivate = parseInt(document.getElementById("trade-leftp-derivate").value, 10) || 0;
+            derivate -= parseInt(document.getElementById("trade-rightp-derivate").value, 10) || 0;
             
-            socket.emit('newTrade', initiator, recipient, money, property);
+            socket.emit('newTrade', initiator, recipient, money, property, anleihen, derivate);
         };
 
         function writeTrade(tradeObj) {
@@ -588,6 +657,16 @@
                 document.getElementById("trade-rightp-money").value = (-tradeObj.money) + "";
             }
 
+            if (tradeObj.anleihen > 0) {
+                document.getElementById("trade-leftp-anleihen").value = tradeObj.anleihen + "";
+            } else {
+                document.getElementById("trade-rightp-anleihen").value = (-tradeObj.anleihen) + "";
+            }
+            if (tradeObj.derivate > 0) {
+                document.getElementById("trade-leftp-derivate").value = tradeObj.derivate + "";
+            } else {
+                document.getElementById("trade-rightp-derivate").value = (-tradeObj.derivate) + "";
+            }
         };
 
         function proposeTrade() {
@@ -603,6 +682,30 @@
                 return false;
             }
 
+            if (isNaN(document.getElementById("trade-leftp-anleihen").value)) {
+                document.getElementById("trade-leftp-anleihen").value = "This value must be a number.";
+                document.getElementById("trade-leftp-anleihen").style.color = "red";
+                return false;
+            }
+
+            if (isNaN(document.getElementById("trade-rightp-anleihen").value)) {
+                document.getElementById("trade-rightp-anleihen").value = "This value must be a number.";
+                document.getElementById("trade-rightp-anleihen").style.color = "red";
+                return false;
+            }
+
+            if (isNaN(document.getElementById("trade-leftp-derivate").value)) {
+                document.getElementById("trade-leftp-derivate").value = "This value must be a number.";
+                document.getElementById("trade-leftp-derivate").style.color = "red";
+                return false;
+            }
+
+            if (isNaN(document.getElementById("trade-rightp-derivate").value)) {
+                document.getElementById("trade-rightp-derivate").value = "This value must be a number.";
+                document.getElementById("trade-rightp-derivate").style.color = "red";
+                return false;
+            }
+
             readTrade();
 
             setTimeout(() => { finishProposeTrade();}, 100);
@@ -614,14 +717,41 @@
             var initiator = tradeObj.initiator;
             var recipient = tradeObj.recipient;
             var reversedTradeProperty = [];
+            var anleihen = tradeObj.anleihen;
+            var derivate = tradeObj.derivate;
+
+            if (recipient.index == 0) {
+                recipient.anleihen = recipient.anleihenBank
+                recipient.derivate = recipient.derivateBank
+            }
 
             if (money > 0 && money > initiator.money) {
                 document.getElementById("trade-leftp-money").value = initiator.name + " does not have $" + money + ".";
                 document.getElementById("trade-leftp-money").style.color = "red";
                 return false;
-            } else if (money < 0 && -money > recipient.money) {
+            } else if (!(recipient.name == "bank") && money < 0 && -money > recipient.money) {
                 document.getElementById("trade-rightp-money").value = recipient.name + " does not have $" + (-money) + ".";
                 document.getElementById("trade-rightp-money").style.color = "red";
+                return false;
+            }
+
+            if (anleihen > 0 && anleihen > initiator.anleihen) {
+                document.getElementById("trade-leftp-anleihen").value = initiator.name + " does not have $" + anleihen + ".";
+                document.getElementById("trade-leftp-anleihen").style.color = "red";
+                return false;
+            } else if (anleihen < 0 && -anleihen > recipient.anleihen) {
+                document.getElementById("trade-rightp-anleihen").value = recipient.name + " does not have $" + (-anleihen) + ".";
+                document.getElementById("trade-rightp-anleihen").style.color = "red";
+                return false;
+            }
+
+            if (anleihen > 0 && anleihen > initiator.anleihen) {
+                document.getElementById("trade-leftp-anleihen").value = initiator.name + " does not have $" + anleihen + ".";
+                document.getElementById("trade-leftp-anleihen").style.color = "red";
+                return false;
+            } else if (anleihen < 0 && -anleihen > recipient.anleihen) {
+                document.getElementById("trade-rightp-anleihen").value = recipient.name + " does not have $" + (-anleihen) + ".";
+                document.getElementById("trade-rightp-anleihen").style.color = "red";
                 return false;
             }
 
@@ -643,8 +773,8 @@
                 return false;
             }
 
-            socket.emit('newTrade', recipient, initiator, -money, reversedTradeProperty);
-            socket.emit('sendOffer');
+            socket.emit('newTrade', recipient, initiator, -money, reversedTradeProperty, -anleihen, -derivate);
+            socket.emit('sendOffer'); //TODO
 
             cancelTrade();
         };
@@ -702,19 +832,20 @@
             var recipient;
 
             money = tradeObj.money;
+            anleihen = tradeObj.anleihen;
+            derivate = tradeObj.derivate;
             initiator = tradeObj.initiator;
             recipient = tradeObj.recipient;
 
-
-            if (money > 0 && money > initiator.money) {
+            /*if (money > 0 && money > initiator.money) {
                 document.getElementById("trade-leftp-money").value = initiator.name + " does not have $" + money + ".";
                 document.getElementById("trade-leftp-money").style.color = "red";
                 return false;
-            } else if (money < 0 && -money > recipient.money) {
+            } else if (!(recipient.name == "bank") && money < 0 && -money > recipient.money) {
                 document.getElementById("trade-rightp-money").value = recipient.name + " does not have $" + (-money) + ".";
                 document.getElementById("trade-rightp-money").style.color = "red";
                 return false;
-            }
+            }*/
 
             var isAPropertySelected = 0;
 
@@ -723,11 +854,11 @@
                 isAPropertySelected |= tradeObj.property[i];
             }
 
-            if (isAPropertySelected === 0) {
+            /*if (isAPropertySelected === 0) {
                 popup("<p>One or more properties must be selected in order to trade.</p>");
 
                 return false;
-            }
+            }*/
 
             if (showAlerts && !confirm(initiator.name + ", are you sure you want to make this exchange with " + recipient.name + "?")) {
                 return false;
@@ -757,6 +888,27 @@
                 addAlert(initiator.name + " received $" + (-money) + " from " + recipient.name + ".");
             }
 
+            //stock exchange
+            if (anleihen > 0) {
+                socket.emit('buyAnleihen', initiator, recipient, anleihen);
+
+                addAlert(recipient.name + " received $" + anleihen + " from " + initiator.name + ".");
+            } else if (anleihen < 0) {
+                socket.emit('buyAnleihen', recipient, initiator, -anleihen);
+
+                addAlert(initiator.name + " received $" + (-anleihen) + " from " + recipient.name + ".");
+            }
+
+            if (derivate > 0) {
+                socket.emit('buyDerivate', initiator, recipient, derivate);
+
+                addAlert(recipient.name + " received $" + derivate + " from " + initiator.name + ".");
+            } else if (derivate < 0) {
+                socket.emit('buyDerivate', recipient, initiator, -derivate);
+
+                addAlert(initiator.name + " received $" + (-derivate) + " from " + recipient.name + ".");
+            }
+
             socket.emit('updateOwned');
             socket.emit('updateMoney');
 
@@ -772,8 +924,10 @@
         });
 
         var player;
-        socket.on('updatePlayer', function(mplayer) {
+        var meineBank;
+        socket.on('updatePlayer', function(mplayer, mbank) {
             player = mplayer;
+            meineBank = mbank;
         });
 
         //square, player
@@ -928,6 +1082,15 @@
                     }
                 }
 
+                currentOption = nameSelect.appendChild(document.createElement("option"));
+                currentOption.value = 0 + "";
+                currentOption.style.color = meineBank.color;
+                currentOption.textContent = meineBank.name;
+
+                if (i === recipient.index) {
+                    currentOption.selected = "selected";
+                }
+
                 nameSelect.onchange = function() {
                     resetTrade(currentInitiator, player[parseInt(this.value, 10)], true);
                 };
@@ -939,6 +1102,12 @@
 
             document.getElementById("trade-leftp-money").value = "0";
             document.getElementById("trade-rightp-money").value = "0";
+
+            document.getElementById("trade-leftp-anleihen").value = "0";
+            document.getElementById("trade-rightp-anleihen").value = "0";
+
+            document.getElementById("trade-leftp-derivate").value = "0";
+            document.getElementById("trade-rightp-derivate").value = "0";
 
         };
         
@@ -1068,8 +1237,8 @@
             document.getElementById("p7moneybar").style.border = "2px solid " + "black";
             document.getElementById("p7money").innerHTML = meineBank.geldMenge;
             document.getElementById("p7credit").innerHTML = meineBank.zinsenLotto;
-            document.getElementById("p" + i + "anleihen").innerHTML = meineBank.anleihenBank;
-            document.getElementById("p" + i + "derivate").innerHTML = meineBank.derivateBank;
+            document.getElementById("p7anleihen").innerHTML = meineBank.anleihenBank;
+            document.getElementById("p7derivate").innerHTML = meineBank.derivateBank;
 
             $("#moneybarrow8").show();
             document.getElementById("p8moneybar").style.border = "2px solid " + "black";
@@ -1855,6 +2024,210 @@
             element.className = "menuitem";
             return;
         }
+
+        var auctionQueue = [];
+        var highestbidder;
+        var highestbid;
+        var currentbidder = 1;
+        var auctionproperty;
+
+        socket.on("chooseProperty", function(player, square) {
+            var checkedproperty = getCheckedProperty();
+            var p = player[playerId];
+
+            var HTML = "",
+            firstproperty = -1;
+
+            var mortgagetext = "",
+            housetext = "";
+            var sq;
+
+            for (var i = 0; i < 12; i++) {
+                sq = square[i];
+                if (sq.owner == playerId) {
+
+                    mortgagetext = "";
+                    if (sq.mortgage) {
+                        mortgagetext = "title='Mortgaged' style='color: grey;'";
+                    }
+
+                    housetext = "";
+                    if (sq.house >= 1 && sq.house <= 2) {
+                        for (var x = 1; x <= sq.house; x++) {
+                            housetext += "<img src='./client/images/house.png' alt='' title='House' class='house' />";
+                        }
+                    } 
+
+                    if (HTML === "") {
+                        HTML += "<p>" + player[playerId].name + ", choose any of the following properties for an auction, by clicking on them. Click OK when finished.</p>";
+                        HTML += "<table>";
+                        firstproperty = i;
+                    }
+
+                    HTML += "<tr class='property-cell-row'><td class='propertycellcheckbox'><input type='checkbox' id='propertycheckbox" + i + "' /></td><td class='propertycellcolor' style='background: " + sq.color + ";";
+
+                    HTML += "' onmouseover='showdeed(" + i + ");' onmouseout='hidedeed();'></td><td class='propertycellname' " + mortgagetext + ">" + sq.name + housetext + "</td></tr>";
+                }
+            }
+
+            if (HTML === "") {
+                HTML = p.name + ", you don't have any properties.";
+                $("#option").hide();
+            } else {
+                HTML += "</table>";
+            }
+
+            popup(HTML, function() {
+                var propertyindex = getCheckedProperty();
+                socket.emit("auctionHouse", propertyindex);
+            }, "ok");
+
+            // Select previously selected property.
+            if (checkedproperty > -1 && document.getElementById("propertycheckbox" + checkedproperty)) {
+                document.getElementById("propertycheckbox" + checkedproperty).checked = true;
+            } else if (firstproperty > -1) {
+                document.getElementById("propertycheckbox" + firstproperty).checked = true;
+            }
+            $(".property-cell-row").click(function() {
+                var row = this;
+
+                // Toggle check the current checkbox.
+                $(this).find(".propertycellcheckbox > input").prop("checked", function(index, val) {
+                    return !val;
+                });
+
+                // Set all other checkboxes to false.
+                $(".propertycellcheckbox > input").prop("checked", function(index, val) {
+                    if (!$.contains(row, this)) {
+                        return false;
+                    }
+                });
+
+                socket.emit('updateOption');
+            });
+        
+
+        });
+
+        function finalizeAuction() {
+            socket.emit("finalizeAuction");
+
+            $("#popupbackground").hide();
+            $("#popupwrap").hide();
+        };
+
+        socket.on("auction", function(_auctionproperty, _player, _square, _highestbidder, _highestbid) {
+            player = _player;
+            auctionproperty = _auctionproperty;
+            highestbidder = _highestbidder;
+            highestbid = _highestbid;
+            currentbidder = playerId;
+
+            var s = _square[_auctionproperty];
+
+            popup("<div style='font-weight: bold; font-size: 16px; margin-bottom: 10px;'>Auction <span id='propertyname'></span></div><div>Highest Bid = $<span id='highestbid'></span> (<span id='highestbidder'></span>)</div><div><span id='currentbidder'></span>, it is your turn to bid.</div<div><input id='bid' title='Enter an amount to bid on " + s.name + ".' style='width: 291px;' /></div><div><input type='button' value='Bid' onclick='auctionBid();' title='Place your bid.' /><input type='button' value='Pass' title='Skip bidding this time.' onclick='auctionPass();' /><input type='button' value='Exit Auction' title='Stop bidding on " + s.name + " altogether.' onclick='if (confirm(\"Are you sure you want to stop bidding on this property altogether?\")) auctionExit();' /></div>", "blank");
+            document.getElementById("propertyname").innerHTML = "<a href='javascript:void(0);' onmouseover='showdeed(" + auctionproperty + ");' onmouseout='hidedeed();' class='statscellcolor'>" + s.name + "</a>";
+            //document.getElementById("highestbid").innerHTML = "0";
+            //document.getElementById("highestbidder").innerHTML = "N/A";
+            document.getElementById("highestbid").innerHTML = parseInt(highestbid, 10);
+            document.getElementById("highestbidder").innerHTML = highestbidder != 0 ? player[highestbidder].name : "N/A";
+            document.getElementById("currentbidder").innerHTML = player[currentbidder].name;
+            document.getElementById("bid").onkeydown = function (e) {
+                var key = 0;
+                var isCtrl = false;
+                var isShift = false;
+
+                if (window.event) {
+                    key = window.event.keyCode;
+                    isCtrl = window.event.ctrlKey;
+                    isShift = window.event.shiftKey;
+                } else if (e) {
+                    key = e.keyCode;
+                    isCtrl = e.ctrlKey;
+                    isShift = e.shiftKey;
+                }
+
+                if (isNaN(key)) {
+                    return true;
+                }
+
+                if (key === 13) {
+                    game.auctionBid();
+                    return false;
+                }
+
+                // Allow backspace, tab, delete, arrow keys, or if control was pressed, respectively.
+                if (key === 8 || key === 9 || key === 46 || (key >= 35 && key <= 40) || isCtrl) {
+                    return true;
+                }
+
+                if (isShift) {
+                    return false;
+                }
+
+                // Only allow number keys.
+                return (key >= 48 && key <= 57) || (key >= 96 && key <= 105);
+            };
+
+            document.getElementById("bid").onfocus = function () {
+                this.style.color = "black";
+                if (isNaN(this.value)) {
+                    this.value = "";
+                }
+            };
+        });
+
+        //player
+        function auctionPass() {
+            if (highestbidder === 0) {
+                highestbidder = currentbidder;
+            }
+            socket.emit("newbid", highestbidder, highestbid)
+
+            $("#popupbackground").hide();
+            $("#popupwrap").hide();
+
+            /*document.getElementById("currentbidder").innerHTML = player[currentbidder].name;
+            document.getElementById("bid").value = "";
+            document.getElementById("bid").style.color = "black";*/
+        };
+
+        function auctionBid(bid) {
+            bid = bid || parseInt(document.getElementById("bid").value, 10);
+
+            if (bid === "" || bid === null) {
+                document.getElementById("bid").value = "Please enter a bid.";
+                document.getElementById("bid").style.color = "red";
+            } else if (isNaN(bid)) {
+                document.getElementById("bid").value = "Your bid must be a number.";
+                document.getElementById("bid").style.color = "red";
+            } else {
+                if (bid > player[currentbidder].money) {
+                    document.getElementById("bid").value = "You don't have enough money to bid $" + bid + ".";
+                    document.getElementById("bid").style.color = "red";
+                } else if (bid > highestbid) {
+                    highestbid = bid;
+                    document.getElementById("highestbid").innerHTML = parseInt(bid, 10);
+                    highestbidder = currentbidder;
+                    document.getElementById("highestbidder").innerHTML = player[highestbidder].name;
+
+                    document.getElementById("bid").focus();
+
+                    if (player[currentbidder].human) {
+                        auctionPass();
+                    }
+                } else {
+                    document.getElementById("bid").value = "Your bid must be greater than highest bid. ($" + highestbid + ")";
+                    document.getElementById("bid").style.color = "red";
+                }
+            }
+        };
+
+        function auctionExit() {
+            socket.emit("auctionExit", currentbidder);
+            auctionPass();
+        };
+
     </script>
 
 </body>
