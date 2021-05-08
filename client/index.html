@@ -33,11 +33,11 @@
 	</div>
 
 	<p id="noscript">
-		Note: This page will not function without JavaScript.
+		Hinweis: Die Seite funktioniert nur mit JavaScript.
 	</p>
 
 	<div id="refresh">
-		Refresh this page to start a new game.
+		Lade die Seite neu, um ein neues Spiel zu beginnen.
 	</div>
 
 	<!-- <div id="enlarge"></div> -->
@@ -78,10 +78,10 @@
 		<div id="deed-mortgaged">
 			<div id="deed-mortgaged-name"></div>
 			<p>&bull;</p>
-			<div>MORTGAGED</div>
-			<div> for $<span id="deed-mortgaged-mortgage">80</span></div>
+			<div>Hypothek aufgenommen</div>
+			<div> für <span id="deed-mortgaged-mortgage">80</span></div>
 			<p>&bull;</p>
-			<div style="font-style: italic; font-size: 13px; margin: 10px;">Card must be turned this side up if property is mortgaged</div>
+			<div style="font-style: italic; font-size: 13px; margin: 10px;">Karte muss mit dieser Seite nach oben liegen, wenn eine Hypothek aufgenommen wurde.</div>
 		</div>
 
 		<div id="deed-special">
@@ -249,31 +249,31 @@
 		</div>
 
 		<div id="player1input" class="player-input">
-			Player 1: <input type="text" id="player1name" title="Player name" maxlength="16" value="Player 1" /> <input type="button" value="Set Name" id="name1button"/>
+			Player 1: <input type="text" id="player1name" title="Spieler Name" maxlength="16" value="Spieler 1" /> <input type="button" value="Name ändern" id="name1button"/>
 		</div>
 
 		<div id="player2input" class="player-input">
-			Player 2: <input type="text" id="player2name" title="Player name" maxlength="16" value="Player 2" /> <input type="button" value="Set Name" id="name2button"/>
+			Player 2: <input type="text" id="player2name" title="Spieler Name" maxlength="16" value="Spieler 2" /> <input type="button" value="Name ändern" id="name2button"/>
 		</div>
 
 		<div id="player3input" class="player-input">
-			Player 3: <input type="text" id="player3name" title="Player name" maxlength="16" value="Player 3" /> <input type="button" value="Set Name" id="name3button"/>
+			Player 3: <input type="text" id="player3name" title="Spieler Name" maxlength="16" value="Spieler 3" /> <input type="button" value="Name ändern" id="name3button"/>
 		</div>
 
 		<div id="player4input" class="player-input">
-			Player 4: <input type="text" id="player4name" title="Player name" maxlength="16" value="Player 4" /> <input type="button" value="Set Name" id="name4button"/>
+			Player 4: <input type="text" id="player4name" title="Spieler Name" maxlength="16" value="Spieler 4" /> <input type="button" value="Name ändern" id="name4button"/>
 		</div>
 
 		<div id="player5input" class="player-input">
-			Player 5: <input type="text" id="player5name" title="Player name" maxlength="16" value="Player 5" /> <input type="button" value="Set Name" id="name5button"/>
+			Player 5: <input type="text" id="player5name" title="Spieler Name" maxlength="16" value="Spieler 5" /> <input type="button" value="Name ändern" id="name5button"/>
 		</div>
 
 		<div id="player6input" class="player-input">
-			Player 6: <input type="text" id="player6name" title="Player name" maxlength="16" value="Player 6" /> <input type="button" value="Set Name" id="name6button"/>
+			Player 6: <input type="text" id="player6name" title="Spieler Name" maxlength="16" value="Spieler 6" /> <input type="button" value="Name ändern" id="name6button"/>
 		</div>
 
 		<div style="margin: 20px 0px;">
-			<input id="startbutton" type="button" value="Start Game" title="Begin playing." />
+			<input id="startbutton" type="button" value="Spiel beginnen" title="Starte das Spiel." />
 		</div>
 
 		<div id="noF5">Note: Refreshing this page or navigating away from it may end your game without warning.</div>
@@ -288,15 +288,15 @@
 							<tr>
 								<td class="menu-item" id="buy-menu-item">
 
-									<a href="javascript:void(0);" title="View alerts and buy the property you landed on.">Log</a>
+									<a href="javascript:void(0);" title="Den Spielverlauf anzeigen">Log</a>
 								</td>
 								<td class="menu-item" id="manage-menu-item">
 
-									<a href="javascript:void(0);" title="View, and improve your property. ">Immobilien</a>
+									<a href="javascript:void(0);" title="Grundstücke anzeigen und Häuser kaufen">Immobilien</a>
 								</td>
 								<td class="menu-item" id="trade-menu-item">
 
-									<a href="javascript:void(0);" title="Exchange property with other players.">Handel</a>
+									<a href="javascript:void(0);" title="Grundstücke, Anleihen und Derivate mit Spielern und Bank tauschen.">Handel</a>
 								</td>
 								<td class="menu-item" id="credit-menu-item">
 
@@ -314,9 +314,9 @@
 					<div id="manage">
 						<div id="option">
 							<div id="buildings" title="Available buildings"></div>
-							<input type="button" value="Buy house" id="buyhousebutton"/>
-							<input type="button" value="Mortgage" id="mortgagebutton" />
-							<input type="button" value="Sell house" id="sellhousebutton"/>
+							<input type="button" value="Haus kaufen" id="buyhousebutton"/>
+							<input type="button" value="Hypothek" id="mortgagebutton" />
+							<input type="button" value="Haus verkaufen" id="sellhousebutton"/>
 						</div>
 						<div id="owned"></div>
 					</div>
@@ -334,8 +334,8 @@
 			</tr><tr>
 				<td colspan="2" style="border: none">
 					<div style="padding-top: 8px;">
-						<input type="button" id="nextbutton" title="Roll the dice and move your token accordingly." value="Roll Dice"/>
-						<input type="button" id="resignbutton" title="If you cannot pay your debt then you must resign from the game." value="Resign"/>
+						<input type="button" id="nextbutton" title="Würfel und rücke entsprechend vor." value="Würfeln"/>
+						<input type="button" id="resignbutton" title="Wenn du deine Schulden nicht zahlen kannst, musst du aufgeben." value="Aufgeben"/>
 					</div>
 				</td>
 			</tr>
@@ -354,26 +354,26 @@
 			</tr>
 			<tr>
 				<td class="trade-cell">
-					$&nbsp;<input id="trade-leftp-money" value="0" title="Enter amount to exchange with the other player." />
+					$&nbsp;<input id="trade-leftp-money" value="0" title="Wie viel Geld möchtest du tauschen?" />
 				</td>
 				<td class="trade-cell">
-					$&nbsp;<input id="trade-rightp-money" value="0" title="Enter amount to exchange with the other player." />
-				</td>
-			</tr>
-            <tr>
-				<td class="trade-cell">
-					$&nbsp;<input id="trade-leftp-derivate" value="0" title="Enter amount to exchange with the other player." />
-				</td>
-				<td class="trade-cell">
-					$&nbsp;<input id="trade-rightp-derivate" value="0" title="Enter amount to exchange with the other player." />
+					$&nbsp;<input id="trade-rightp-money" value="0" title="Wie viel Geld möchtest du tauschen?" />
 				</td>
 			</tr>
             <tr>
 				<td class="trade-cell">
-					$&nbsp;<input id="trade-leftp-anleihen" value="0" title="Enter amount to exchange with the other player." />
+					$&nbsp;<input id="trade-leftp-derivate" value="0" title="Wie viele Derivate möchtest du tauschen?" />
 				</td>
 				<td class="trade-cell">
-					$&nbsp;<input id="trade-rightp-anleihen" value="0" title="Enter amount to exchange with the other player." />
+					$&nbsp;<input id="trade-rightp-derivate" value="0" title="Wie viele Derivate möchtest du tauschen?" />
+				</td>
+			</tr>
+            <tr>
+				<td class="trade-cell">
+					$&nbsp;<input id="trade-leftp-anleihen" value="0" title="Wie viele Anleihen möchtest du tauschen?" />
+				</td>
+				<td class="trade-cell">
+					$&nbsp;<input id="trade-rightp-anleihen" value="0" title="Wie viele Anleihen möchtest du tauschen?" />
 				</td>
 			</tr>
 			<tr>
@@ -382,10 +382,10 @@
 			</tr>
 			<tr>
 				<td colspan="2" class="trade-cell">
-					<input type="button" id="proposetradebutton" value="Propose Trade" onclick="proposeTrade();" title="Exchange the money and properties that are checked above." />
-					<input type="button" id="canceltradebutton" value="Cancel Trade" onclick='cancelTrade();' title="Cancel the trade." />
-					<input type="button" id="accepttradebutton" value="Accept Trade" onclick="acceptTrade();" title="Accept the proposed trade." />
-					<input type="button" id="rejecttradebutton" value="Reject Trade" onclick='cancelTrade();' title="Reject the proposed trade." />
+					<input type="button" id="proposetradebutton" value="Tausch anbieten" onclick="proposeTrade();" title="Handel mit Geld, Grundstücken, Anleihen und Derivaten anbieten." />
+					<input type="button" id="canceltradebutton" value="Abbrechen" onclick='cancelTrade();' title="Tausch abbrechen." />
+					<input type="button" id="accepttradebutton" value="Tausch annehmen" onclick="acceptTrade();" title="Nehme den angebotenen Tausch an." />
+					<input type="button" id="rejecttradebutton" value="Tausch ablehnen" onclick='cancelTrade();' title="Lehne den angebotenen Tausch ab." />
 				</td>
 			</tr>
 		</table>
@@ -488,7 +488,7 @@
             e.preventDefault();
 
             if (isNaN(document.getElementById("credit-leftp-money").value)) {
-                document.getElementById("credit-leftp-money").value = "This value must be a number.";
+                document.getElementById("credit-leftp-money").value = "Bitte eine Zahl eingeben.";
                 document.getElementById("credit-leftp-money").style.color = "red";
                 return false;
             }
@@ -516,7 +516,7 @@
             e.preventDefault();
 
             if (isNaN(document.getElementById("credit-leftp-money").value)) {
-                document.getElementById("credit-leftp-money").value = "This value must be a number.";
+                document.getElementById("credit-leftp-money").value = "Bitte eine Zahl eingeben.";
                 document.getElementById("credit-leftp-money").style.color = "red";
                 return false;
             }
@@ -540,7 +540,7 @@
            
             socket.emit('next');
 
-            if (next.value == "End turn") {
+            if (next.value == "Zug beenden") {
                 $("#nextbutton").hide();
             }
         }
@@ -553,7 +553,7 @@
             //prevent the form from refreshing the page
             e.preventDefault();
 
-            popup("<p>Are you sure you want to resign?</p>", doResign, "Yes/No");
+            popup("<p>Möchtest du wirklich aufgeben?</p>", doResign, "Ja/Nein");
         }
 
         function doResign() {
@@ -671,37 +671,37 @@
 
         function proposeTrade() {
             if (isNaN(document.getElementById("trade-leftp-money").value)) {
-                document.getElementById("trade-leftp-money").value = "This value must be a number.";
+                document.getElementById("trade-leftp-money").value = "Der Wert muss eine Zahl sein.";
                 document.getElementById("trade-leftp-money").style.color = "red";
                 return false;
             }
 
             if (isNaN(document.getElementById("trade-rightp-money").value)) {
-                document.getElementById("trade-rightp-money").value = "This value must be a number.";
+                document.getElementById("trade-rightp-money").value = "Der Wert muss eine Zahl sein.";
                 document.getElementById("trade-rightp-money").style.color = "red";
                 return false;
             }
 
             if (isNaN(document.getElementById("trade-leftp-anleihen").value)) {
-                document.getElementById("trade-leftp-anleihen").value = "This value must be a number.";
+                document.getElementById("trade-leftp-anleihen").value = "Der Wert muss eine Zahl sein.";
                 document.getElementById("trade-leftp-anleihen").style.color = "red";
                 return false;
             }
 
             if (isNaN(document.getElementById("trade-rightp-anleihen").value)) {
-                document.getElementById("trade-rightp-anleihen").value = "This value must be a number.";
+                document.getElementById("trade-rightp-anleihen").value = "Der Wert muss eine Zahl sein.";
                 document.getElementById("trade-rightp-anleihen").style.color = "red";
                 return false;
             }
 
             if (isNaN(document.getElementById("trade-leftp-derivate").value)) {
-                document.getElementById("trade-leftp-derivate").value = "This value must be a number.";
+                document.getElementById("trade-leftp-derivate").value = "Der Wert muss eine Zahl sein.";
                 document.getElementById("trade-leftp-derivate").style.color = "red";
                 return false;
             }
 
             if (isNaN(document.getElementById("trade-rightp-derivate").value)) {
-                document.getElementById("trade-rightp-derivate").value = "This value must be a number.";
+                document.getElementById("trade-rightp-derivate").value = "Der Wert muss eine Zahl sein.";
                 document.getElementById("trade-rightp-derivate").style.color = "red";
                 return false;
             }
@@ -726,32 +726,32 @@
             }
 
             if (money > 0 && money > initiator.money) {
-                document.getElementById("trade-leftp-money").value = initiator.name + " does not have $" + money + ".";
+                document.getElementById("trade-leftp-money").value = initiator.name + " hat keine " + money + ".";
                 document.getElementById("trade-leftp-money").style.color = "red";
                 return false;
             } else if (!(recipient.name == "bank") && money < 0 && -money > recipient.money) {
-                document.getElementById("trade-rightp-money").value = recipient.name + " does not have $" + (-money) + ".";
+                document.getElementById("trade-rightp-money").value = recipient.name + " hat keine " + (-money) + ".";
                 document.getElementById("trade-rightp-money").style.color = "red";
                 return false;
             }
 
             if (anleihen > 0 && anleihen > initiator.anleihen) {
-                document.getElementById("trade-leftp-anleihen").value = initiator.name + " does not have $" + anleihen + ".";
+                document.getElementById("trade-leftp-anleihen").value = initiator.name + " hat keine Anleihen im Wert von " + anleihen + ".";
                 document.getElementById("trade-leftp-anleihen").style.color = "red";
                 return false;
             } else if (anleihen < 0 && -anleihen > recipient.anleihen) {
-                document.getElementById("trade-rightp-anleihen").value = recipient.name + " does not have $" + (-anleihen) + ".";
+                document.getElementById("trade-rightp-anleihen").value = recipient.name + " hat keine Anleihen im Wert von " + (-anleihen) + ".";
                 document.getElementById("trade-rightp-anleihen").style.color = "red";
                 return false;
             }
 
-            if (anleihen > 0 && anleihen > initiator.anleihen) {
-                document.getElementById("trade-leftp-anleihen").value = initiator.name + " does not have $" + anleihen + ".";
-                document.getElementById("trade-leftp-anleihen").style.color = "red";
+            if (derivate > 0 && derivate > initiator.derivate) {
+                document.getElementById("trade-leftp-derivate").value = initiator.name + " hat keine Derivate im Wert von " + derivate + ".";
+                document.getElementById("trade-leftp-derivate").style.color = "red";
                 return false;
-            } else if (anleihen < 0 && -anleihen > recipient.anleihen) {
-                document.getElementById("trade-rightp-anleihen").value = recipient.name + " does not have $" + (-anleihen) + ".";
-                document.getElementById("trade-rightp-anleihen").style.color = "red";
+            } else if (derivate < 0 && -derivate > recipient.derivate) {
+                document.getElementById("trade-rightp-derivate").value = recipient.name + " hat keine Derivate im Wert von " + (-derivate) + ".";
+                document.getElementById("trade-rightp-derivate").style.color = "red";
                 return false;
             }
 
@@ -769,7 +769,7 @@
                 return false;
             }*/
 
-            if (!confirm(initiator.name + ", are you sure you want to make this offer to " + recipient.name + "?")) {
+            if (!confirm(initiator.name + ", bist du sicher, dass du dieses Angebot an " + recipient.name + " machen willst?")) {
                 return false;
             }
 
@@ -791,8 +791,8 @@
             $("#accepttradebutton").show();
             $("#rejecttradebutton").show();
 
-            addAlert(initiator.name + " initiated a trade with " + recipient.name + ".");
-            popup("<p>" + initiator.name + " has proposed a trade with you, " + recipient.name + ". You may accept, reject, or modify the offer.</p>");
+            addAlert(initiator.name + " hat eine Handel mit " + recipient.name + " begonnen.");
+            popup("<p>" + initiator.name + " hat dir, " + recipient.name + ", einen Tausch angeboten. Du kannst das Angebot annehmen, ablehnen oder verändern.</p>");
             
         });
 
@@ -804,13 +804,13 @@
         };
         function acceptTrade() {
             if (isNaN(document.getElementById("trade-leftp-money").value)) {
-                document.getElementById("trade-leftp-money").value = "This value must be a number.";
+                document.getElementById("trade-leftp-money").value = "Der Wert muss eine Zahl sein.";
                 document.getElementById("trade-leftp-money").style.color = "red";
                 return false;
             }
 
             if (isNaN(document.getElementById("trade-rightp-money").value)) {
-                document.getElementById("trade-rightp-money").value = "This value must be a number.";
+                document.getElementById("trade-rightp-money").value = "Der Wert muss eine Zahl sein.";
                 document.getElementById("trade-rightp-money").style.color = "red";
                 return false;
             }
@@ -860,7 +860,7 @@
                 return false;
             }*/
 
-            if (showAlerts && !confirm(initiator.name + ", are you sure you want to make this exchange with " + recipient.name + "?")) {
+            if (showAlerts && !confirm(initiator.name + ", bist du sicher, dass du diesen Tausch mit " + recipient.name + " machen willst?")) {
                 return false;
             }
 
@@ -869,10 +869,10 @@
 
                 if (tradeObj.property[i] === 1) {
                     socket.emit('changeOwner', i, recipient.index);
-                    addAlert(recipient.name + " received " + square[i].name + " from " + initiator.name + ".");
+                    addAlert(recipient.name + " hat " + square[i].name + " von " + initiator.name + " erhalten.");
                 } else if (tradeObj.property[i] === -1) {
                     socket.emit('changeOwner', i, initiator.index);
-                    addAlert(initiator.name + " received " + square[i].name + " from " + recipient.name + ".");
+                    addAlert(initiator.name + " hat " + square[i].name + " von " + recipient.name + " erhalten.");
                 }
 
             }
@@ -881,32 +881,32 @@
             if (money > 0) {
                 socket.emit('pay', initiator, recipient, money);
 
-                addAlert(recipient.name + " received $" + money + " from " + initiator.name + ".");
+                addAlert(recipient.name + " bekommt " + money + " von " + initiator.name + ".");
             } else if (money < 0) {
                 socket.emit('pay', recipient, initiator, -money);
 
-                addAlert(initiator.name + " received $" + (-money) + " from " + recipient.name + ".");
+                addAlert(initiator.name + " bekommt " + (-money) + " von " + recipient.name + ".");
             }
 
             //stock exchange
             if (anleihen > 0) {
                 socket.emit('buyAnleihen', initiator, recipient, anleihen);
 
-                addAlert(recipient.name + " received $" + anleihen + " from " + initiator.name + ".");
+                addAlert(recipient.name + " bekommt Anleihen im Wert von " + anleihen + " von " + initiator.name + ".");
             } else if (anleihen < 0) {
                 socket.emit('buyAnleihen', recipient, initiator, -anleihen);
 
-                addAlert(initiator.name + " received $" + (-anleihen) + " from " + recipient.name + ".");
+                addAlert(initiator.name + " bekommt Anleihen im Wert von " + (-anleihen) + " von " + recipient.name + ".");
             }
 
             if (derivate > 0) {
                 socket.emit('buyDerivate', initiator, recipient, derivate);
 
-                addAlert(recipient.name + " received $" + derivate + " from " + initiator.name + ".");
+                addAlert(recipient.name + " bekommt Derivate im Wert von " + derivate + " von " + initiator.name + ".");
             } else if (derivate < 0) {
                 socket.emit('buyDerivate', recipient, initiator, -derivate);
 
-                addAlert(initiator.name + " received $" + (-derivate) + " from " + recipient.name + ".");
+                addAlert(initiator.name + " bekommt Derivate im Wert von " + (-derivate) + " von " + recipient.name + ".");
             }
 
             socket.emit('updateOwned');
@@ -1047,13 +1047,13 @@
             if (initiatorSideTable.lastChild) {
                 initiatorProperty.appendChild(initiatorSideTable);
             } else {
-                initiatorProperty.textContent = initiator.name + " has no properties to trade.";
+                initiatorProperty.textContent = initiator.name + " hat keine Grundstücke zum Handeln.";
             }
 
             if (recipientSideTable.lastChild) {
                 recipientProperty.appendChild(recipientSideTable);
             } else {
-                recipientProperty.textContent = recipient.name + " has no properties to trade.";
+                recipientProperty.textContent = recipient.name + " hat keine Grundstücke zum Handeln.";
             }
 
             document.getElementById("trade-leftp-name").textContent = initiator.name;
@@ -1095,7 +1095,7 @@
                     resetTrade(currentInitiator, player[parseInt(this.value, 10)], true);
                 };
 
-                nameSelect.title = "Select a player to trade with.";
+                nameSelect.title = "Wähle einen Mitspieler zum Handeln aus.";
             } else {
                 currentName.textContent = recipient.name;
             }
@@ -1212,9 +1212,9 @@
             socket.emit('eliminate');
         }
 
-        socket.on('updateMoney', function(player, turn, meineBank, meinStaat) {
+        socket.on('updateMoney', function(player, turn, meineBank, meinStaat, _pcount) {
             var p = player[turn];
-
+            pcount = _pcount;
             document.getElementById("pmoney").innerHTML = "$" + p.money;
             $(".money-bar-row").hide();
 
@@ -1321,13 +1321,13 @@
 
                     mortgagetext = "";
                     if (sq.mortgage) {
-                        mortgagetext = "title='Mortgaged' style='color: grey;'";
+                        mortgagetext = "title='Hypothek aufgenommen' style='color: grey;'";
                     }
 
                     housetext = "";
                     if (sq.house >= 1 && sq.house <= 2) {
                         for (var x = 1; x <= sq.house; x++) {
-                            housetext += "<img src='./client/images/house.png' alt='' title='House' class='house' />";
+                            housetext += "<img src='./client/images/house.png' alt='' title='Haus' class='house' />";
                         }
                     } 
 
@@ -1343,7 +1343,7 @@
             }
 
             if (HTML === "") {
-                HTML = p.name + ", you don't have any properties.";
+                HTML = p.name + ", du besitzt keine Grundstücke.";
                 $("#option").hide();
             } else {
                 HTML += "</table>";
@@ -1399,15 +1399,15 @@
             document.getElementById("mortgagebutton").disabled = false;
 
             if (sq.mortgage) {
-                document.getElementById("mortgagebutton").value = "Unmortgage ($" + sq.price + ")";
-                document.getElementById("mortgagebutton").title = "Unmortgage " + sq.name + " for $" + sq.price + ".";
+                document.getElementById("mortgagebutton").value = "Hypothek zurückzahlen ($" + sq.price + ")";
+                document.getElementById("mortgagebutton").title = "Hypothek auf " + sq.name + " für " + sq.price + " zurückzahlen.";
                 $("#buyhousebutton").hide();
                 $("#sellhousebutton").hide();
 
                 allGroupUnmortgaged = false;
             } else {
-                document.getElementById("mortgagebutton").value = "Mortgage ($" + sq.price + ")";
-                document.getElementById("mortgagebutton").title = "Mortgage " + sq.name + " for $" + sq.price + ".";
+                document.getElementById("mortgagebutton").value = "Hypothek ($" + sq.price + ")";
+                document.getElementById("mortgagebutton").title = "Hypothek auf " + sq.name + " für " + sq.price + " aufnehmen.";
             }
 
                 
@@ -1418,29 +1418,29 @@
 
             if (sq.house == 0) {
                 $("#sellhousebutton").hide();
-                buyhousebutton.value = "Buy house (" + sq.houseprice + ")";
-                buyhousebutton.title = "Buy a house for " + sq.houseprice;
+                buyhousebutton.value = "Haus kaufen (" + sq.houseprice + ")";
+                buyhousebutton.title = "Kaufe ein Haus für " + sq.houseprice;
             }
             
 
             if (sq.house >= 1) {
                 $("#buyhousebutton").hide();
-                sellhousebutton.value = "Sell house (" + (sq.houseprice) + ")";
-                sellhousebutton.title = "Sell a house for " + (sq.houseprice);
+                sellhousebutton.value = "Haus verkaufen (" + (sq.houseprice) + ")";
+                sellhousebutton.title = "Verkaufe eine Haus für " + (sq.houseprice);
 
                 $("#mortgagebutton").show();
                 document.getElementById("mortgagebutton").disabled = false;
 
                 if (sq.mortgage) {
-                    document.getElementById("mortgagebutton").value = "Unmortgage ($" + sq.price + ")";
-                    document.getElementById("mortgagebutton").title = "Unmortgage " + sq.name + " for $" + sq.price + ".";
+                    document.getElementById("mortgagebutton").value = "Hypothek zurückzahlen ($" + sq.price + ")";
+                    document.getElementById("mortgagebutton").title = "Hypothek auf " + sq.name + " für " + sq.price + " zurückzahlen.";
                     $("#buyhousebutton").hide();
                     $("#sellhousebutton").hide();
 
                     allGroupUnmortgaged = false;
                 } else {
-                    document.getElementById("mortgagebutton").value = "Mortgage ($" + sq.price + ")";
-                    document.getElementById("mortgagebutton").title = "Mortgage " + sq.name + " for $" + sq.price + ".";
+                    document.getElementById("mortgagebutton").value = "Hypothek ($" + sq.price + ")";
+                    document.getElementById("mortgagebutton").title = "Hypothek auf " + sq.name + " für " + sq.price + " aufnehmen.";
                 }
             }
             
@@ -1978,8 +1978,8 @@
             }
 
             // Yes/No
-            if (option === "yes/no") {
-                document.getElementById("popuptext").innerHTML += "<div><input type=\"button\" value=\"Yes\" id=\"popupyes\" /><input type=\"button\" value=\"No\" id=\"popupno\" /></div>";
+            if (option === "ja/nein") {
+                document.getElementById("popuptext").innerHTML += "<div><input type=\"button\" value=\"Ja\" id=\"popupyes\" /><input type=\"button\" value=\"Nein\" id=\"popupno\" /></div>";
 
                 $("#popupyes, #popupno").on("click", function() {
                     $("#popupwrap").hide();
@@ -2048,18 +2048,18 @@
 
                     mortgagetext = "";
                     if (sq.mortgage) {
-                        mortgagetext = "title='Mortgaged' style='color: grey;'";
+                        mortgagetext = "title='Hypothek aufgenommen' style='color: grey;'";
                     }
 
                     housetext = "";
                     if (sq.house >= 1 && sq.house <= 2) {
                         for (var x = 1; x <= sq.house; x++) {
-                            housetext += "<img src='./client/images/house.png' alt='' title='House' class='house' />";
+                            housetext += "<img src='./client/images/house.png' alt='' title='Haus' class='house' />";
                         }
                     } 
 
                     if (HTML === "") {
-                        HTML += "<p>" + player[playerId].name + ", choose any of the following properties for an auction, by clicking on them. Click OK when finished.</p>";
+                        HTML += "<p>" + player[playerId].name + ", wähle eines der Grundstücke für die Auktion aus, indem du es anklickst. Klicke OK, wenn du fertig bist.</p>";
                         HTML += "<table>";
                         firstproperty = i;
                     }
@@ -2071,7 +2071,7 @@
             }
 
             if (HTML === "") {
-                HTML = p.name + ", you don't have any properties.";
+                HTML = p.name + ", du besitzt keine Grundstücke.";
                 $("#option").hide();
             } else {
                 HTML += "</table>";
@@ -2125,7 +2125,7 @@
 
             var s = _square[_auctionproperty];
 
-            popup("<div style='font-weight: bold; font-size: 16px; margin-bottom: 10px;'>Auction <span id='propertyname'></span></div><div>Highest Bid = $<span id='highestbid'></span> (<span id='highestbidder'></span>)</div><div><span id='currentbidder'></span>, it is your turn to bid.</div<div><input id='bid' title='Enter an amount to bid on " + s.name + ".' style='width: 291px;' /></div><div><input type='button' value='Bid' onclick='auctionBid();' title='Place your bid.' /><input type='button' value='Pass' title='Skip bidding this time.' onclick='auctionPass();' /><input type='button' value='Exit Auction' title='Stop bidding on " + s.name + " altogether.' onclick='if (confirm(\"Are you sure you want to stop bidding on this property altogether?\")) auctionExit();' /></div>", "blank");
+            popup("<div style='font-weight: bold; font-size: 16px; margin-bottom: 10px;'>Auktion <span id='propertyname'></span></div><div>Höchstes Gebot = $<span id='highestbid'></span> (<span id='highestbidder'></span>)</div><div><span id='currentbidder'></span>, du bist an der Reihe.</div<div><input id='bid' title='Gib ein Gebot für " + s.name + " ab.' style='width: 291px;' /></div><div><input type='button' value='Bieten' onclick='auctionBid();' title='Gib dein Gebot ab.' /><input type='button' value='Aussetzen' title='Diese Runde nicht bieten.' onclick='auctionPass();' /><input type='button' value='Auktion verlassen' title='Nicht mehr für " + s.name + " bieten.' onclick='if (confirm(\"Möchtest du wirklich nicht weiter bieten?\")) auctionExit();' /></div>", "blank");
             document.getElementById("propertyname").innerHTML = "<a href='javascript:void(0);' onmouseover='showdeed(" + auctionproperty + ");' onmouseout='hidedeed();' class='statscellcolor'>" + s.name + "</a>";
             //document.getElementById("highestbid").innerHTML = "0";
             //document.getElementById("highestbidder").innerHTML = "N/A";
@@ -2196,14 +2196,14 @@
             bid = bid || parseInt(document.getElementById("bid").value, 10);
 
             if (bid === "" || bid === null) {
-                document.getElementById("bid").value = "Please enter a bid.";
+                document.getElementById("bid").value = "Gebe ein Gebot ab.";
                 document.getElementById("bid").style.color = "red";
             } else if (isNaN(bid)) {
-                document.getElementById("bid").value = "Your bid must be a number.";
+                document.getElementById("bid").value = "Das Gebot muss eine Zahl sein.";
                 document.getElementById("bid").style.color = "red";
             } else {
                 if (bid > player[currentbidder].money) {
-                    document.getElementById("bid").value = "You don't have enough money to bid $" + bid + ".";
+                    document.getElementById("bid").value = "Du hast nicht genügend Geld um " + bid + " zu bieten.";
                     document.getElementById("bid").style.color = "red";
                 } else if (bid > highestbid) {
                     highestbid = bid;
@@ -2217,7 +2217,7 @@
                         auctionPass();
                     }
                 } else {
-                    document.getElementById("bid").value = "Your bid must be greater than highest bid. ($" + highestbid + ")";
+                    document.getElementById("bid").value = "Dein Gebot muss höher sein als das höchste Gebot. ($" + highestbid + ")";
                     document.getElementById("bid").style.color = "red";
                 }
             }

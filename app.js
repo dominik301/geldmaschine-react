@@ -62,13 +62,13 @@ io.sockets.on('connection', function(socket){
 
     if (s.mortgage) {
         if (player[s.owner].money < s.houseprice) {
-            popup("<p>You need $" + (s.price - player[s.owner].money) + " more to unmortgage " + s.name + ".</p>");
+            popup("<p>Du brauchst " + (s.price - player[s.owner].money) + " mehr um die Hypothek für " + s.name + " zurückzuzahlen.</p>");
 
         } else {
-            popup("<p>" + player[s.owner].name + ", are you sure you want to unmortgage " + s.name + " for $" + s.price + "?</p>", "Yes/No", true);
+            popup("<p>" + player[s.owner].name + ", möchtest du wirklich die Hypothek für " + s.name + " für " + s.price + " zurückzahlen?</p>", "Ja/Nein", true);
         }
     } else {
-        popup("<p>" + player[s.owner].name + ", are you sure you want to mortgage " + s.name + " for $" + s.price + "?</p>", "Yes/No", true);
+        popup("<p>" + player[s.owner].name + ", mächstest du wirkliche eine Hypothek für " + s.name + " für " + s.price + " aufnehmen?</p>", "Ja/Nein", true);
     } 
   });
 
@@ -174,12 +174,12 @@ io.sockets.on('connection', function(socket){
 			initiator.pay(money, recipient.index);
     		recipient.money += money;
 
-			addAlert(recipient.name + " received $" + money + " from " + initiator.name + ".");
+			addAlert(recipient.name + " hat " + money + " von " + initiator.name + " erhalten.");
 		} else if (money < 0) {
 			recipient.pay(-money, initiator.index);
     		initiator.zinsenLotto -= money;
 
-			addAlert(initiator.name + " received $" + (-money) + " from " + recipient.name + ".");
+			addAlert(initiator.name + " hat " + (-money) + " von " + recipient.name + " erhalten.");
 		}
 
 		//stock exchange
@@ -187,24 +187,24 @@ io.sockets.on('connection', function(socket){
 			initiator.anleihenBank -= anleihen;
 			recipient.anleihen += anleihen;
 
-			addAlert(recipient.name + " received $" + anleihen + " from " + initiator.name + ".");
+			addAlert(recipient.name + " hat Anleihen im Wert von " + anleihen + " von " + initiator.name + " erhalten.");
 		} else if (anleihen < 0) {
 			initiator.anleihenBank -= anleihen;
 			recipient.anleihen += anleihen;
 
-			addAlert(initiator.name + " received $" + (-anleihen) + " from " + recipient.name + ".");
+			addAlert(initiator.name + " hat Anleihen im Wert von " + (-anleihen) + " von " + recipient.name + " erhalten.");
 		}
 
 		if (derivate > 0) {
 			initiator.derivateBank -= derivate;
 			recipient.derivate += derivate;
 
-			addAlert(recipient.name + " received $" + derivate + " from " + initiator.name + ".");
+			addAlert(recipient.name + " hat Derivate im Wert von " + derivate + " von " + initiator.name + " erhalten.");
 		} else if (derivate < 0) {
 			initiator.derivateBank -= derivate;
 			recipient.derivate += derivate;
 
-			addAlert(initiator.name + " received $" + (-derivate) + " from " + recipient.name + ".");
+			addAlert(initiator.name + " hat Anleihen im Wert von " + (-derivate) + " von " + recipient.name + " erhalten.");
 		}
 
 		updateOwned()
@@ -268,9 +268,23 @@ io.sockets.on('connection', function(socket){
   });
 
   socket.on('disconnect',function(){
-              
-    delete SOCKET_LIST[socket.id];
-		
+	Object.keys(SOCKET_LIST).forEach(function eachKey(key) {
+		if(SOCKET_LIST[key] == socket){
+			if (game) {
+				game.eliminatePlayer(key);
+			} else {
+				playerNo -= 1;
+				delete playerNames[key];
+				delete SOCKET_LIST[key];
+
+				for (var i = parseInt(key); i < playerNo; i++) {
+					playerNames[i] = playerNames[i + 1];
+					SOCKET_LIST[i] = SOCKET_LIST[i + 1];
+					SOCKET_LIST[i].emit('setPlayerId', i);
+				}
+			}
+		}
+	});
 	});
 
   socket.on('pay', function(initiator, recipient, money) {
@@ -321,7 +335,7 @@ function Game() {
 		if (this.highestbid > 0) {
 			p.pay(this.highestbid, 0);
 			sq.owner = this.highestbidder;
-			addAlert(p.name + " bought " + sq.name + " for $" + this.highestbid + ".");
+			addAlert(p.name + " hat " + sq.name + " für " + this.highestbid + " ersteigert.");
 			player[turn].money += this.highestbid;
 			payeachplayer(this.highestbid / 2, "auction");
 		}
@@ -372,7 +386,7 @@ function Game() {
 	};
 
 	this.next = function() {
-		if (areDiceRolled && doublecount === 0) {
+		if (areDiceRolled) {
 			play();
 		} else {
 			roll();
@@ -434,8 +448,13 @@ function Game() {
 	// Bankrupcy functions:
 
 
-	this.eliminatePlayer = function() {
-		var p = player[turn];
+	this.eliminatePlayer = function(key=turn) {
+		var p = player[key];
+
+		var isPlayerTurn = key == turn;
+
+		playerNo -= 1;
+		delete playerNames[key];
 
 		for (var i = p.index; i < pcount; i++) {
 			player[i] = player[i + 1];
@@ -449,10 +468,25 @@ function Game() {
 			}
 		}
 
-    //TODO: socket list
-
 		pcount--;
-		turn--;
+		if (key <= turn)
+			turn--;
+		if (turn == 0) {
+			turn = pcount;
+		}
+
+		delete SOCKET_LIST[key];
+		for (var i = p.index; i < pcount+1; i++) {
+			playerNames[i] = playerNames[i + 1];
+			SOCKET_LIST[i] = SOCKET_LIST[i + 1];
+			SOCKET_LIST[i].emit('setPlayerId', i);
+		}	
+		delete SOCKET_LIST[pcount+1];
+		delete playerNames[pcount+1];
+
+		updateOwned();
+		updateMoney();
+		
 
 		/*if (pcount === 2) {
 			document.getElementById("stats").style.width = "454px";
@@ -462,12 +496,12 @@ function Game() {
 
 		if (pcount === 1) {
 			updateMoney();
-      SOCKET_LIST[turn].emit('show', '#control, #board', false); //TODO
-      SOCKET_LIST[turn].emit('show', '#refresh', true);
+			SOCKET_LIST[turn].emit('show', '#control, #board', false); //TODO
+			SOCKET_LIST[turn].emit('show', '#refresh', true);
 
-			popup("<p>Congratulations, " + player[1].name + ", you have won the game.</p><div>");
+			popup("<p>Glückwunsch, " + player[1].name + ", du hast das Spiel gewonnen.</p><div>");
 
-		} else {
+		} else if (isPlayerTurn){
 			play();
 		}
 	};
@@ -480,7 +514,7 @@ function Game() {
 			return;
 		}
 
-		var HTML = "<p>" + player[p.creditor].name + ", you may unmortgage any of the following properties, interest free, by clicking on them. Click OK when finished.</p><table>";
+		var HTML = "<p>" + player[p.creditor].name + ", du darfst die Hypothek für eines der folgenden Grundstücke zurückzahlen, indem du darauf klickst. Klicke OK, wenn du fertig bist.</p><table>";
 		var price;
 
 		for (var i = 0; i < 12; i++) {
@@ -497,7 +531,7 @@ function Game() {
 				}
 
 				// Player already paid interest, so they can unmortgage for the mortgage price.
-				HTML += "' onmouseover='showdeed(" + i + ");' onmouseout='hidedeed();'></td><td class='propertycellname'><a href='javascript:void(0);' title='Unmortgage " + sq.name + " for $" + price + ".' onclick='if (" + price + " <= player[" + p.creditor + "].money) {player[" + p.creditor + "].pay(" + price + ", 0); square[" + i + "].mortgage = false; addAlert(\"" + player[p.creditor].name + " unmortgaged " + sq.name + " for $" + price + ".\");} this.parentElement.parentElement.style.display = \"none\";'>Unmortgage " + sq.name + " ($" + price + ")</a></td></tr>";
+				HTML += "' onmouseover='showdeed(" + i + ");' onmouseout='hidedeed();'></td><td class='propertycellname'><a href='javascript:void(0);' title='Hypothek auf " + sq.name + " für " + price + " zurückzahlen.' onclick='if (" + price + " <= player[" + p.creditor + "].money) {player[" + p.creditor + "].pay(" + price + ", 0); square[" + i + "].mortgage = false; addAlert(\"" + player[p.creditor].name + " hat die Hypothek für " + sq.name + " für " + price + " zurückgezahlt.\");} this.parentElement.parentElement.style.display = \"none\";'>Hypothek auf " + sq.name + " zurückzahlen (" + price + ")</a></td></tr>";
 
 				sq.owner = p.creditor;
 
@@ -526,7 +560,7 @@ function Game() {
 			return;
 		}
 
-		addAlert(p.name + " is bankrupt.");
+		addAlert(p.name + " ist bankrott.");
 
 		if (p.creditor !== 0) {
 			pcredit.money += p.money;
@@ -539,7 +573,7 @@ function Game() {
 				if (!sq.mortgage) {
 					sq.owner = p.creditor;
 				} else {
-					bankruptcyUnmortgageFee += Math.round(sq.price * 0.1);
+					//bankruptcyUnmortgageFee += Math.round(sq.price * 0.1);
 				}
 
 				if (sq.house > 0) {
@@ -562,8 +596,8 @@ function Game() {
 		if (pcount === 2 || bankruptcyUnmortgageFee === 0 || p.creditor === 0) {
 			game.eliminatePlayer();
 		} else {
-			addAlert(pcredit.name + " paid $" + bankruptcyUnmortgageFee + " interest on the mortgaged properties received from " + p.name + ".");
-			popup("<p>" + pcredit.name + ", you must pay $" + bankruptcyUnmortgageFee + " interest on the mortgaged properties you received from " + p.name + ".</p>");
+			//addAlert(pcredit.name + " paid $" + bankruptcyUnmortgageFee + " interest on the mortgaged properties received from " + p.name + ".");
+			//popup("<p>" + pcredit.name + ", you must pay $" + bankruptcyUnmortgageFee + " interest on the mortgaged properties you received from " + p.name + ".</p>");
       player[pcredit.index].pay(bankruptcyUnmortgageFee, 0); 
       game.bankruptcyUnmortgage();
 		} //TODO: elimination
@@ -678,8 +712,8 @@ function Bank(name="bank", color="black") {
 	this.human = true;
 	this.geldMenge = 0;
 	this.zinsenLotto = 0;
-	this.derivateBank = 1000;
-	this.anleihenBank = 1000;
+	this.derivateBank = 0;
+	this.anleihenBank = 0;
 	this.index = 0;
 
 	this.pay = function (amount, creditor) {
@@ -775,7 +809,7 @@ function Credit(initiator, money) {
 
 var player = [];
 var pcount;
-var turn = 0, doublecount = 0;
+var turn = 0;
 var meinStaat = new Staat();
 var meineBank = new Bank();
 
@@ -813,7 +847,7 @@ function updatePosition() {
 
 function updateMoney() {
   for(var i in SOCKET_LIST){
-    SOCKET_LIST[i].emit('updateMoney', player, turn, meineBank, meinStaat);
+    SOCKET_LIST[i].emit('updateMoney', player, turn, meineBank, meinStaat, pcount);
   }
 }
 
@@ -833,6 +867,7 @@ function updateOwned() {
 }
 
 function updateOption() {
+	if (SOCKET_LIST[turn] == undefined) return;
   SOCKET_LIST[turn].emit('updateOption', square);
 }
 
@@ -864,7 +899,7 @@ function payeachplayer(amount, cause) {
 		}
 	}
 
-	addAlert(p.name + " lost $" + total + " from " + cause + ".");
+	addAlert(p.name + " hat " + total + " durch " + cause + " verloren.");
 }
 
 function advance(destination, pass) {
@@ -877,7 +912,7 @@ function advance(destination, pass) {
 			p.position = pass;
 			p.money -= p.sumKredit * game.zinssatz / 100;
 			meineBank.zinsenLotto += p.sumKredit * game.zinssatz / 100;
-			addAlert(p.name + " payed interest for passing GO.");
+			addAlert(p.name + " ist über Start gezogen und hat Zinsen auf Kredite gezahlt.");
 		}
 	}
 	if (p.position < destination) {
@@ -886,7 +921,7 @@ function advance(destination, pass) {
 		p.position = destination;
 		p.money -= p.sumKredit * game.zinssatz / 100;
 		meineBank.zinsenLotto += p.sumKredit * game.zinssatz / 100;
-		addAlert(p.name + " payed interest for passing GO.");
+		addAlert(p.name + " ist über Start gezogen und hat Zinsen auf Kredite gezahlt.");
 	}
 
 	land();
@@ -909,7 +944,7 @@ function payplayer(position, amount) {
 
 	p.pay(amount, receiver);
 
-	addAlert(p.name + " lost $" + amount + ".");
+	addAlert(p.name + " hat " + amount + " gezahlt.");
 
 }
 
@@ -927,7 +962,7 @@ function payState(amount) {
 
 	p.pay(amount, 0);
 
-	addAlert(p.name + " lost $" + amount + ".");
+	addAlert(p.name + " hat " + amount + " an den Staat gezahlt.");
 }
 
 function sellRichest(amount) {
@@ -950,7 +985,7 @@ function sellRichest(amount) {
 
 	richest.pay(amount, idx);
 
-	addAlert(richest.name + " lost $" + amount + "to " + p.name);
+	addAlert(richest.name + " hat " + amount + " an " + p.name + " gezahlt.");
 }
 
 function sellPoorest(amount) {
@@ -973,7 +1008,7 @@ function sellPoorest(amount) {
 
 	poorest.pay(amount, idx);
 
-	addAlert(poorest.name + " lost $" + amount + "to " + p.name);
+	addAlert(poorest.name + " hat " + amount + " an " + p.name + "gezahlt.");
 }
 
 function receiveFromBank(amount) {
@@ -1002,7 +1037,7 @@ function buyHouse(index) {
   price = (sq.houseprice - discount) * (1 - percent / 100);
 
   if (p.money < price) {
-    popup("<p>You need $" + (price - player[sq.owner].money) + " more to buy a house for " + sq.name + ".</p>");
+    popup("<p>Du brauchst " + (price - player[sq.owner].money) + " mehr um ein Haus in der " + sq.name + " zu kaufen.</p>");
     return false;
   }
 
@@ -1011,16 +1046,16 @@ function buyHouse(index) {
   }
 
   if (sq.house < 2 && houseSum >= 11) {
-      popup("<p>All 11 houses are owned. You must wait until one becomes available.</p>");
+      popup("<p>Alle 11 Häuser sind verkauft.</p>");
       return false;
   } 
 
   if (game.phase == 1 && sq.house < 1) {
     sq.house++;
-    addAlert(p.name + " placed a house on " + sq.name + ".");
+    addAlert(p.name + " hat ein Haus in der " + sq.name + " gekauft.");
   } else if (game.phase == 2 && sq.house < 2) {
 	sq.house++;
-    addAlert(p.name + " placed a house on " + sq.name + ".");
+    addAlert(p.name + " hat ein Haus in der " + sq.name + " gekauft.");
 	payState(price - sq.houseprice);
   }  else {
     return;
@@ -1030,7 +1065,7 @@ function buyHouse(index) {
 	  game.phase = 2;
   }
 
-  payeachplayer(sq.houseprice, "buying a house");
+  payeachplayer(sq.houseprice, "Hauskauf");
 
   updateOwned();
   updateMoney();
@@ -1053,7 +1088,7 @@ function sellHouse(index) {
 	p = player[sq.owner];
 
 	sq.house--;
-	addAlert(p.name + " sold a house on " + sq.name + ".");
+	addAlert(p.name + " hat ein Haus in der " + sq.name + " verkauft.");
 
 	p.money += sq.houseprice;
 	updateOwned();
@@ -1083,7 +1118,7 @@ function showStats(key=turn) {
 				housetext = "";
 
 				if (sq.mortgage) {
-					mortgagetext = "title='Mortgaged' style='color: grey;'";
+					mortgagetext = "title='Hypothek aufgenommen' style='color: grey;'";
 				}
 
 				if (!write) {
@@ -1102,7 +1137,7 @@ function showStats(key=turn) {
 		}
 
 		if (!write) {
-			HTML += p.name + " dosen't have any properties.";
+			HTML += p.name + " hat keine Grundstücke.";
 		} else {
 			HTML += "</table>";
 		}
@@ -1130,7 +1165,7 @@ function buy() {
 
 		property.owner = turn;
 		updateMoney();
-		addAlert(p.name + " bought " + property.name + " for " + property.houseprice + ".");
+		addAlert(p.name + " hat " + property.name + " für " + property.houseprice + " gekauft.");
 
 		updateOwned();
 		p.update();
@@ -1138,7 +1173,7 @@ function buy() {
     SOCKET_LIST[turn].emit('show', "#landed", false);
 
 	} else {
-		popup("<p>" + p.name + ", you need $" + (property.price - p.money) + " more to buy " + property.name + ".</p>");
+		popup("<p>" + p.name + ", du brauchst weitere " + (property.price - p.money) + " um " + property.name + " zu kaufen.</p>");
 	}
 }
 
@@ -1155,12 +1190,12 @@ function mortgage(index) {
 	sq.mortgage = true;
 	p.money += mortgagePrice;
 
-  var value = "Unmortgage for $" + mortgagePrice;
-  var title = "Unmortgage " + sq.name + " for $" + mortgagePrice + ".";
+  var value = "Hypothek zurückzahlen für " + mortgagePrice;
+  var title = "Hypothek auf " + sq.name + " zurückzahlen für " + mortgagePrice + ".";
 
   SOCKET_LIST[turn].emit('changeButton', "mortgagebutton", value, title);
 
-	addAlert(p.name + " mortgaged " + sq.name + " for $" + mortgagePrice + ".");
+	addAlert(p.name + " hat eine Hypothek auf " + sq.name + " für " + mortgagePrice + " aufgenommen.");
 	updateOwned();
 	updateMoney();
 
@@ -1179,12 +1214,12 @@ function unmortgage(index) {
 	p.pay(mortgagePrice, 0);
 	sq.mortgage = false;
 
-  value = "Mortgage for $" + mortgagePrice;
-  title = "Mortgage " + sq.name + " for $" + mortgagePrice + ".";
+  value = "Hypothek aufnehmen für " + mortgagePrice;
+  title = "Hypothek auf " + sq.name + " für " + mortgagePrice + " aufnehmen.";
 
   SOCKET_LIST[turn].emit('changeButton', "mortgagebutton", value, title);
 
-	addAlert(p.name + " unmortgaged " + sq.name + " for $" + unmortgagePrice + ".");
+	addAlert(p.name + " hat die Hypothek für " + sq.name + " für " + unmortgagePrice + " zurückgezahlt.");
 	updateOwned();
 	return true;
 }
@@ -1195,16 +1230,16 @@ function land(increasedRent) {
 	var s = square[p.position];
 
   SOCKET_LIST[turn].emit('show', "#landed", true);
-  SOCKET_LIST[turn].emit('setHTML', "landed", "You landed on " + s.name + ".");
+  SOCKET_LIST[turn].emit('setHTML', "landed", "Du bist auf " + s.name + " gelandet.");
 
 	s.landcount++;
-	addAlert(p.name + " landed on " + s.name + ".");
+	addAlert(p.name + " ist auf " + s.name + " gelandet.");
 
 	// Allow player to buy the property on which he landed.
 	if (s.price !== 0 && s.owner === 0) {
 
 		{
-      SOCKET_LIST[turn].emit('setHTML', "landed", "<div>You landed on <a href='javascript:void(0);' onmouseover='showdeed(" + p.position + ");' onmouseout='hidedeed();' class='statscellcolor'>" + s.name + "</a>.<input type='button' onclick='buy();' value='Buy ($" + s.price + ")' title='Buy " + s.name + " for " + s.houseprice + ".'/></div>");
+      SOCKET_LIST[turn].emit('setHTML', "landed", "<div>Du bist auf <a href='javascript:void(0);' onmouseover='showdeed(" + p.position + ");' onmouseout='hidedeed();' class='statscellcolor'>" + s.name + "</a> gelandet.<input type='button' onclick='buy();' value='Kaufe (" + s.price + ")' title='Kaufe " + s.name + " für " + s.houseprice + ".'/></div>");
 		}
 	}
 
@@ -1216,11 +1251,11 @@ function land(increasedRent) {
 			rent = s.rent;
 		}
 		
-		addAlert(p.name + " paid $" + rent + " rent to " + player[s.owner].name + ".");
+		addAlert(p.name + " hat " + rent + " Miete an " + player[s.owner].name + " gezahlt.");
 		p.pay(rent, s.owner);
 		player[s.owner].money += rent;
 
-    SOCKET_LIST[turn].emit('setHTML', "landed", "You landed on " + s.name + ". " + player[s.owner].name + " collected $" + rent + " rent.");
+    SOCKET_LIST[turn].emit('setHTML', "landed", "Du bist auf " + s.name + " gelandet. " + player[s.owner].name + " hat " + rent + " Miete kassiert.");
 	}
 
 	updateMoney();
@@ -1271,17 +1306,14 @@ function roll() {
 	var p = player[turn];
 
   SOCKET_LIST[turn].emit('roll');
-  SOCKET_LIST[turn].emit('changeButton', "nextbutton", "End turn", "End turn and advance to the next player.");
+  SOCKET_LIST[turn].emit('changeButton', "nextbutton", "Spielzug beenden", "Spielzug beenden und zum nächsten Spieler wechseln.");
 
 	game.rollDice();
 	var die1 = game.getDie();
 
-	doublecount++;
-
 	addAlert(p.name + " rolled " + die1 + ".");
 
-	SOCKET_LIST[turn].emit('changeButton', "nextbutton", "End turn", "End turn and advance to the next player.");
-	doublecount = 0;
+	SOCKET_LIST[turn].emit('changeButton', "nextbutton", "Spielzug beenden", "Spielzug beenden und zum nächsten Spieler wechseln.");
 
 	updatePosition();
 	updateMoney();
@@ -1303,7 +1335,7 @@ function roll() {
 		p.position -= 12;
 		meineBank.zinsenLotto += p.sumKredit * game.zinssatz / 100;
 		p.money -= p.sumKredit * game.zinssatz / 100;
-		addAlert(p.name + " payed taxes for passing GO.");
+		addAlert(p.name + " ist über Start gezogen und hat Zinsen auf Kredite gezahlt.");
 	}
 
 	land();
@@ -1317,7 +1349,8 @@ function play() {
 		turn -= pcount;
 	}
 
-  SOCKET_LIST[turn].emit('show', "#nextbutton", true);
+	if (SOCKET_LIST[turn] == undefined) return;
+  SOCKET_LIST[turn].emit('show', "#nextbutton", true);	//TODO:Absturz
 
 	var p = player[turn];
 	game.resetDice();
@@ -1331,9 +1364,8 @@ function play() {
   SOCKET_LIST[turn].emit('show', "#landed, #option, #manage", false);
   SOCKET_LIST[turn].emit('show', "#board, #control, #moneybar, #viewstats, #buy", true);
 
-	doublecount = 0;
   SOCKET_LIST[turn].emit('focusbutton', "nextbutton");
-  SOCKET_LIST[turn].emit('changeButton', "nextbutton", "Roll Dice", "Roll the dice and move your token accordingly.");
+  SOCKET_LIST[turn].emit('changeButton', "nextbutton", "Würfeln", "Würfeln und Figur entsprechend vorrücken.");
 
   SOCKET_LIST[turn].emit('show', "#die0", false);
 
@@ -1349,6 +1381,13 @@ function play() {
 
 function setup(isKapitalismus, playernumber, nieten) {
 	pcount = playernumber;
+
+	meinStaat = new Staat();
+	meineBank = new Bank();
+
+	for (var i = 0; i < 12; i++) {
+		square[i].reset();
+	}
 
 	var playerArray = new Array(pcount);
 	var p;
@@ -1369,14 +1408,13 @@ function setup(isKapitalismus, playernumber, nieten) {
 	properties.sort(function() { return 0.5 - Math.random();});
 
 	for (var i = 1; i <= pcount; i++) {
-		p = player[i];
-		p.color = colors.shift();
-		p.name = playerNames[i] ? playerNames[i] : 'Player ' + i;
 
 		p = player[playerArray[i - 1]];
 		
 		//p.name = document.getElementById("player" + i + "name").value; //TODO
 		p.human = true;
+		p.color = colors.shift();
+		p.name = playerNames[playerArray[i - 1]] ? playerNames[playerArray[i - 1]] : 'Player ' + playerArray[i - 1];
 		
 		//Immobilienkarten verteilen
 
@@ -1387,7 +1425,7 @@ function setup(isKapitalismus, playernumber, nieten) {
 				var property = square[pos];
 
 				property.owner = playerArray[i - 1];
-				addAlert(p.name + " received " + property.name + ".");
+				addAlert(p.name + " hat " + property.name + " erhalten.");
 
 				//updateOwned();
 			}
@@ -1409,7 +1447,7 @@ function setup(isKapitalismus, playernumber, nieten) {
 				
 				var property = square[pos];
 				property.owner = playerArray[i - 1];
-				addAlert(p.name + " received " + property.name + ".");
+				addAlert(p.name + " hat " + property.name + " erhalten.");
 				p.update();
 			}
 		}
@@ -1418,9 +1456,7 @@ function setup(isKapitalismus, playernumber, nieten) {
   for(var i in SOCKET_LIST){
     SOCKET_LIST[i].emit('show', "#control, #board, #moneybar", true);
     SOCKET_LIST[i].emit('show', "#setup, #nextbutton, #resignbutton", false);
-  }
-
-  
+  }  
 	
 	/*if (pcount === 3) {
 		document.getElementById("stats").style.width = "686px";
@@ -1445,7 +1481,7 @@ function loadWindow() {
 	}
 
 	player[1].human = true;
-	player[0].name = "the bank";
+	player[0].name = "Bank";
 
 	chanceCards.index = 0;
 
@@ -1480,7 +1516,14 @@ function Square(name, pricetext, color, rent, houseprice) {
 	this.rent = (rent || 0);
 	this.landcount = 0;
 	this.houseprice = (houseprice || 0);
-  this.groupNumber = this.price != 0 ? 1 : 0
+	this.groupNumber = this.price != 0 ? 1 : 0
+	this.reset = function() {
+	  this.owner = 0;
+	  this.mortgage = false;
+	  this.mortgageHouse = false;
+	  this.house = 0;
+	  this.landcount = 0;
+  	}
 }
 
 function Card(title, text, action) {
@@ -1490,7 +1533,7 @@ function Card(title, text, action) {
 }
 
 function citytax() {
-	addAlert(player[turn].name + " landed on Staat/Finanzamt.");
+	addAlert(player[turn].name + " ist auf oder über das Feld Staat/Finanzamt gezogen und Steuern aufs Guthaben gezahlt.");
 	//TODO: ask to buy Vermögensgegenstände
 	var steuer = 0.1 * player[turn].money;
 	player[turn].pay(steuer, 0);
@@ -1503,6 +1546,8 @@ function citytax() {
 		}
 		meineBank.zinsenLotto += meineBank.anleihenBank * (game.zinssatz / 100);
 		meinStaat.zinsenLotto -= meineBank.anleihenBank * (game.zinssatz / 100);
+
+		addAlert(" Der Staat hat Zinsen auf alle Anleihen gezahlt.");
 	}
 
 	if (meinStaat.steuer < 0) {
