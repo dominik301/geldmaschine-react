@@ -1414,7 +1414,7 @@ function setup(isKapitalismus, playernumber, nieten) {
 		//p.name = document.getElementById("player" + i + "name").value; //TODO
 		p.human = true;
 		p.color = colors.shift();
-		p.name = playerNames[playerArray[i - 1]] ? playerNames[playerArray[i - 1]] : 'Player ' + playerArray[i - 1];
+		p.name = playerNames[playerArray[i - 1]] ? playerNames[playerArray[i - 1]] : 'Spieler ' + playerArray[i - 1];
 		
 		//Immobilienkarten verteilen
 
