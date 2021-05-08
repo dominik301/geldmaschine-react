@@ -400,41 +400,24 @@ function Game() {
 	// Credit functions:
 
 	this.kreditAufnehmen = function(amount, key=turn) {
-    var initiator = player[key];
-    initiator.update();
-		/*var creditObj = readCredit();
-		var money = creditObj.getMoney();
-		var initiator = player[turn];
+		var initiator = player[key];
+		initiator.update();
 
-		initiator.update()
-		if (initiator.sumKredit + money > initiator.verfuegbareHypothek) {
-			document.getElementById("credit-leftp-money").value = initiator.name + " does not have $" + money + ".";
-			document.getElementById("credit-leftp-money").style.color = "red"; //TODO
+		if (initiator.sumKredit + amount > initiator.verfuegbareHypothek) {
+			popup("<p>" + initiator.name + ", deine verfügbare Hypothek ist geringer als " + amount + ".</p>", key=key);
 			return false;
-		} 	
-
-		if (initiator.human && !confirm(initiator.name + ", möchtest Du wirklich einen Kredit aufnehmen?")) {
-			return false;
-		}*/
+		}
 
 		initiator.kreditAufnehmen(amount);
 	}
 
 	this.kreditTilgen = function(amount,key=turn) {
-    var initiator = player[key];
-		/*var creditObj = readCredit();
-		var money = creditObj.getMoney();
-		var initiator = player[turn];
+    	var initiator = player[key];
 
-		if (money > initiator.money) {
-			document.getElementById("credit-leftp-money").value = initiator.name + " does not have $" + money + ".";
-			document.getElementById("credit-leftp-money").style.color = "red"; //TODO
+		if (amount > initiator.money) {
+			popup("<p>" + initiator.name + ", du hast keine " + amount + ".</p>", key=key);
 			return false;
-		} 	
-
-		if (initiator.human && !confirm(initiator.name + ", möchtest Du wirklich einen Kredit tilgen?")) {
-			return false;
-		}*/
+		}
 
 		initiator.kreditTilgen(amount);		
 	}
@@ -442,8 +425,6 @@ function Game() {
   var tradeObj;
 
 	// Trade functions:
-
-   //TODO: addTrade
 
 	// Bankrupcy functions:
 
@@ -496,7 +477,7 @@ function Game() {
 
 		if (pcount === 1) {
 			updateMoney();
-			SOCKET_LIST[turn].emit('show', '#control, #board', false); //TODO
+			SOCKET_LIST[turn].emit('show', '#control, #board', false);
 			SOCKET_LIST[turn].emit('show', '#refresh', true);
 
 			popup("<p>Glückwunsch, " + player[1].name + ", du hast das Spiel gewonnen.</p><div>");
@@ -543,7 +524,7 @@ function Game() {
     SOCKET_LIST[turn].emit('eliminatePlayer', HTML);
 
 		popup(HTML);
-    game.eliminatePlayer(); //TODO
+    game.eliminatePlayer();
 	};
 
 	this.resign = function() {
@@ -600,7 +581,7 @@ function Game() {
 			//popup("<p>" + pcredit.name + ", you must pay $" + bankruptcyUnmortgageFee + " interest on the mortgaged properties you received from " + p.name + ".</p>");
       player[pcredit.index].pay(bankruptcyUnmortgageFee, 0); 
       game.bankruptcyUnmortgage();
-		} //TODO: elimination
+		}
 	};
 
 }
@@ -759,7 +740,6 @@ function Staat() {
 // recipient: object Player
 // money: integer, positive for offered, negative for requested
 // property: array of integers, length: 40
-//TODO: anleihen, derivate
 
 function Trade(initiator, recipient, money, property, anleihen=0, derivate=0) {
 	// For each property and anleihen or derivate, 1 means offered, -1 means requested, 0 means neither.
@@ -1072,8 +1052,6 @@ function buyHouse(index) {
 	
 }
 
-//TODO
-
 function auctionHouse() {
 	SOCKET_LIST[turn].emit("chooseProperty", player, square)
 }
@@ -1326,8 +1304,7 @@ function roll() {
 	// Move player
 	p.position += die1;
 
-	//TODO
-	// Pay taxes as you pass GO
+	// Pay interest as you pass GO
 	if (p_old < 6 && p.position >= 6) {
 		citytax();
 	}
@@ -1350,11 +1327,11 @@ function play() {
 	}
 
 	if (SOCKET_LIST[turn] == undefined) return;
-  SOCKET_LIST[turn].emit('show', "#nextbutton", true);	//TODO:Absturz
+  	SOCKET_LIST[turn].emit('show', "#nextbutton", true);
 
 	var p = player[turn];
 	game.resetDice();
-  SOCKET_LIST[turn].emit('setHTML', "pname", p.name);
+  	SOCKET_LIST[turn].emit('setHTML', "pname", p.name);
 
 	addAlert("It is " + p.name + "'s turn.");
 
@@ -1411,7 +1388,6 @@ function setup(isKapitalismus, playernumber, nieten) {
 
 		p = player[playerArray[i - 1]];
 		
-		//p.name = document.getElementById("player" + i + "name").value; //TODO
 		p.human = true;
 		p.color = colors.shift();
 		p.name = playerNames[playerArray[i - 1]] ? playerNames[playerArray[i - 1]] : 'Spieler ' + playerArray[i - 1];
@@ -1468,8 +1444,8 @@ function setup(isKapitalismus, playernumber, nieten) {
 	play();
 }
 
-function popup(HTML, option, doMortgage) {
-  SOCKET_LIST[turn].emit('popup', HTML, option, doMortgage);
+function popup(HTML, option, doMortgage, key=turn) {
+  SOCKET_LIST[key].emit('popup', HTML, option, doMortgage);
 }
 
 function loadWindow() {
@@ -1608,5 +1584,5 @@ chanceCards2[9] = new Card("Feinstaubplaketten","Kaufe Plaketten für deinen Fah
 chanceCards2[10] = new Card("Investitionsbeihilfe","Wenn Du jetzt baust, zahlt der Staat 20.000 dazu. Du darfst ein 2. Haus auf eins Deiner Grundstücke bauen, aber keine Miete dafür erheben. Steuerbegünstigter Leerstand um Geld in Umlauf zu bringen! Du kannst Kredit aufnehmen.", function() { discount=20000;});
 chanceCards2[11] = new Card("Hackerangriff","Du hast die Bank gehackt und 80.000 erpresst. Die Bank schöpft das Geld durch Emission von Derivaten.", function() { receiveFromBank(80000);});
 chanceCards2[12] = new Card("Einbauküche","Du kaufst für 24.000 eine Einbauküche. Überweise den Betrag anteilig an alle Mitspieler*innen", function() { payeachplayer(24000);});
-chanceCards2[13] = new Card("Erbstreit","Wegen eines Erbstreits musst Du ein Grundstück versteigern. Die Hälfte des Erlöses zahlst du anteilig an alle aus.", function() { auctionHouse();}); //TODO
+chanceCards2[13] = new Card("Erbstreit","Wegen eines Erbstreits musst Du ein Grundstück versteigern. Die Hälfte des Erlöses zahlst du anteilig an alle aus.", function() { auctionHouse();});
 chanceCards2[14] = new Card("Beitragserhöhung","Deine Krankenkasse erhöht die Beiträge. Zahle 3.000 an den Staat.", function() { payState(3000);});

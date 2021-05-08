@@ -494,18 +494,10 @@
             }
 
             var money = kredit.value;
-            //var initiator = player[turn];
 
-            //initiator.update()
-            /*if (initiator.sumKredit + money > initiator.verfuegbareHypothek) {
-                document.getElementById("credit-leftp-money").value = initiator.name + " does not have $" + money + ".";
-                document.getElementById("credit-leftp-money").style.color = "red"; //TODO 
+            if (!confirm(document.getElementById("player" + playerId + "name").value + ", möchtest Du wirklich einen Kredit aufnehmen?")) {
                 return false;
-            } 	
-
-            if (!confirm(initiator.name + ", möchtest Du wirklich einen Kredit aufnehmen?")) {
-                return false; //TODO 
-            }*/
+            }
            
             socket.emit('kreditaufnehmen', money);
             kredit.value = "0";
@@ -518,6 +510,10 @@
             if (isNaN(document.getElementById("credit-leftp-money").value)) {
                 document.getElementById("credit-leftp-money").value = "Bitte eine Zahl eingeben.";
                 document.getElementById("credit-leftp-money").style.color = "red";
+                return false;
+            }
+
+            if (!confirm(document.getElementById("player" + playerId + "name").value + ", möchtest Du wirklich deinen Kredit tilgen?")) {
                 return false;
             }
            
@@ -774,7 +770,7 @@
             }
 
             socket.emit('newTrade', recipient, initiator, -money, reversedTradeProperty, -anleihen, -derivate);
-            socket.emit('sendOffer'); //TODO
+            socket.emit('sendOffer');
 
             cancelTrade();
         };
@@ -1110,32 +1106,6 @@
             document.getElementById("trade-rightp-derivate").value = "0";
 
         };
-        
-        //TODO: trade
-
-        /*var proposetrade = document.getElementById('proposetradebutton');
-        var canceltrade = document.getElementById('canceltradebutton');
-        var accepttrade = document.getElementById('accepttradebutton');
-        var rejecttrade = document.getElementById('rejecttradebutton');
-        var trade = document.getElementById('trade-leftp-money');
-    
-        proposetrade.onclick = function(e){
-            //prevent the form from refreshing the page
-            e.preventDefault();
-           
-            socket.emit('proposetrade', kredit.value);
-            trade.value = "0";
-        }
-
-        canceltrade.onclick = function(e){
-            //prevent the form from refreshing the page
-            e.preventDefault();
-           
-            socket.emit('canceltrade', kredit.value);
-            trade.value = "0";
-        }*/
-        
-        
         
         socket.on('setPlayerId',function(data){
                   
@@ -1665,7 +1635,6 @@
         }
 
         window.onload = function() {
-            //TODO: square, checkedproperty, player
 
             //$("#playernumber").on("change", playernumber_onchange);
             playernumber_onchange();
@@ -1673,12 +1642,9 @@
             $("#capitalism").on("change", capitalism_onchange);
             capitalism_onchange();
 
-            //$("#nextbutton").click(game.next); //TODO
             $("#noscript").hide();
             $("#setup, #noF5").show();
             $("credit").hide();
-
-            //corrections();
 
             // Create event handlers for hovering and draging.
 
@@ -1778,7 +1744,7 @@
             });
 
 
-            $("#trade-menu-item").on("click", showTradeMenu); //TODO
+            $("#trade-menu-item").on("click", showTradeMenu);
 
             $("#credit-menu-item").on("click", showCreditMenu);
 
