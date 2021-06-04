@@ -14,9 +14,19 @@ td {
 	text-align: center;
 }
 
+#mytitle {
+	left: 50%;
+	position: absolute;
+	font-size: xx-large;
+	width: 300px;
+	margin-left: -150px;
+	margin-top: -50px;
+}
+
 #setup {
 	display: none;
 	margin: 15px;
+	margin-top: 75px;
 }
 
 #moneybar {
