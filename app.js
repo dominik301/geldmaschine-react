@@ -54,10 +54,24 @@ io.sockets.on('connection', function(socket){
   });
 
   socket.on('buyhouse',function(checkedProperty){
-    buyHouse(checkedProperty);        
+    Object.keys(SOCKET_LIST).forEach(function eachKey(key) {
+		if(SOCKET_LIST[key] == socket && key != turn){
+			socket.emit('popup', player[key]. name + ", du bist nicht an der Reihe!");
+			return;
+		}
+		else if (SOCKET_LIST[key] == socket){
+			buyHouse(checkedProperty);  
+		}
+	});
   });
 
   socket.on('mortgage',function(checkedProperty){
+	for (var key in SOCKET_LIST) {
+		if(SOCKET_LIST[key] == socket && key != turn){
+			socket.emit('popup', player[key]. name + ", du bist nicht an der Reihe!");
+			return;
+		}
+	}
 
     var s = square[checkedProperty];
 
@@ -84,6 +98,12 @@ io.sockets.on('connection', function(socket){
   });
 
   socket.on('sellhouse',function(checkedProperty){
+	for (var key in SOCKET_LIST) {
+		if(SOCKET_LIST[key] == socket && key != turn){
+			socket.emit('popup', player[key]. name + ", du bist nicht an der Reihe!");
+			return;
+		}
+	}
     sellHouse(checkedProperty);        
   });
 
@@ -1055,6 +1075,9 @@ function buyHouse(index) {
 
   if (houseSum + 1 == 8) {
 	  game.phase = 2;
+	  for (var i in SOCKET_LIST) {
+		SOCKET_LIST[i].emit("popup", "Phase 2 beginnt.");
+	  }
   }
 
   payeachplayer(sq.houseprice, "Hauskauf");
