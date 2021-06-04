@@ -951,7 +951,12 @@ socket.on('updateOption', function(square){
     
 
     if (sq.house >= 1) {
-        if (!allow2houses || sq.house == 2) $("#buyhousebutton").hide();
+        if (!allow2houses || sq.house == 2) {
+            $("#buyhousebutton").hide();
+        } else {
+            buyhousebutton.value = "Haus kaufen (" + sq.houseprice + ")";
+            buyhousebutton.title = "Kaufe ein Haus für " + sq.houseprice;
+        }
         sellhousebutton.value = "Haus verkaufen (" + (sq.houseprice) + ")";
         sellhousebutton.title = "Verkaufe eine Haus für " + (sq.houseprice);
 
