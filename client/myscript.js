@@ -130,7 +130,7 @@ var currentRecipient;
 
 var tradeObj;
 
-socket.on('tradeObj', function() {
+socket.on('tradeObj', function(data) {
     tradeObj = data;
 });
 
@@ -323,17 +323,17 @@ function finishProposeTrade() {
 socket.on('receiveOffer', function(tradeObj) {
     initiator = tradeObj.initiator;
     recipient = tradeObj.recipient;
-    
+
     showTradeMenu();
-    setTimeout(() => { writeTrade(tradeObj); }, 100);
+    setTimeout(() => { writeTrade(tradeObj); }, 200);
     
     $("#proposetradebutton").hide();
     $("#canceltradebutton").hide();
     $("#accepttradebutton").show();
     $("#rejecttradebutton").show();
 
-    addAlert(initiator.name + " hat eine Handel mit " + recipient.name + " begonnen.");
-    popup("<p>" + initiator.name + " hat dir, " + recipient.name + ", einen Tausch angeboten. Du kannst das Angebot annehmen, ablehnen oder verändern.</p>");
+    socket.emit('addAlert', recipient.name + " hat einen Handel mit " + initiator.name + " begonnen.");
+    popup("<p>" + recipient.name + " hat dir, " + initiator.name + ", einen Tausch angeboten. Du kannst das Angebot annehmen, ablehnen oder verändern.</p>");
     
 });
 
@@ -358,11 +358,12 @@ function acceptTrade() {
 
     var showAlerts = true;
 
-    if (tradeObj) {
+    /*if (tradeObj) {
         showAlerts = false;
     } else {
         readTrade();
-    }
+    }*/
+    readTrade();
 
     setTimeout(() => { finishAcceptTrade(showAlerts);}, 100);
 }
@@ -410,10 +411,10 @@ function finishAcceptTrade(showAlerts) {
 
         if (tradeObj.property[i] === 1) {
             socket.emit('changeOwner', i, recipient.index);
-            addAlert(recipient.name + " hat " + square[i].name + " von " + initiator.name + " erhalten.");
+            socket.emit('addAlert', recipient.name + " hat " + square[i].name + " von " + initiator.name + " erhalten.");
         } else if (tradeObj.property[i] === -1) {
             socket.emit('changeOwner', i, initiator.index);
-            addAlert(initiator.name + " hat " + square[i].name + " von " + recipient.name + " erhalten.");
+            socket.emit('addAlert', initiator.name + " hat " + square[i].name + " von " + recipient.name + " erhalten.");
         }
 
     }
@@ -422,32 +423,32 @@ function finishAcceptTrade(showAlerts) {
     if (money > 0) {
         socket.emit('pay', initiator, recipient, money);
 
-        addAlert(recipient.name + " bekommt " + money + " von " + initiator.name + ".");
+        socket.emit('addAlert', recipient.name + " bekommt " + money + " von " + initiator.name + ".");
     } else if (money < 0) {
         socket.emit('pay', recipient, initiator, -money);
 
-        addAlert(initiator.name + " bekommt " + (-money) + " von " + recipient.name + ".");
+        socket.emit('addAlert', initiator.name + " bekommt " + (-money) + " von " + recipient.name + ".");
     }
 
     //stock exchange
     if (anleihen > 0) {
         socket.emit('buyAnleihen', initiator, recipient, anleihen);
 
-        addAlert(recipient.name + " bekommt Anleihen im Wert von " + anleihen + " von " + initiator.name + ".");
+        socket.emit('addAlert', recipient.name + " bekommt Anleihen im Wert von " + anleihen + " von " + initiator.name + ".");
     } else if (anleihen < 0) {
         socket.emit('buyAnleihen', recipient, initiator, -anleihen);
 
-        addAlert(initiator.name + " bekommt Anleihen im Wert von " + (-anleihen) + " von " + recipient.name + ".");
+        socket.emit('addAlert', initiator.name + " bekommt Anleihen im Wert von " + (-anleihen) + " von " + recipient.name + ".");
     }
 
     if (derivate > 0) {
         socket.emit('buyDerivate', initiator, recipient, derivate);
 
-        addAlert(recipient.name + " bekommt Derivate im Wert von " + derivate + " von " + initiator.name + ".");
+        socket.emit('addAlert', recipient.name + " bekommt Derivate im Wert von " + derivate + " von " + initiator.name + ".");
     } else if (derivate < 0) {
         socket.emit('buyDerivate', recipient, initiator, -derivate);
 
-        addAlert(initiator.name + " bekommt Derivate im Wert von " + (-derivate) + " von " + recipient.name + ".");
+        socket.emit('addAlert', initiator.name + " bekommt Derivate im Wert von " + (-derivate) + " von " + recipient.name + ".");
     }
 
     socket.emit('updateOwned');
@@ -481,7 +482,6 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
     var currentOption;
     var currentName;
 
-    console.log(recipient)
 
     var tableRowOnClick = function(e) {
         var checkboxElement = this.firstChild.firstChild;
@@ -737,8 +737,9 @@ socket.on('playerNames', function(names) {
     }
 });
 
-socket.on('updateMoney', function(player, turn, meineBank, meinStaat, _pcount) {
-    console.log("updateMoney")
+socket.on('updateMoney', function(_player, turn, _meineBank, meinStaat, _pcount) {
+    player = _player;
+    meineBank = _meineBank;
     var p = player[turn];
     pcount = _pcount;
     document.getElementById("pname").innerHTML = p.name;
@@ -1105,88 +1106,6 @@ function capitalism_onchange() {
     }
 }
 
-/*
-
-// Define event handlers:
-
-var tradeMoneyOnKeyDown = function (e) {
-    var key = 0;
-    var isCtrl = false;
-    var isShift = false;
-
-    if (window.event) {
-        key = window.event.keyCode;
-        isCtrl = window.event.ctrlKey;
-        isShift = window.event.shiftKey;
-    } else if (e) {
-        key = e.keyCode;
-        isCtrl = e.ctrlKey;
-        isShift = e.shiftKey;
-    }
-
-    if (isNaN(key)) {
-        return true;
-    }
-
-    if (key === 13) {
-        return false;
-    }
-
-    // Allow backspace, tab, delete, arrow keys, or if control was pressed, respectively.
-    if (key === 8 || key === 9 || key === 46 || (key >= 35 && key <= 40) || isCtrl) {
-        return true;
-    }
-
-    if (isShift) {
-        return false;
-    }
-
-    // Only allow number keys.
-    return (key >= 48 && key <= 57) || (key >= 96 && key <= 105);
-};
-
-var tradeMoneyOnFocus = function () {
-    this.style.color = "black";
-    if (isNaN(this.value) || this.value === "0") {
-        this.value = "";
-    }
-};
-
-var tradeMoneyOnChange = function(e) {
-    $("#proposetradebutton").show();
-    $("#canceltradebutton").show();
-    $("#accepttradebutton").hide();
-    $("#rejecttradebutton").hide();
-
-    var amount = this.value;
-
-    if (isNaN(amount)) {
-        this.value = "This value must be a number.";
-        this.style.color = "red";
-        return false;
-    }
-
-    amount = Math.round(amount) || 0;
-    this.value = amount;
-
-    if (amount < 0) {
-        this.value = "This value must be greater than 0.";
-        this.style.color = "red";
-        return false;
-    }
-
-    return true;
-};
-
-document.getElementById("trade-leftp-money").onkeydown = tradeMoneyOnKeyDown;
-document.getElementById("trade-rightp-money").onkeydown = tradeMoneyOnKeyDown;
-document.getElementById("trade-leftp-money").onfocus = tradeMoneyOnFocus;
-document.getElementById("trade-rightp-money").onfocus = tradeMoneyOnFocus;
-document.getElementById("trade-leftp-money").onchange = tradeMoneyOnChange;
-document.getElementById("trade-rightp-money").onchange = tradeMoneyOnChange;
-
-*/
-
 function getCheckedProperty() {
     for (var i = 0; i < 12; i++) {
         if (document.getElementById("propertycheckbox" + i) && document.getElementById("propertycheckbox" + i).checked) {
@@ -1412,11 +1331,11 @@ function showTradeMenu() {
 
     socket.emit('updateSquare');
     socket.emit('updatePlayer');
-    setTimeout(() => { finishTradeMenu();}, 100);
+    setTimeout(() => { finishTradeMenu();}, 200);
 };
 
 function finishTradeMenu() {
-
+    
     var initiator = player[playerId];
     var recipient = playerId === 1 ? player[2] : player[1];
 
