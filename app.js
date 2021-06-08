@@ -331,8 +331,10 @@ io.sockets.on('connection', function(socket){
 	
 });
 
-var port = process.argv[2] == undefined ? 4141 : process.argv[2];
-server.listen(port, "0.0.0.0");
+//
+var port = process.env.PORT || 3000;
+//var port = process.argv[2] == undefined ? 4141 : process.argv[2];
+server.listen(port) //, "0.0.0.0");
 
 //Start: Old code monopoly.js
 
