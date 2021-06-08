@@ -15,5 +15,18 @@
   "dependencies": {
     "express": "^4.17.1",
     "socket.io": "^4.0.1"
-  }
+  },
+  "engines": {
+    "node": "16.x",
+    "npm": "*"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dominik301/geldmaschine.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dominik301/geldmaschine/issues"
+  },
+  "homepage": "https://github.com/dominik301/geldmaschine#readme"
 }
