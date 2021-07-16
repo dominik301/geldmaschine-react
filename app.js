@@ -53,6 +53,8 @@ io.sockets.on('connection', function(socket){
     game.resign();        
   });
 
+  socket.on('sozialhilfe', sozialHilfe)
+
   socket.on('buyhouse',function(checkedProperty){
     Object.keys(SOCKET_LIST).forEach(function eachKey(key) {
 		if(SOCKET_LIST[key] == socket && key != turn){
@@ -962,7 +964,7 @@ function payplayer(position, amount) {
 
 }
 
-function payState(amount) {
+function payState(amount, reason="") {
 	var p = player[turn];
 
 	meinStaat.steuer += amount;
@@ -976,10 +978,16 @@ function payState(amount) {
 
 	p.pay(amount, 0);
 	if (amount < 0) {
-		addAlert(p.name + " hat " + (-amount) + " vom Staat erhalten.");
+		addAlert(p.name + " hat " + (-amount) + reason + " vom Staat erhalten.");
 	} else {
 		addAlert(p.name + " hat " + amount + " an den Staat gezahlt.");
 	}
+}
+
+function sozialHilfe() {
+	var p = player[turn];
+	var amount = p.money - p.sumKredit + p.verfuegbareHypothek;
+	payState(amount, " Sozialhilfe");
 }
 
 function sellRichest(amount) {
@@ -1476,7 +1484,7 @@ function setup(isKapitalismus, playernumber, nieten) {
 
   for(var i in SOCKET_LIST){
     SOCKET_LIST[i].emit('show', "#control, #board, #moneybar", true);
-    SOCKET_LIST[i].emit('show', "#setup, #nextbutton, #resignbutton", false);
+    SOCKET_LIST[i].emit('show', "#setup, #nextbutton, #resignbutton, #creditbutton", false);
   }  
 	
 	/*if (pcount === 3) {

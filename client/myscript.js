@@ -67,6 +67,7 @@ function cancelkredit() {
 
 var next = document.getElementById('nextbutton');
 var resign = document.getElementById('resignbutton');
+var creditB = document.getElementById('creditbutton');
 
 next.onclick = function(e){
     //prevent the form from refreshing the page
@@ -88,7 +89,14 @@ resign.onclick = function(e){
     //prevent the form from refreshing the page
     e.preventDefault();
 
-    popup("<p>Möchtest du wirklich aufgeben?</p>", doResign, "Ja/Nein");
+    socket.emit('sozialhilfe');
+    //popup("<p>Möchtest du wirklich aufgeben?</p>", doResign, "Ja/Nein");
+}
+
+creditB.onclick = function(e){
+    e.preventDefault();
+
+    showCreditMenu();
 }
 
 function doResign() {
@@ -251,6 +259,20 @@ function proposeTrade() {
 
     setTimeout(() => { finishProposeTrade();}, 100);
 
+}
+
+document.getElementById("trade-leftp-money").onchange = tradeAltered;
+document.getElementById("trade-rightp-money").onchange = tradeAltered;
+document.getElementById("trade-leftp-anleihen").onchange = tradeAltered;
+document.getElementById("trade-rightp-anleihen").onchange = tradeAltered;
+document.getElementById("trade-leftp-derivate").onchange = tradeAltered;
+document.getElementById("trade-rightp-derivate").onchange = tradeAltered;
+document.getElementById("trade-leftp-property").onchange = tradeAltered;
+document.getElementById("trade-rightp-property").onchange = tradeAltered;
+
+function tradeAltered() {
+    $("#proposetradebutton").show();
+    $("#accepttradebutton").hide();
 }
 
 function finishProposeTrade() {
@@ -781,11 +803,13 @@ socket.on('updateMoney', function(_player, turn, _meineBank, meinStaat, _pcount)
     if (turn == playerId) {
         if (p.money < 0) {
             // document.getElementById("nextbutton").disabled = true;
-            $("#resignbutton").show();
+            if (p.verfuegbareHypothek < p.sumKredit - p.money) $("#resignbutton").show();
+            $("#creditbutton").show();
             $("#nextbutton").hide();
         } else {
             // document.getElementById("nextbutton").disabled = false;
             $("#resignbutton").hide();
+            $("#creditbutton").hide();
             $("#nextbutton").show();
         }
     }
