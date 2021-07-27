@@ -454,21 +454,21 @@ function finishAcceptTrade(showAlerts) {
 
     //stock exchange
     if (anleihen > 0) {
-        socket.emit('buyAnleihen', initiator, recipient, anleihen);
+        socket.emit('buyAnleihen', initiator.index, recipient.index, anleihen);
 
         socket.emit('addAlert', recipient.name + " bekommt Anleihen im Wert von " + anleihen + " von " + initiator.name + ".");
     } else if (anleihen < 0) {
-        socket.emit('buyAnleihen', recipient, initiator, -anleihen);
+        socket.emit('buyAnleihen', recipient.index, initiator.index, -anleihen);
 
         socket.emit('addAlert', initiator.name + " bekommt Anleihen im Wert von " + (-anleihen) + " von " + recipient.name + ".");
     }
 
     if (derivate > 0) {
-        socket.emit('buyDerivate', initiator, recipient, derivate);
+        socket.emit('buyDerivate', initiator.index, recipient.index, derivate);
 
         socket.emit('addAlert', recipient.name + " bekommt Derivate im Wert von " + derivate + " von " + initiator.name + ".");
     } else if (derivate < 0) {
-        socket.emit('buyDerivate', recipient, initiator, -derivate);
+        socket.emit('buyDerivate', recipient.index, initiator.index, -derivate);
 
         socket.emit('addAlert', initiator.name + " bekommt Derivate im Wert von " + (-derivate) + " von " + recipient.name + ".");
     }
@@ -858,12 +858,29 @@ socket.on('updateOwned', function(player, square) {
         sq = square[i];
         if (sq.groupNumber && sq.owner === 0) {
             $("#cell" + i + "owner").hide();
+            $("#cell" + i + "house").hide();
+            $("#cell" + i + "house2").hide();
         } else if (sq.groupNumber && sq.owner > 0) {
             var currentCellOwner = document.getElementById("cell" + i + "owner");
 
             currentCellOwner.style.display = "block";
             currentCellOwner.style.backgroundColor = player[sq.owner].color;
             currentCellOwner.title = player[sq.owner].name;
+
+            if (sq.house) {
+                var currentCellHouse = document.getElementById("cell" + i + "house");
+                currentCellHouse.style.display = "block";
+
+                if (sq.house == 2) {
+                    var currentCellHouse2 = document.getElementById("cell" + i + "house2");
+                    currentCellHouse2.style.display = "block";
+                }
+            }     
+            else {
+                $("#cell" + i + "house").hide();
+                $("#cell" + i + "house2").hide();
+            }       
+            
         }
     }
 
@@ -1111,20 +1128,24 @@ function capitalism_onchange() {
     switch (pcount) {
         case 3:
             $("#nieten1").show();
+            document.getElementById("nieten1").selected = true;
             $("#nieten4").show();
             $("#nieten7").show();
             break;
         case 4:
             $("#nieten0").show();
+            document.getElementById("nieten0").selected = true;
             $("#nieten4").show();
             $("#nieten8").show();
             break;
         case 5:
             $("#nieten2").show();
+            document.getElementById("nieten2").selected = true;
             $("#nieten7").show();
             break;
         case 6:
             $("#nieten4").show();
+            document.getElementById("nieten4").selected = true;
             $("#nieten10").show();
             break;
     }
@@ -1313,6 +1334,14 @@ function setupSquares(square) {
         currentCellPrice.id = "cell" + i + "price";
         currentCellPrice.className = "cell-price";
         currentCellPrice.textContent = s.pricetext;
+
+        currentCellHouse = currentCellAnchor.appendChild(document.createElement("div"));
+        currentCellHouse.id = "cell" + i + "house";
+        currentCellHouse.className = "cell-house";
+
+        currentCellHouse2 = currentCellAnchor.appendChild(document.createElement("div"));
+        currentCellHouse2.id = "cell" + i + "house2";
+        currentCellHouse2.className = "cell-house2";
 
         if (square[i].groupNumber) {
             currentCellOwner = currentCellAnchor.appendChild(document.createElement("div"));

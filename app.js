@@ -243,19 +243,23 @@ io.sockets.on('connection', function(socket){
   })
 
   socket.on('buyDerivate', function(initiator, recipient, derivate) {
-	if (recipient instanceof Bank) {
-		recipient.derivateBank += derivate;
+	var p = recipient == 0 ? meineBank : player[recipient];
+	if (p instanceof Bank) {
+		p.derivateBank += derivate;
 	} else {
-		recipient.derivate += derivate;
+		p.derivate += derivate;
 	}
+	player[initiator].derivate -= derivate;
   });
 
   socket.on('buyAnleihen', function(initiator, recipient, anleihen) {
-	if (recipient instanceof Bank) {
-		recipient.anleihenBank += anleihen;
+	var p = recipient == 0 ? meineBank : player[recipient];
+	if (p instanceof Bank) {
+		p.anleihenBank += anleihen;
 	} else {
-		recipient.anleihen += anleihen;
+		p.anleihen += anleihen;
 	}
+	player[initiator].anleihen -= anleihen;
   });
 
   socket.on("newbid", function(highestbidder, highestbid) {
@@ -640,10 +644,34 @@ function Player(name, color) {
 
 			this.update();
 
+			if (creditor == 0) {
+				if (meineBank.zinsenLotto < 0) {
+					meineBank.derivateEmittieren(-meineBank.zinsenLotto);
+				}
+			}
+			else {
+				var c = player[creditor];
+				if (c==undefined) return true;
+				if (c.money < 0) {
+					if (c.verfuegbareHypothek < c.sumKredit - c.money) {
+						sozialHilfe(creditor);
+					}
+					game.kreditAufnehmen(-c.money, creditor);
+				}
+			}
+
 			return true;
 		} else {
 			this.money -= amount;
 			this.creditor = creditor;
+
+			var i = player.indexOf(this);
+			if (this.money < 0) {
+				if (this.verfuegbareHypothek < this.sumKredit - this.money) {
+					sozialHilfe(i);
+				}
+				game.kreditAufnehmen(-this.money, i);
+			}
 
 			this.update();
 
@@ -692,6 +720,8 @@ function Player(name, color) {
 
 			updateMoney();
 
+			addAlert(this.name + " hat einen Kredit in Höhe von " + amount + " aufgenommen.");
+
 			return true;
 		} else {
 			return false;
@@ -733,10 +763,22 @@ function Bank(name="Bank", color="black") {
 
 			updateMoney();
 
+			var c = player[creditor];
+			if (c.money < 0) {
+				if (c.verfuegbareHypothek < c.sumKredit - c.money) {
+					sozialHilfe(creditor);
+				}
+				game.kreditAufnehmen(-c.money, creditor);
+			}
+
 			return true;
 		} else {
 			this.zinsenLotto -= amount;
 			this.creditor = creditor;
+
+			if (this.zinsenLotto < 0) {
+				this.derivateEmittieren(-this.zinsenLotto);
+			}
 
 			updateMoney();
 
@@ -984,8 +1026,8 @@ function payState(amount, reason="") {
 	}
 }
 
-function sozialHilfe() {
-	var p = player[turn];
+function sozialHilfe(key=turn) {
+	var p = player[key];
 	var amount = p.money - p.sumKredit + p.verfuegbareHypothek;
 	payState(amount, " Sozialhilfe");
 }
@@ -1036,8 +1078,8 @@ function sellPoorest(amount) {
 	addAlert(poorest.name + " hat " + amount + " an " + p.name + "gezahlt.");
 }
 
-function receiveFromBank(amount) {
-	var p = player[turn];
+function receiveFromBank(amount, key=turn) {
+	var p = player[key];
 	p.money += amount
 	meineBank.derivateEmittieren(amount);
 	meineBank.zinsenLotto -= amount;
@@ -1118,6 +1160,7 @@ function sellHouse(index) {
 	addAlert(p.name + " hat ein Haus in der " + sq.name + " verkauft.");
 
 	p.money += sq.houseprice;
+	meineBank.pay(sq.houseprice, sq.owner);
 	updateOwned();
 	updateMoney();
 }
@@ -1425,7 +1468,7 @@ function setup(isKapitalismus, playernumber, nieten) {
 	playerArray.randomize();
 	turn = playerArray[0] - 1;
 
-	var colors = ["yellow", "red", "beige", "purple", "orange", "violet"]
+	var colors = ["gold", "red", "beige", "purple", "orange", "violet"]
 
 	var properties = new Array(1,2,4,5,7,8,10,11);
 	
@@ -1571,7 +1614,7 @@ function citytax() {
 	player[turn].pay(steuer, 0);
 	meinStaat.steuer += steuer;
 
-	if (player[turn].color == "yellow") {
+	if (player[turn].color == "gold") {
 		for (var i = 0; i < pcount; i++) {
 			player[i+1].money += Math.floor(player[i+1].anleihen * (game.zinssatz / 100));
 			meinStaat.steuer -= Math.floor(player[i+1].anleihen * (game.zinssatz / 100));
