@@ -1496,7 +1496,7 @@ function roll() {
 
 	if (p.human) {
 		SOCKET_LIST[turn].emit('roll');
-  		SOCKET_LIST[turn].emit('changeButton', "nextbutton", "Spielzug beenden", "Spielzug beenden und zum nächsten Spieler wechseln.");
+  		SOCKET_LIST[turn].emit('changeButton', "nextbutton", "Spielzug beenden", "Spielzug beenden und zum/zur nächsten SpielerIn wechseln.");
 	}
   
 	game.rollDice();
@@ -1504,7 +1504,7 @@ function roll() {
 
 	addAlert(p.name + " hat " + die1 + " gewürfelt.");
 
-	if (p.human) SOCKET_LIST[turn].emit('changeButton', "nextbutton", "Spielzug beenden", "Spielzug beenden und zum nächsten Spieler wechseln.");
+	if (p.human) SOCKET_LIST[turn].emit('changeButton', "nextbutton", "Spielzug beenden", "Spielzug beenden und zum/zur nächsten SpielerIn wechseln.");
 
 	updatePosition();
 	updateMoney();
@@ -1616,7 +1616,7 @@ function setup(isKapitalismus, playernumber, nieten) {
 		if (playerArray[i - 1] < playerNo) {
 			p.human = true;
 			p.color = colors.shift();
-			p.name = playerNames[playerArray[i - 1]] ? playerNames[playerArray[i - 1]] : 'Spieler ' + playerArray[i - 1];
+			p.name = playerNames[playerArray[i - 1]] ? playerNames[playerArray[i - 1]] : 'SpielerIn ' + playerArray[i - 1];
 		} else {	//player is AI
 			p.human = false;
 			p.AI = new AITest(p);

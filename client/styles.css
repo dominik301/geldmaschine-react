@@ -919,3 +919,8 @@ td {
 	width: 15px;
 
 }
+
+#credits {
+	position: absolute;
+	bottom: 0;
+  }
