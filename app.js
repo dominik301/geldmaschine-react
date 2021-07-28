@@ -235,6 +235,81 @@ io.sockets.on('connection', function(socket){
 		updateMoney()
 		return;
 	}
+	else if (!player[receiver].human) {
+		var result = player[receiver].AI.acceptTrade(game.tradeObj);
+		if (result === false) {
+			return;
+		} else if (result === true) {
+			var money;
+			var initiator;
+			var recipient;
+
+			money = game.tradeObj.money;
+			anleihen = game.tradeObj.anleihen;
+			derivate = game.tradeObj.derivate;
+			initiator = player[receiver];
+			recipient = player[game.tradeObj.recipient.index];
+
+			//Exchange properties
+			for (var i = 0; i < 12; i++) {
+
+				if (game.tradeObj.property[i] === 1) {
+					square[i].owner = recipient.index;
+					addAlert(recipient.name + " hat " + square[i].name + " von " + initiator.name + " erhalten.");
+				} else if (game.tradeObj.property[i] === -1) {
+					square[i].owner = initiator.index;
+					addAlert(initiator.name + " hat " + square[i].name + " von " + recipient.name + " erhalten.");
+				}
+		
+			}
+
+			// Exchange money.
+			if (money > 0) {
+				initiator.pay(money, recipient.index);
+				recipient.money += money;
+
+				addAlert(recipient.name + " hat " + money + " von " + initiator.name + " erhalten.");
+			} else if (money < 0) {
+				recipient.pay(-money, initiator.index);
+				initiator.money -= money;
+
+				addAlert(initiator.name + " hat " + (-money) + " von " + recipient.name + " erhalten.");
+			}
+
+			//stock exchange
+			if (anleihen > 0) {
+				initiator.anleihen -= anleihen;
+				recipient.anleihen += anleihen;
+
+				addAlert(recipient.name + " hat Anleihen im Wert von " + anleihen + " von " + initiator.name + " erhalten.");
+			} else if (anleihen < 0) {
+				initiator.anleihen -= anleihen;
+				recipient.anleihen += anleihen;
+
+				addAlert(initiator.name + " hat Anleihen im Wert von " + (-anleihen) + " von " + recipient.name + " erhalten.");
+			}
+
+			if (derivate > 0) {
+				initiator.derivate -= derivate;
+				recipient.derivate += derivate;
+
+				addAlert(recipient.name + " hat Derivate im Wert von " + derivate + " von " + initiator.name + " erhalten.");
+			} else if (derivate < 0) {
+				initiator.derivate -= derivate;
+				recipient.derivate += derivate;
+
+				addAlert(initiator.name + " hat Anleihen im Wert von " + (-derivate) + " von " + recipient.name + " erhalten.");
+			}
+
+			updateOwned()
+			updateMoney()
+			return;
+		} else {
+			game.tradeObj = result;
+			SOCKET_LIST[game.tradeObj.initiator.index].emit('receiveOffer', game.tradeObj);
+		}
+		return;
+	}
     SOCKET_LIST[receiver].emit('receiveOffer', game.tradeObj);
   });
 
@@ -280,7 +355,11 @@ io.sockets.on('connection', function(socket){
 		}
 
 	}
-	SOCKET_LIST[game.currentbidder].emit("auction", game.auctionproperty, player, square, game.highestbidder, game.highestbid)
+	if (player[game.currentbidder].human) {
+		SOCKET_LIST[game.currentbidder].emit("auction", game.auctionproperty, player, square, game.highestbidder, game.highestbid)
+	} else {
+		player[game.currentbidder].AI.bid(game.auctionproperty, game.highestbid);
+	}
   })
 
   socket.on("auctionExit", function(currentbidder) {
@@ -403,8 +482,12 @@ function Game() {
 			this.currentbidder -= pcount;
 		}
 
-		SOCKET_LIST[this.currentbidder].emit("auction", this.auctionproperty, player, square, this.highestbidder, this.highestbid)
-		
+		if (player[this.currentbidder].human) {
+			SOCKET_LIST[this.currentbidder].emit("auction", this.auctionproperty, player, square, this.highestbidder, this.highestbid)
+		} else {
+			player[this.currentbidder].AI.bid(this.auctionproperty, this.highestbid);
+		}
+				
 		updateMoney();
 		return true;
 	};
@@ -637,6 +720,7 @@ function Player(name, color) {
 	this.sumUmsatz = 0; //equals this.money
 	this.anleihen = 0;
 	this.derivate = 0;
+	this.AI = null;
 
 	this.pay = function (amount, creditor) {
 		if (amount <= this.money) {
@@ -932,6 +1016,10 @@ function chanceAction(chanceIndex) {
 		chanceCards2[chanceIndex].action(p);
 
 	updateMoney();
+
+	if (!p.human) {
+		game.next();
+	}
 }
 
 
@@ -1144,7 +1232,21 @@ function buyHouse(index) {
 }
 
 function auctionHouse() {
-	SOCKET_LIST[turn].emit("chooseProperty", player, square)
+	if (player[turn].human) {
+		SOCKET_LIST[turn].emit("chooseProperty", player, square)
+	} else {
+		// choose property at random
+		var properties = new Array();
+		for (var i in square) {
+			if (square[i].owner == turn) {
+				properties.push(i);
+			}
+		}
+		if (properties.length == 0) return;
+		properties.sort(function() { return 0.5 - Math.random();});
+		auctionHouseP(properties.pop())
+	}
+	
 }
 
 function auctionHouseP(propertyindex) {
@@ -1166,6 +1268,7 @@ function sellHouse(index) {
 }
 
 function showStats(key=turn) {
+	if (!player[key].human) return;
 	var HTML, sq, p;
 	var mortgagetext,
 	housetext;
@@ -1240,7 +1343,7 @@ function buy() {
 		updateOwned();
 		p.update();
 
-    SOCKET_LIST[turn].emit('show', "#landed", false);
+    	if (p.human) SOCKET_LIST[turn].emit('show', "#landed", false);
 
 	} else {
 		popup("<p>" + p.name + ", du brauchst weitere " + (property.price - p.money) + " um " + property.name + " zu kaufen.</p>");
@@ -1263,7 +1366,7 @@ function mortgage(index) {
   var value = "Hypothek zurückzahlen für " + mortgagePrice;
   var title = "Hypothek auf " + sq.name + " zurückzahlen für " + mortgagePrice + ".";
 
-  SOCKET_LIST[turn].emit('changeButton', "mortgagebutton", value, title);
+  	if (p.human) SOCKET_LIST[turn].emit('changeButton', "mortgagebutton", value, title);
 
 	addAlert(p.name + " hat eine Hypothek auf " + sq.name + " für " + mortgagePrice + " aufgenommen.");
 	updateOwned();
@@ -1287,7 +1390,7 @@ function unmortgage(index) {
   value = "Hypothek aufnehmen für " + mortgagePrice;
   title = "Hypothek auf " + sq.name + " für " + mortgagePrice + " aufnehmen.";
 
-  SOCKET_LIST[turn].emit('changeButton', "mortgagebutton", value, title);
+  	if (p.human) SOCKET_LIST[turn].emit('changeButton', "mortgagebutton", value, title);
 
 	addAlert(p.name + " hat die Hypothek für " + sq.name + " für " + unmortgagePrice + " zurückgezahlt.");
 	updateOwned();
@@ -1299,17 +1402,22 @@ function land(increasedRent) {
 	var p = player[turn];
 	var s = square[p.position];
 
-  SOCKET_LIST[turn].emit('show', "#landed", true);
-  SOCKET_LIST[turn].emit('setHTML', "landed", "Du bist auf " + s.name + " gelandet.");
-
+	if (p.human) {
+		SOCKET_LIST[turn].emit('show', "#landed", true);
+		SOCKET_LIST[turn].emit('setHTML', "landed", "Du bist auf " + s.name + " gelandet.");
+	}
+	
 	s.landcount++;
 	addAlert(p.name + " ist auf " + s.name + " gelandet.");
 
 	// Allow player to buy the property on which he landed.
 	if (s.price !== 0 && s.owner === 0) {
-
-		{
-      SOCKET_LIST[turn].emit('setHTML', "landed", "<div>Du bist auf <a href='javascript:void(0);' onmouseover='showdeed(" + p.position + ");' onmouseout='hidedeed();' class='statscellcolor'>" + s.name + "</a> gelandet.<input type='button' onclick='buy();' value='Kaufe (" + s.price + ")' title='Kaufe " + s.name + " für " + s.houseprice + ".'/></div>");
+		if (!p.human) {
+			if (p.AI.buyProperty(p.position)) {
+				buy();
+			}
+		} else {
+			SOCKET_LIST[turn].emit('setHTML', "landed", "<div>Du bist auf <a href='javascript:void(0);' onmouseover='showdeed(" + p.position + ");' onmouseout='hidedeed();' class='statscellcolor'>" + s.name + "</a> gelandet.<input type='button' onclick='buy();' value='Kaufe (" + s.price + ")' title='Kaufe " + s.name + " für " + s.houseprice + ".'/></div>");
 		}
 	}
 
@@ -1325,7 +1433,7 @@ function land(increasedRent) {
 		p.pay(rent, s.owner);
 		player[s.owner].money += rent;
 
-    SOCKET_LIST[turn].emit('setHTML', "landed", "Du bist auf " + s.name + " gelandet. " + player[s.owner].name + " hat " + rent + " Miete kassiert.");
+    	if (p.human) SOCKET_LIST[turn].emit('setHTML', "landed", "Du bist auf " + s.name + " gelandet. " + player[s.owner].name + " hat " + rent + " Miete kassiert.");
 	}
 
 	updateMoney();
@@ -1343,14 +1451,18 @@ function chanceCommunityChest() {
 		if (p.position === 3 || p.position === 9) {
 			var chanceIndex = chanceCards.deck[chanceCards.index];
 
-			popup("<img src='./client/images/chance_icon.png' style='height: 50px; width: 26px; float: left; margin: 8px 8px 8px 0px;' /><div style='font-weight: bold; font-size: 16px; '>" + chanceCards[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards[chanceIndex].text + "</div>"); //TODO
+			popupAll("<img src='./client/images/chance_icon.png' style='height: 50px; width: 26px; float: left; margin: 8px 8px 8px 0px;' /><div style='font-weight: bold; font-size: 16px; '>" + chanceCards[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards[chanceIndex].text + "</div>"); //TODO
 
-		chanceAction(chanceIndex);
+			chanceAction(chanceIndex);
 
 			chanceCards.index++;
 
 			if (chanceCards.index >= chanceCards.deck.length) {
 				chanceCards.index = 0;
+			}
+		} else if (!p.human) {
+			if (!p.AI.onLand()) {
+				game.next();
 			}
 		}
 	} else {
@@ -1362,32 +1474,37 @@ function chanceCommunityChest() {
 
 			var chanceIndex = chanceCards2.deck[chanceCards.index];
 
-			popup("<img src='./client/images/chance_icon.png' style='height: 50px; width: 26px; float: left; margin: 8px 8px 8px 0px;' /><div style='font-weight: bold; font-size: 16px; '>" + chanceCards2[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards2[chanceIndex].text + "</div>");
+			popupAll("<img src='./client/images/chance_icon.png' style='height: 50px; width: 26px; float: left; margin: 8px 8px 8px 0px;' /><div style='font-weight: bold; font-size: 16px; '>" + chanceCards2[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards2[chanceIndex].text + "</div>");
 
-		chanceAction(chanceIndex);
+			chanceAction(chanceIndex);
 
 			chanceCards.index++;
 
 			if (chanceCards.index >= chanceCards2.deck.length) {
 				chanceCards.index = 0;
 			}
+		} else if (!p.human) {
+			if (!p.AI.onLand()) {
+				game.next();
+			}
 		}
 	}
-	
 }
 
 function roll() {
 	var p = player[turn];
 
-  SOCKET_LIST[turn].emit('roll');
-  SOCKET_LIST[turn].emit('changeButton', "nextbutton", "Spielzug beenden", "Spielzug beenden und zum nächsten Spieler wechseln.");
-
+	if (p.human) {
+		SOCKET_LIST[turn].emit('roll');
+  		SOCKET_LIST[turn].emit('changeButton', "nextbutton", "Spielzug beenden", "Spielzug beenden und zum nächsten Spieler wechseln.");
+	}
+  
 	game.rollDice();
 	var die1 = game.getDie();
 
 	addAlert(p.name + " hat " + die1 + " gewürfelt.");
 
-	SOCKET_LIST[turn].emit('changeButton', "nextbutton", "Spielzug beenden", "Spielzug beenden und zum nächsten Spieler wechseln.");
+	if (p.human) SOCKET_LIST[turn].emit('changeButton', "nextbutton", "Spielzug beenden", "Spielzug beenden und zum nächsten Spieler wechseln.");
 
 	updatePosition();
 	updateMoney();
@@ -1422,25 +1539,28 @@ function play() {
 		turn -= pcount;
 	}
 
-	if (SOCKET_LIST[turn] == undefined) return;
-  	SOCKET_LIST[turn].emit('show', "#nextbutton", true);
-
+	if (SOCKET_LIST[turn] == undefined && player[turn].AI == null) return;
+	
 	var p = player[turn];
 	game.resetDice();
-  	SOCKET_LIST[turn].emit('setHTML', "pname", p.name);
-
+	if (p.human) {
+		SOCKET_LIST[turn].emit('show', "#nextbutton", true);
+		SOCKET_LIST[turn].emit('setHTML', "pname", p.name);
+	}
 	addAlert(p.name + " ist an der Reihe.");
 
 	// Check for bankruptcy.
 	p.pay(0, p.creditor);
 
-  SOCKET_LIST[turn].emit('show', "#landed, #option, #manage", false);
-  SOCKET_LIST[turn].emit('show', "#board, #control, #moneybar, #viewstats, #buy", true);
+	if (p.human) {
+		SOCKET_LIST[turn].emit('show', "#landed, #option, #manage", false);
+		SOCKET_LIST[turn].emit('show', "#board, #control, #moneybar, #viewstats, #buy", true);
 
-  SOCKET_LIST[turn].emit('focusbutton', "nextbutton");
-  SOCKET_LIST[turn].emit('changeButton', "nextbutton", "Würfeln", "Würfeln und Figur entsprechend vorrücken.");
+		SOCKET_LIST[turn].emit('focusbutton', "nextbutton");
+		SOCKET_LIST[turn].emit('changeButton', "nextbutton", "Würfeln", "Würfeln und Figur entsprechend vorrücken.");
 
-  SOCKET_LIST[turn].emit('show', "#die0", false);
+		SOCKET_LIST[turn].emit('show', "#die0", false);
+	}
 
 	updateMoney();
 	updatePosition();
@@ -1450,10 +1570,16 @@ function play() {
 		SOCKET_LIST[i].emit('show', ".money-bar-arrow", false);
   		SOCKET_LIST[i].emit('show', "#p" + turn + "arrow", true);
 	}
+
+	if (!p.human) {
+		if (!p.AI.beforeTurn()) {
+			game.next();
+		}
+	}
 }
 
 function setup(isKapitalismus, playernumber, nieten) {
-	pcount = playernumber;
+	pcount = parseInt(playernumber);
 
 	meinStaat = new Staat();
 	meineBank = new Bank();
@@ -1468,7 +1594,8 @@ function setup(isKapitalismus, playernumber, nieten) {
 	playerArray.randomize();
 	turn = playerArray[0] - 1;
 
-	var colors = ["gold", "red", "beige", "purple", "orange", "violet"]
+	var colors = ["gold", "red", "beige", "purple", "orange", "violet"];
+	var aiNames = new Array("Dirk (KI)", "Anna (KI)", "Julia (KI)", "Nicole (KI)", "Michael (KI)");
 
 	var properties = new Array(1,2,4,5,7,8,10,11);
 	
@@ -1479,14 +1606,23 @@ function setup(isKapitalismus, playernumber, nieten) {
 	}
 
 	properties.sort(function() { return 0.5 - Math.random();});
+	aiNames.sort(function() { return 0.5 - Math.random();});
 
 	for (var i = 1; i <= pcount; i++) {
 
 		p = player[playerArray[i - 1]];
 		
-		p.human = true;
-		p.color = colors.shift();
-		p.name = playerNames[playerArray[i - 1]] ? playerNames[playerArray[i - 1]] : 'Spieler ' + playerArray[i - 1];
+		// player is human
+		if (playerArray[i - 1] < playerNo) {
+			p.human = true;
+			p.color = colors.shift();
+			p.name = playerNames[playerArray[i - 1]] ? playerNames[playerArray[i - 1]] : 'Spieler ' + playerArray[i - 1];
+		} else {	//player is AI
+			p.human = false;
+			p.AI = new AITest(p);
+			p.color = colors.shift();
+			p.name = aiNames.pop();
+		}
 		
 		//Immobilienkarten verteilen
 
@@ -1541,7 +1677,14 @@ function setup(isKapitalismus, playernumber, nieten) {
 }
 
 function popup(HTML, option, doMortgage, key=turn) {
-  SOCKET_LIST[key].emit('popup', HTML, option, doMortgage);
+	if (!player[key].human) return;
+  	SOCKET_LIST[key].emit('popup', HTML, option, doMortgage);
+}
+
+function popupAll(HTML, option, doMortgage) {
+	for (var i in SOCKET_LIST) {
+		SOCKET_LIST[i].emit('popup', HTML, option, doMortgage);
+	}
 }
 
 function loadWindow() {
@@ -1551,6 +1694,8 @@ function loadWindow() {
 		player[i] = new Player("", "");
 		player[i].index = i;
 	}
+
+	AITest.count = 0;
 
 	player[1].human = true;
 	player[0].name = "Bank";
@@ -1685,3 +1830,157 @@ chanceCards2[10] = new Card("Hackerangriff","Du hast die Bank gehackt und 80.000
 chanceCards2[11] = new Card("Einbauküche","Du kaufst für 24.000 eine Einbauküche. Überweise den Betrag anteilig an alle Mitspieler*innen", function() { payeachplayer(24000, "Ereignisfeld");});
 chanceCards2[12] = new Card("Erbstreit","Wegen eines Erbstreits musst Du ein Grundstück versteigern. Die Hälfte des Erlöses zahlst du anteilig an alle aus.", function() { auctionHouse();});
 chanceCards2[13] = new Card("Beitragserhöhung","Deine Krankenkasse erhöht die Beiträge. Zahle 3.000 an den Staat.", function() { payState(3000);});
+
+
+// The purpose of this AI is not to be a relistic opponant, but to give an example of a vaild AI player.
+function AITest(p) {
+	this.alertList = "";
+
+	// This variable is static, it is not related to each instance.
+	this.constructor.count++;
+
+	p.name = "AI Test " + this.constructor.count;
+
+	// Decide whether to buy a property the AI landed on.
+	// Return: boolean (true to buy).
+	// Arguments:
+	// index: the property's index (0-39).
+	this.buyProperty = function(index) {
+		console.log("buyProperty");
+		var s = square[index];
+
+		if (p.money > s.price) {
+			return true;
+		} else {
+			return false;
+		}
+
+	}
+
+	// Determine the response to an offered trade.
+	// Return: boolean/instanceof Trade: a valid Trade object to counter offer (with the AI as the recipient); false to decline; true to accept.
+	// Arguments:
+	// tradeObj: the proposed trade, an instanceof Trade, has the AI as the recipient.
+	this.acceptTrade = function(tradeObj) {
+		console.log("acceptTrade");
+
+		var tradeValue = 0;
+		var money = tradeObj.getMoney();
+		var initiator = tradeObj.getInitiator();
+		var recipient = tradeObj.getRecipient();
+		var property = [];
+
+		tradeValue += money;
+
+		for (var i = 0; i < 12; i++) {
+			property[i] = tradeObj.getProperty(i);
+			tradeValue += tradeObj.getProperty(i) * square[i].price * (square[i].mortgage ? 0.5 : 1);
+		}
+
+		tradeValue += tradeObj.derivate;
+		tradeValue += tradeObj.anleihen;
+
+		var proposedMoney = -25 - tradeValue + money;
+		var condition = proposedMoney < 0 ? initiator.money > -proposedMoney : recipient.money > proposedMoney;
+		if (tradeValue < 0) {
+			return true;
+		} else if (tradeValue <= 50 && condition) {
+			var reversedTradeProperty = [];
+			// Ensure that some properties are selected.
+			for (var i = 0; i < 12; i++) {
+				reversedTradeProperty[i] = -tradeObj.property[i];
+			}
+			return new Trade(recipient, initiator, -proposedMoney, reversedTradeProperty, -tradeObj.anleihen, -tradeObj.derivate);
+		}
+
+		return false;
+	}
+
+	// This function is called at the beginning of the AI's turn, before any dice are rolled. The purpose is to allow the AI to manage property and/or initiate trades.
+	// Return: boolean: Must return true if and only if the AI proposed a trade.
+	this.beforeTurn = function() {
+		console.log("beforeTurn");
+		var s;
+
+		// Buy houses.
+		for (var i = 0; i < 12; i++) {
+			s = square[i];
+
+			if (s.owner === p.index) {
+
+				if (p.money > s.houseprice) {
+					buyHouse(i);
+				}
+			}
+		}
+
+		// Unmortgage property
+		for (var i = 11; i >= 0; i--) {
+			s = square[i];
+
+			if (s.owner === p.index && s.mortgage && p.money > s.price) {
+				unmortgage(i);
+			}
+		}
+
+		return false;
+	}
+
+
+	// This function is called every time the AI lands on a square. The purpose is to allow the AI to manage property and/or initiate trades.
+	// Return: boolean: Must return true if and only if the AI proposed a trade.
+	this.onLand = function() {
+		console.log("onLand");
+		return false;
+	}
+
+	// Mortgage enough properties to pay debt.
+	// Return: void: don't return anything, just call the functions mortgage()/sellhouse()
+	this.payDebt = function() {
+		console.log("payDebt");
+		
+		if (p.money < 0) {
+			if (p.verfuegbareHypothek < p.sumKredit - p.money) {
+				sozialHilfe(p.index);
+			}
+			game.kreditAufnehmen(-p.money, 0);
+		}
+
+	}
+
+	// Determine what to bid during an auction.
+	// Return: integer: -1 for exit auction, 0 for pass, a positive value for the bid.
+	this.bid = function(property, currentBid) {
+		console.log("bid");
+		var bid;
+
+		bid = currentBid + Math.round(Math.random() * 20 + 10);
+
+		if (p.money < bid || bid > square[property].price * 1.5) {
+			console.log("AI passes.")
+		} else {
+			game.highestbidder = p.index;
+			game.highestbid = bid;
+		}
+	  
+		while (true) {
+			game.currentbidder++;
+
+			if (game.currentbidder > pcount) {
+				game.currentbidder -= pcount;
+			}
+			if (game.currentbidder == game.highestbidder) {
+				game.finalizeAuction();
+				return;
+			} else if (player[game.currentbidder].bidding) {
+				break;
+			}
+		}
+
+		if (player[game.currentbidder].human) {
+			SOCKET_LIST[game.currentbidder].emit("auction", game.auctionproperty, player, square, game.highestbidder, game.highestbid)
+		} else {
+			player[game.currentbidder].AI.bid(game.auctionproperty, game.highestbid);
+		}
+	}
+}

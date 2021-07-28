@@ -14,7 +14,8 @@ start.onclick = function(e){
     
     var isKapitalismus = document.getElementById('capitalism').value == "Kapitalismus";
     var nieten = document.getElementById("nieten").value;
-    socket.emit('setup', isKapitalismus, pcount, nieten);
+    var pNo = document.getElementById("spieler").value;
+    socket.emit('setup', isKapitalismus, pNo, nieten);
 }
 
 var kreditaufnehmen = document.getElementById('kreditaufnehmenbutton');
@@ -1097,10 +1098,20 @@ function playernumber_onchange() {
         if (i != playerId) document.getElementById("player" + i + "name").disabled = true;
     }
     $("#name" + playerId + "button").show();
-
+    switch(pcount) {
+        case 6:
+            $("#spieler5").hide();
+            document.getElementById("spieler5").selected = true;
+        case 5:
+            $("#spieler4").hide();
+            document.getElementById("spieler4").selected = true;
+        case 4:
+            $("#spieler3").hide();
+            document.getElementById("spieler3").selected = true;
+    }
     capitalism_onchange()
 
-    if (playerId == 1 && pcount > 2 && pcount < 7) {
+    if (playerId == 1 && pcount < 7) {
         $("#startbutton").show();
     } else {
         $("#startbutton").hide();
@@ -1114,6 +1125,7 @@ function capitalism_onchange() {
     }
 
     $("#nietenfield").show()
+    $("#spielerfield").show()
     
     //pcount = parseInt(document.getElementById("playernumber").value, 10);
 
@@ -1125,7 +1137,8 @@ function capitalism_onchange() {
     $("#nieten8").hide();
     $("#nieten10").hide();
 
-    switch (pcount) {
+    var anzahlSpieler = document.getElementById("spieler").value;
+    switch (parseInt(anzahlSpieler)) {
         case 3:
             $("#nieten1").show();
             document.getElementById("nieten1").selected = true;
@@ -1164,6 +1177,8 @@ window.onload = function() {
 
     //$("#playernumber").on("change", playernumber_onchange);
     playernumber_onchange();
+
+    $("#spieler").on("change", capitalism_onchange);
 
     $("#capitalism").on("change", capitalism_onchange);
     capitalism_onchange();
