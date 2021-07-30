@@ -34,24 +34,18 @@ io.sockets.on('connection', function(socket){
 	SOCKET_LIST[i].emit('playerNames', playerNames);
   }
 
-  socket.on('setup',function(isKapitalismus, pnumber, nieten){
-    setup(isKapitalismus, pnumber, nieten);         
-  });
+  socket.on('setup', setup);
 
   socket.on('zinssatz', function(data) {
 	game.zinssatz = parseInt(data);
 	console.log('zinssatz changed to', game.zinssatz)
   })
 
-  socket.on('next',function(){
-    game.next();        
-  });
+  socket.on('next', game.next);
 
-  socket.on('resign',function(){
-    game.resign();        
-  });
+  socket.on('resign', game.resign);
 
-  socket.on('sozialhilfe', sozialHilfe)
+  socket.on('sozialhilfe', sozialHilfe);
 
   socket.on('buyhouse',function(checkedProperty){
     Object.keys(SOCKET_LIST).forEach(function eachKey(key) {
@@ -123,9 +117,7 @@ io.sockets.on('connection', function(socket){
 	});    
   });
 
-  socket.on('eliminate',function(){
-    game.eliminatePlayer();        
-  });
+  socket.on('eliminate', game.eliminatePlayer);
 
   socket.on('updateOwned', updateOwned);
 
@@ -175,141 +167,7 @@ io.sockets.on('connection', function(socket){
     socket.emit('tradeObj', game.tradeObj);
   });
 
-  socket.on('sendOffer', function() {
-    var receiver = game.tradeObj.initiator.index;
-	if (receiver == 0) {
-		var money;
-		var initiator;
-		var recipient;
-
-		money = game.tradeObj.money;
-		anleihen = game.tradeObj.anleihen;
-		derivate = game.tradeObj.derivate;
-		initiator = meineBank;
-		recipient = player[game.tradeObj.recipient.index];
-
-		if (money + anleihen + derivate != 0)
-			return;
-
-		// Exchange money.
-		if (money > 0) {
-			initiator.pay(money, recipient.index);
-    		recipient.money += money;
-
-			addAlert(recipient.name + " hat " + money + " von " + initiator.name + " erhalten.");
-		} else if (money < 0) {
-			recipient.pay(-money, initiator.index);
-    		initiator.zinsenLotto -= money;
-
-			addAlert(initiator.name + " hat " + (-money) + " von " + recipient.name + " erhalten.");
-		}
-
-		//stock exchange
-		if (anleihen > 0) {
-			initiator.anleihenBank -= anleihen;
-			recipient.anleihen += anleihen;
-
-			addAlert(recipient.name + " hat Anleihen im Wert von " + anleihen + " von " + initiator.name + " erhalten.");
-		} else if (anleihen < 0) {
-			initiator.anleihenBank -= anleihen;
-			recipient.anleihen += anleihen;
-
-			addAlert(initiator.name + " hat Anleihen im Wert von " + (-anleihen) + " von " + recipient.name + " erhalten.");
-		}
-
-		if (derivate > 0) {
-			initiator.derivateBank -= derivate;
-			recipient.derivate += derivate;
-
-			addAlert(recipient.name + " hat Derivate im Wert von " + derivate + " von " + initiator.name + " erhalten.");
-		} else if (derivate < 0) {
-			initiator.derivateBank -= derivate;
-			recipient.derivate += derivate;
-
-			addAlert(initiator.name + " hat Anleihen im Wert von " + (-derivate) + " von " + recipient.name + " erhalten.");
-		}
-
-		updateOwned()
-		updateMoney()
-		return;
-	}
-	else if (!player[receiver].human) {
-		var result = player[receiver].AI.acceptTrade(game.tradeObj);
-		if (result === false) {
-			return;
-		} else if (result === true) {
-			var money;
-			var initiator;
-			var recipient;
-
-			money = game.tradeObj.money;
-			anleihen = game.tradeObj.anleihen;
-			derivate = game.tradeObj.derivate;
-			initiator = player[receiver];
-			recipient = player[game.tradeObj.recipient.index];
-
-			//Exchange properties
-			for (var i = 0; i < 12; i++) {
-
-				if (game.tradeObj.property[i] === 1) {
-					square[i].owner = recipient.index;
-					addAlert(recipient.name + " hat " + square[i].name + " von " + initiator.name + " erhalten.");
-				} else if (game.tradeObj.property[i] === -1) {
-					square[i].owner = initiator.index;
-					addAlert(initiator.name + " hat " + square[i].name + " von " + recipient.name + " erhalten.");
-				}
-		
-			}
-
-			// Exchange money.
-			if (money > 0) {
-				initiator.pay(money, recipient.index);
-				recipient.money += money;
-
-				addAlert(recipient.name + " hat " + money + " von " + initiator.name + " erhalten.");
-			} else if (money < 0) {
-				recipient.pay(-money, initiator.index);
-				initiator.money -= money;
-
-				addAlert(initiator.name + " hat " + (-money) + " von " + recipient.name + " erhalten.");
-			}
-
-			//stock exchange
-			if (anleihen > 0) {
-				initiator.anleihen -= anleihen;
-				recipient.anleihen += anleihen;
-
-				addAlert(recipient.name + " hat Anleihen im Wert von " + anleihen + " von " + initiator.name + " erhalten.");
-			} else if (anleihen < 0) {
-				initiator.anleihen -= anleihen;
-				recipient.anleihen += anleihen;
-
-				addAlert(initiator.name + " hat Anleihen im Wert von " + (-anleihen) + " von " + recipient.name + " erhalten.");
-			}
-
-			if (derivate > 0) {
-				initiator.derivate -= derivate;
-				recipient.derivate += derivate;
-
-				addAlert(recipient.name + " hat Derivate im Wert von " + derivate + " von " + initiator.name + " erhalten.");
-			} else if (derivate < 0) {
-				initiator.derivate -= derivate;
-				recipient.derivate += derivate;
-
-				addAlert(initiator.name + " hat Anleihen im Wert von " + (-derivate) + " von " + recipient.name + " erhalten.");
-			}
-
-			updateOwned()
-			updateMoney()
-			return;
-		} else {
-			game.tradeObj = result;
-			SOCKET_LIST[game.tradeObj.initiator.index].emit('receiveOffer', game.tradeObj);
-		}
-		return;
-	}
-    SOCKET_LIST[receiver].emit('receiveOffer', game.tradeObj);
-  });
+  socket.on('sendOffer', handleOffer);
 
   socket.on('changeOwner', function(sq_idx, rcp_idx) {
     square[sq_idx].owner = rcp_idx;
@@ -335,42 +193,19 @@ io.sockets.on('connection', function(socket){
 	player[initiator].anleihen -= anleihen;
   });
 
-  socket.on("newbid", function(highestbidder, highestbid) {
+  socket.on("newbid", function(highestbidder,highestbid) {
 	game.highestbidder = highestbidder;
 	game.highestbid = highestbid;
-	  
-	while (true) {
-		game.currentbidder++;
-
-		if (game.currentbidder > pcount) {
-			game.currentbidder -= pcount;
-		}
-		if (game.currentbidder == game.highestbidder) {
-			game.finalizeAuction();
-			return;
-		} else if (player[game.currentbidder].bidding) {
-			break;
-		}
-
-	}
-	if (player[game.currentbidder].human) {
-		SOCKET_LIST[game.currentbidder].emit("auction", game.auctionproperty, player, square, game.highestbidder, game.highestbid)
-	} else {
-		player[game.currentbidder].AI.bid(game.auctionproperty, game.highestbid);
-	}
-  })
+	transactionFunctions.bid();
+  });
 
   socket.on("auctionExit", function(currentbidder) {
 	player[currentbidder].bidding = false;
   });
 
-  socket.on("finalizeAuction", function() {
-	  game.finalizeAuction();
-  });
+  socket.on("finalizeAuction", game.finalizeAuction);
 
-  socket.on("auctionHouse", function(propertyindex) {
-	  auctionHouseP(propertyindex);
-  });
+  socket.on("auctionHouse", auctionHouseP);
 
   socket.on('disconnect',function(){
 	Object.keys(SOCKET_LIST).forEach(function eachKey(key) {
@@ -408,9 +243,7 @@ io.sockets.on('connection', function(socket){
 	});
   });
 
-  socket.on('addAlert', function(myText) {
-	addAlert(myText);
-  });
+  socket.on('addAlert', addAlert);
 	
 });
 
@@ -427,11 +260,7 @@ global.game;
 
 var Player = require('./Player');
 var Bank = require('./Bank');
-
-function Staat() {
-	this.staatsSchuld = 0;
-	this.steuer = 0;
-}
+var Staat = require('./Staat');
 
 // paramaters:
 // initiator: object Player
@@ -439,7 +268,7 @@ function Staat() {
 // money: integer, positive for offered, negative for requested
 // property: array of integers, length: 40
 
-var Trade = require('./Trade.js');
+var Trade = require('./Trade');
 
 global.player = [];
 global.pcount;
@@ -567,30 +396,9 @@ function advance(destination, pass) {
 	land();
 }
 
-function payplayer(position, amount) {
-	var receiver = turn + position;
-	var nPlayer = pcount
-	
-	if (receiver < 0) {
-		receiver = nPlayer;
-	}
-	if (receiver > nPlayer) {
-		receiver = 1;
-	}
+var transactionFunctions = require('./transactionFunctions')
 
-	var p = player[turn];
-
-	player[receiver].money += amount;
-
-	p.pay(amount, receiver);
-
-	if (amount < 0) {
-		addAlert(p.name + " hat " + (-amount) + " von " + player[receiver].name + " erhalten.");
-	} else {
-		addAlert(p.name + " hat " + amount + " an " + player[receiver].name + " gezahlt.");
-	}
-
-}
+var payplayer = transactionFunctions.payplayer;
 
 function payState(amount, reason="") {
 	var p = player[turn];
@@ -618,64 +426,10 @@ global.sozialHilfe = function sozialHilfe(key=turn) {
 	payState(amount, " Sozialhilfe");
 }
 
-function sellRichest(amount) {
-	
-	var richest;
-	var idx = 0;
-	var money = -1e6;
-	for (var i = 1; i <= pcount; i++) {
-		p = player[i];
-		if (p.money >= money) {
-			richest = p;
-			money = p.money;
-			idx = i;
-		}
-	}
-
-	var p = player[turn];
-
-	p.money += amount;
-
-	richest.pay(amount, idx);
-
-	addAlert(richest.name + " hat " + amount + " an " + p.name + " gezahlt.");
-}
-
-function sellPoorest(amount) {
-	
-	var poorest;
-	var idx = 0;
-	var money = 1e6;
-	for (var i = 1; i <= pcount; i++) {
-		p = player[i];
-		if (p.money <= money) {
-			poorest = p;
-			money = p.money;
-			idx = i;
-		}
-	}
-
-	var p = player[turn];
-
-	p.money += amount;
-
-	poorest.pay(amount, idx);
-
-	addAlert(poorest.name + " hat " + amount + " an " + p.name + "gezahlt.");
-}
-
-function receiveFromBank(amount, key=turn) {
-	var p = player[key];
-	p.money += amount
-	meineBank.derivateEmittieren(amount);
-	meineBank.zinsenLotto -= amount;
-}
-
-function receiveBankguthaben() {
-  var p = player[turn];
-	p.money += meineBank.zinsenLotto;
-	meineBank.zinsenLotto = 0;
-}
+var sellRichest = transactionFunctions.sellRichest;
+var sellPoorest = transactionFunctions.sellPoorest;
+var receiveFromBank = transactionFunctions.receiveFromBank;
+var receiveBankguthaben = transactionFunctions.receiveBankguthaben;
 
 percent = 0;
 discount = 0;
@@ -752,73 +506,10 @@ function auctionHouseP(propertyindex) {
 	game.auction();
 }
 
-function sellHouse(index) {
-	sq = square[index];
-	p = player[sq.owner];
+var handleOffer = transactionFunctions.handleOffer;
 
-	sq.house--;
-	addAlert(p.name + " hat ein Haus in der " + sq.name + " verkauft.");
-
-	p.money += sq.houseprice;
-	meineBank.pay(sq.houseprice, sq.owner);
-	updateOwned();
-	updateMoney();
-}
-
-function showStats(key=turn) {
-	if (!player[key].human) return;
-	var HTML, sq, p;
-	var mortgagetext,
-	housetext;
-	var write;
-	HTML = "<table align='center'><tr>";
-
-	for (var x = 1; x <= pcount; x++) {
-		write = false;
-		p = player[x];
-		if (x == 5) {
-			HTML += "</tr><tr>";
-		}
-		HTML += "<td class='statscell' id='statscell" + x + "' style='border: 2px solid " + p.color + "' ><div class='statsplayername'>" + p.name + "</div>";
-
-		for (var i = 0; i < 12; i++) {
-			sq = square[i];
-
-			if (sq.owner == x) {
-				mortgagetext = "",
-				housetext = "";
-
-				if (sq.mortgage) {
-					mortgagetext = "title='Hypothek aufgenommen' style='color: grey;'";
-				}
-
-				if (!write) {
-					write = true;
-					HTML += "<table>";
-				}
-
-				if (sq.house > 0) {
-					housetext += "<span style='float: right; font-weight: bold;'>" + sq.house + "&nbsp;x&nbsp;<img src='./client/images/house.png' alt='' title='House' class='house' style='float: none;' /></span>";
-				}
-
-				HTML += "<tr><td class='statscellcolor' style='background: " + sq.color + ";";
-
-				HTML += "' onmouseover='showdeed(" + i + ");' onmouseout='hidedeed();'></td><td class='statscellname' " + mortgagetext + ">" + sq.name + housetext + "</td></tr>";
-			}
-		}
-
-		if (!write) {
-			HTML += p.name + " hat keine Grundstücke.";
-		} else {
-			HTML += "</table>";
-		}
-
-		HTML += "</td>";
-	}
-	HTML += "</tr></table><div id='titledeed'></div>";
-
-  SOCKET_LIST[key].emit('showstats', HTML);
-}
+var sellHouse = transactionFunctions.sellHouse;
+var showStats = require('./showStats');
 
 function showdeed(property, key=turn) {
 
@@ -826,52 +517,8 @@ function showdeed(property, key=turn) {
   SOCKET_LIST[key].emit('showdeed', sq);
 }
 
-function buy() {
-	var p = player[turn];
-	var property = square[p.position];
-	var cost = property.price;
-
-	if (p.money >= cost) {
-		p.pay(cost, 0);
-
-		property.owner = turn;
-		updateMoney();
-		addAlert(p.name + " hat " + property.name + " für " + property.houseprice + " gekauft.");
-
-		updateOwned();
-		p.update();
-
-    	if (p.human) SOCKET_LIST[turn].emit('show', "#landed", false);
-
-	} else {
-		popup("<p>" + p.name + ", du brauchst weitere " + (property.price - p.money) + " um " + property.name + " zu kaufen.</p>");
-	}
-}
-
-function mortgage(index) {
-	var sq = square[index];
-	var p = player[sq.owner];
-
-	if (sq.mortgage) {
-		return false;
-	}
-
-	var mortgagePrice = sq.price;
-
-	sq.mortgage = true;
-	p.money += mortgagePrice;
-
-  var value = "Hypothek zurückzahlen für " + mortgagePrice;
-  var title = "Hypothek auf " + sq.name + " zurückzahlen für " + mortgagePrice + ".";
-
-  	if (p.human) SOCKET_LIST[turn].emit('changeButton', "mortgagebutton", value, title);
-
-	addAlert(p.name + " hat eine Hypothek auf " + sq.name + " für " + mortgagePrice + " aufgenommen.");
-	updateOwned();
-	updateMoney();
-
-	return true;
-}
+var buy = transactionFunctions.buy;
+var mortgage = transactionFunctions.buy;
 
 global.unmortgage = function unmortgage(index) {
 	var sq = square[index];

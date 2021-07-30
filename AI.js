@@ -129,25 +129,7 @@ module.exports = function AITest(p) {
 			game.highestbidder = p.index;
 			game.highestbid = bid;
 		}
-	  
-		while (true) {
-			game.currentbidder++;
 
-			if (game.currentbidder > pcount) {
-				game.currentbidder -= pcount;
-			}
-			if (game.currentbidder == game.highestbidder) {
-				game.finalizeAuction();
-				return;
-			} else if (player[game.currentbidder].bidding) {
-				break;
-			}
-		}
-
-		if (player[game.currentbidder].human) {
-			SOCKET_LIST[game.currentbidder].emit("auction", game.auctionproperty, player, square, game.highestbidder, game.highestbid)
-		} else {
-			player[game.currentbidder].AI.bid(game.auctionproperty, game.highestbid);
-		}
+		require('./transactionFunctions').bid();
 	}
 }

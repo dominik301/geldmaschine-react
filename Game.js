@@ -1,4 +1,4 @@
-function Game() {
+module.exports = function Game() {
 	var die1;
 	var areDiceRolled = false;
 
