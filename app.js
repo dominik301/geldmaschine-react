@@ -575,6 +575,7 @@ function Game() {
 
 		delete SOCKET_LIST[key];
 		for (var i = p.index; i < pcount+1; i++) {
+			if (SOCKET_LIST[i+1] == undefined) break;
 			playerNames[i] = playerNames[i + 1];
 			SOCKET_LIST[i] = SOCKET_LIST[i + 1];
 			SOCKET_LIST[i].emit('setPlayerId', i);
@@ -584,8 +585,11 @@ function Game() {
 
 		updateOwned();
 		updateMoney();
-		
 
+		if (Object.keys(SOCKET_LIST).length == 0) {
+			player = [];
+			return;
+		}
 		/*if (pcount === 2) {
 			document.getElementById("stats").style.width = "454px";
 		} else if (pcount === 3) {
@@ -1491,8 +1495,20 @@ function chanceCommunityChest() {
 	}
 }
 
+var timePassed = false;
+
 function roll() {
 	var p = player[turn];
+
+	if (p == undefined) return;
+
+	if (!p.human && !timePassed) {
+		setTimeout(() => { roll();}, 2000);
+		timePassed = true;
+		return;
+	}
+
+	timePassed = false;
 
 	if (p.human) {
 		SOCKET_LIST[turn].emit('roll');
