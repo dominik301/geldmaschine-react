@@ -41,9 +41,9 @@ io.sockets.on('connection', function(socket){
 	console.log('zinssatz changed to', game.zinssatz)
   })
 
-  socket.on('next', game.next);
+  socket.on('next', function() {game.next()});
 
-  socket.on('resign', game.resign);
+  socket.on('resign', function() {game.resign()});
 
   socket.on('sozialhilfe', sozialHilfe);
 
@@ -117,7 +117,7 @@ io.sockets.on('connection', function(socket){
 	});    
   });
 
-  socket.on('eliminate', game.eliminatePlayer);
+  socket.on('eliminate', function() {game.eliminatePlayer});
 
   socket.on('updateOwned', updateOwned);
 
@@ -203,7 +203,7 @@ io.sockets.on('connection', function(socket){
 	player[currentbidder].bidding = false;
   });
 
-  socket.on("finalizeAuction", game.finalizeAuction);
+  socket.on("finalizeAuction", function() {game.finalizeAuction});
 
   socket.on("auctionHouse", auctionHouseP);
 
@@ -845,7 +845,7 @@ function popupAll(HTML, option, doMortgage) {
 }
 
 function loadWindow() {
-  game = new Game();
+  	game = new Game();
 
 	for (var i = 0; i <= 6; i++) {
 		player[i] = new Player("", "");

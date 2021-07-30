@@ -118,6 +118,7 @@ module.exports = function Game() {
 
 	this.eliminatePlayer = function(key=turn) {
 		var p = player[key];
+		if (p==undefined) return;
 
 		var isPlayerTurn = key == turn;
 
@@ -182,7 +183,7 @@ module.exports = function Game() {
 		var p = player[turn];
 
 		if (p.creditor === 0) {
-			game.eliminatePlayer();
+			this.eliminatePlayer();
 			return;
 		}
 
@@ -215,7 +216,7 @@ module.exports = function Game() {
     SOCKET_LIST[turn].emit('eliminatePlayer', HTML);
 
 		popup(HTML);
-    game.eliminatePlayer();
+    this.eliminatePlayer();
 	};
 
 	this.resign = function() {
