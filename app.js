@@ -1,5 +1,3 @@
-var remote_players = {};
-
 var express = require('express');
 const { title } = require('node:process');
 var app = express();
@@ -16,8 +14,8 @@ console.log("Server started.");
 
 SOCKET_LIST = {};
 
-var playerNo = 1;
-var playerNames = {};
+global.playerNo = 1;
+global.playerNames = {};
 
 var io = require('socket.io')(server);
 io.sockets.on('connection', function(socket){
@@ -423,472 +421,12 @@ server.listen(port) //, "0.0.0.0");
 
 //Start: Old code monopoly.js
 
-function Game() {
-	var die1;
-	var areDiceRolled = false;
+var Game = require('./Game');
 
-	this.zinssatz = 10;
+global.game;
 
-	this.phase = 1;
-
-	this.auctionQueue = [];
-	this.highestbidder;
-	this.highestbid;
-	this.currentbidder = 1;
-	this.auctionproperty;
-
-	// Auction functions:
-
-
-
-	this.finalizeAuction = function() {
-		var p = player[this.highestbidder];
-		var sq = square[this.auctionproperty];
-
-		if (this.highestbid > 0) {
-			p.pay(this.highestbid, 0);
-			sq.owner = this.highestbidder;
-			addAlert(p.name + " hat " + sq.name + " für " + this.highestbid + " ersteigert.");
-			player[turn].money += this.highestbid;
-			payeachplayer(this.highestbid / 2, "Versteigerung");
-		}
-
-		for (var i = 1; i <= pcount; i++) {
-			player[i].bidding = true;
-		}
-
-		play();
-	};
-
-	this.addPropertyToAuctionQueue = function(propertyIndex) {
-		this.auctionQueue.push(propertyIndex);
-	};
-
-	this.auction = function() {
-		if (this.auctionQueue.length === 0) {
-			return false;
-		}
-
-		var index = this.auctionQueue.shift();
-
-		var s = square[index];
-
-		this.auctionproperty = index;
-		this.highestbidder = 0;
-		this.highestbid = 0;
-		this.currentbidder = turn + 1;
-
-		if (this.currentbidder > pcount) {
-			this.currentbidder -= pcount;
-		}
-
-		if (player[this.currentbidder].human) {
-			SOCKET_LIST[this.currentbidder].emit("auction", this.auctionproperty, player, square, this.highestbidder, this.highestbid)
-		} else {
-			player[this.currentbidder].AI.bid(this.auctionproperty, this.highestbid);
-		}
-				
-		updateMoney();
-		return true;
-	};
-
-
-	this.rollDice = function() {
-		die1 = Math.floor(Math.random() * 6) + 1;
-		areDiceRolled = true;
-	};
-
-	this.resetDice = function() {
-		areDiceRolled = false;
-	};
-
-	this.next = function() {
-		if (areDiceRolled) {
-			play();
-		} else {
-			roll();
-		}
-	};
-
-	this.getDie = function() {
-		return die1;
-	};
-
-	// Credit functions:
-
-	this.kreditAufnehmen = function(amount, key=turn) {
-		var initiator = player[key];
-		initiator.update();
-
-		if (initiator.sumKredit + amount > initiator.verfuegbareHypothek) {
-			popup("<p>" + initiator.name + ", deine verfügbare Hypothek ist geringer als " + amount + ".</p>", key=key);
-			return false;
-		}
-
-		initiator.kreditAufnehmen(amount);
-	}
-
-	this.kreditTilgen = function(amount,key=turn) {
-    	var initiator = player[key];
-
-		if (amount > initiator.money) {
-			popup("<p>" + initiator.name + ", du hast keine " + amount + ".</p>", key=key);
-			return false;
-		}
-
-		initiator.kreditTilgen(amount);		
-	}
-
-  var tradeObj;
-
-	// Trade functions:
-
-	// Bankrupcy functions:
-
-
-	this.eliminatePlayer = function(key=turn) {
-		var p = player[key];
-
-		var isPlayerTurn = key == turn;
-
-		playerNo -= 1;
-		delete playerNames[key];
-
-		for (var i = p.index; i < pcount; i++) {
-			player[i] = player[i + 1];
-			player[i].index = i;
-
-		}
-
-		for (var i = 0; i < 12; i++) {
-			if (square[i].owner >= p.index) {
-				square[i].owner--;
-			}
-		}
-
-		pcount--;
-		if (key <= turn)
-			turn--;
-		if (turn == 0) {
-			turn = pcount;
-		}
-
-		delete SOCKET_LIST[key];
-		for (var i = p.index; i < pcount+1; i++) {
-			if (SOCKET_LIST[i+1] == undefined) break;
-			playerNames[i] = playerNames[i + 1];
-			SOCKET_LIST[i] = SOCKET_LIST[i + 1];
-			SOCKET_LIST[i].emit('setPlayerId', i);
-		}	
-		delete SOCKET_LIST[pcount+1];
-		delete playerNames[pcount+1];
-
-		updateOwned();
-		updateMoney();
-
-		if (Object.keys(SOCKET_LIST).length == 0) {
-			player = [];
-			return;
-		}
-		/*if (pcount === 2) {
-			document.getElementById("stats").style.width = "454px";
-		} else if (pcount === 3) {
-			document.getElementById("stats").style.width = "686px";
-		}*/ //TODO
-
-		if (pcount === 1) {
-			updateMoney();
-			SOCKET_LIST[turn].emit('show', '#control, #board', false);
-			SOCKET_LIST[turn].emit('show', '#refresh', true);
-
-			popup("<p>Glückwunsch, " + player[1].name + ", du hast das Spiel gewonnen.</p><div>");
-
-		} else if (isPlayerTurn){
-			play();
-		}
-	};
-
-	this.bankruptcyUnmortgage = function() {
-		var p = player[turn];
-
-		if (p.creditor === 0) {
-			game.eliminatePlayer();
-			return;
-		}
-
-		var HTML = "<p>" + player[p.creditor].name + ", du darfst die Hypothek für eines der folgenden Grundstücke zurückzahlen, indem du darauf klickst. Klicke OK, wenn du fertig bist.</p><table>";
-		var price;
-
-		for (var i = 0; i < 12; i++) {
-			sq = square[i];
-			if (sq.owner == p.index && sq.mortgage) {
-				price = sq.price;
-
-				HTML += "<tr><td class='propertycellcolor' style='background: " + sq.color + ";";
-
-				if (sq.groupNumber == 1 || sq.groupNumber == 2) {
-					HTML += " border: 1px solid grey;";
-				} else {
-					HTML += " border: 1px solid " + sq.color + ";";
-				}
-
-				// Player already paid interest, so they can unmortgage for the mortgage price.
-				HTML += "' onmouseover='showdeed(" + i + ");' onmouseout='hidedeed();'></td><td class='propertycellname'><a href='javascript:void(0);' title='Hypothek auf " + sq.name + " für " + price + " zurückzahlen.' onclick='if (" + price + " <= player[" + p.creditor + "].money) {player[" + p.creditor + "].pay(" + price + ", 0); square[" + i + "].mortgage = false; addAlert(\"" + player[p.creditor].name + " hat die Hypothek für " + sq.name + " für " + price + " zurückgezahlt.\");} this.parentElement.parentElement.style.display = \"none\";'>Hypothek auf " + sq.name + " zurückzahlen (" + price + ")</a></td></tr>";
-
-				sq.owner = p.creditor;
-
-			}
-		}
-
-		HTML += "</table>";
-
-    SOCKET_LIST[turn].emit('eliminatePlayer', HTML);
-
-		popup(HTML);
-    game.eliminatePlayer();
-	};
-
-	this.resign = function() {
-		game.bankruptcy();
-	};
-
-	this.bankruptcy = function() {
-		var p = player[turn];
-		var pcredit = player[p.creditor];
-		var bankruptcyUnmortgageFee = 0;
-
-
-		if (p.money >= 0) {
-			return;
-		}
-
-		addAlert(p.name + " ist bankrott.");
-
-		if (p.creditor !== 0) {
-			pcredit.money += p.money;
-		}
-
-		for (var i = 0; i < 12; i++) {
-			sq = square[i];
-			if (sq.owner == p.index) {
-				// Mortgaged properties will be tranfered by bankruptcyUnmortgage();
-				if (!sq.mortgage) {
-					sq.owner = p.creditor;
-				} else {
-					//bankruptcyUnmortgageFee += Math.round(sq.price * 0.1);
-				}
-
-				if (sq.house > 0) {
-					if (p.creditor !== 0) {
-						pcredit.money += sq.houseprice * 0.5 * sq.house;
-					}
-					sq.hotel = 0;
-					sq.house = 0;
-				}
-
-				if (p.creditor === 0) {
-					sq.mortgage = false;
-					sq.owner = 0;
-				}
-			}
-		}
-
-		updateMoney();
-
-		if (pcount === 2 || bankruptcyUnmortgageFee === 0 || p.creditor === 0) {
-			game.eliminatePlayer();
-		} else {
-			//addAlert(pcredit.name + " paid $" + bankruptcyUnmortgageFee + " interest on the mortgaged properties received from " + p.name + ".");
-			//popup("<p>" + pcredit.name + ", you must pay $" + bankruptcyUnmortgageFee + " interest on the mortgaged properties you received from " + p.name + ".</p>");
-      player[pcredit.index].pay(bankruptcyUnmortgageFee, 0); 
-      game.bankruptcyUnmortgage();
-		}
-	};
-
-}
-
-var game;
-
-
-function Player(name, color) {
-	this.name = name;
-	this.color = color;
-	this.position = 0;
-	this.money = 0;
-	this.creditor = -1;
-	this.bidding = true;
-	this.human = true;
-	this.gesamtHypothek = 0;
-	this.verfuegbareHypothek = 0;
-	this.sumKredit = 0; 
-	this.sumUmsatz = 0; //equals this.money
-	this.anleihen = 0;
-	this.derivate = 0;
-	this.AI = null;
-
-	this.pay = function (amount, creditor) {
-		if (amount <= this.money) {
-			this.money -= amount;
-
-			this.update();
-
-			if (creditor == 0) {
-				if (meineBank.zinsenLotto < 0) {
-					meineBank.derivateEmittieren(-meineBank.zinsenLotto);
-				}
-			}
-			else {
-				var c = player[creditor];
-				if (c==undefined) return true;
-				if (c.money < 0) {
-					if (c.verfuegbareHypothek < c.sumKredit - c.money) {
-						sozialHilfe(creditor);
-					}
-					game.kreditAufnehmen(-c.money, creditor);
-				}
-			}
-
-			return true;
-		} else {
-			this.money -= amount;
-			this.creditor = creditor;
-
-			var i = player.indexOf(this);
-			if (this.money < 0) {
-				if (this.verfuegbareHypothek < this.sumKredit - this.money) {
-					sozialHilfe(i);
-				}
-				game.kreditAufnehmen(-this.money, i);
-			}
-
-			this.update();
-
-			return false;
-		}
-	};
-
-	this.buyDerivate = function (amount) {
-		if (this.money < amount || meineBank.derivateBank < amount) {
-			return false;
-		}
-		this.derivate += amount;
-		meineBank.derivateBank -= amount;
-		this.money -= amount;
-		this.update();
-	};
-
-	this.buyAnleihen = function (amount) {
-		this.anleihen += amount;
-		this.money -= amount;
-		this.update();
-	};
-
-	this.update = function() {
-		updateMoney();
-		var sq;
-		this.gesamtHypothek = 0;
-
-		for (var i = 0; i < 12; i++) {
-			sq = square[i];
-			if (player[sq.owner] == this) {
-				if(!sq.mortgage)
-					this.gesamtHypothek += sq.price * (1 + sq.house)
-			}
-		}
-
-		this.verfuegbareHypothek = this.gesamtHypothek + this.anleihen + this.derivate;
-	};
-
-	this.kreditAufnehmen = function (amount) {
-		if (this.sumKredit + amount <= this.verfuegbareHypothek) {
-			this.money += amount;
-			this.sumKredit += amount;
-
-			meineBank.geldMenge += amount;
-
-			updateMoney();
-
-			addAlert(this.name + " hat einen Kredit in Höhe von " + amount + " aufgenommen.");
-
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	this.kreditTilgen = function (amount) {
-		if (amount <= this.money) {
-			this.money -= amount;
-			this.sumKredit -= amount;
-
-			meineBank.geldMenge -= amount;
-
-			updateMoney();
-
-			return true;
-		} else {
-			return false;;
-		}
-	}
-}
-
-function Bank(name="Bank", color="black") {
-	this.name = name;
-	this.color = color;
-	this.position = 0;
-	this.creditor = -1;
-	this.bidding = true;
-	this.human = true;
-	this.geldMenge = 0;
-	this.zinsenLotto = 0;
-	this.derivateBank = 0;
-	this.anleihenBank = 0;
-	this.index = 0;
-
-	this.pay = function (amount, creditor) {
-		if (amount <= this.money) {
-			this.zinsenLotto -= amount;
-
-			updateMoney();
-
-			var c = player[creditor];
-			if (c.money < 0) {
-				if (c.verfuegbareHypothek < c.sumKredit - c.money) {
-					sozialHilfe(creditor);
-				}
-				game.kreditAufnehmen(-c.money, creditor);
-			}
-
-			return true;
-		} else {
-			this.zinsenLotto -= amount;
-			this.creditor = creditor;
-
-			if (this.zinsenLotto < 0) {
-				this.derivateEmittieren(-this.zinsenLotto);
-			}
-
-			updateMoney();
-
-			return false;
-		}
-	};
-
-	this.derivateEmittieren = function (amount=80000) {
-		this.derivateBank += Math.floor(1.25*amount);
-		this.zinsenLotto += amount;
-		this.geldMenge += amount;
-
-		updateMoney();
-	};
-
-	this.buyAnleihen = function (amount) {
-		this.anleihenBank += amount;
-
-		updateMoney();
-		//this.zinsenLotto -= amount;
-	};
-}
+var Player = require('./Player');
+var Bank = require('./Bank');
 
 function Staat() {
 	this.staatsSchuld = 0;
@@ -901,57 +439,13 @@ function Staat() {
 // money: integer, positive for offered, negative for requested
 // property: array of integers, length: 40
 
-function Trade(initiator, recipient, money, property, anleihen=0, derivate=0) {
-	// For each property and anleihen or derivate, 1 means offered, -1 means requested, 0 means neither.
-  this.initiator = initiator;
-  this.recipient = recipient;
-  this.money = money;
-  this.property = property;
-  this.anleihen = anleihen;
-  this.derivate = derivate;
+var Trade = require('./Trade.js');
 
-	this.getInitiator = function() {
-		return initiator;
-	};
-
-	this.getRecipient = function() {
-		return recipient;
-	};
-
-	this.getProperty = function(index) {
-		return property[index];
-	};
-
-	this.getMoney = function() {
-		return money;
-	};
-
-	this.getAnleihen = function() {
-		return anleihen;
-	};
-
-	this.getDerivate = function() {
-		return derivate;
-	};
-}
-
-function Credit(initiator, money) {
-	// For each property and anleihen or derivate, 1 means offered, -1 means requested, 0 means neither.
-
-	this.getInitiator = function() {
-		return initiator;
-	};
-
-	this.getMoney = function() {
-		return money;
-	};
-}
-
-var player = [];
-var pcount;
-var turn = 0;
+global.player = [];
+global.pcount;
+global.turn = 0;
 var meinStaat = new Staat();
-var meineBank = new Bank();
+global.meineBank = new Bank();
 
 // Overwrite an array with numbers from one to the array's length in a random order.
 Array.prototype.randomize = function(length) {
@@ -972,7 +466,7 @@ Array.prototype.randomize = function(length) {
 	}
 };
 
-function addAlert(alertText) {
+global.addAlert = function addAlert(alertText) {
 	for(var i in SOCKET_LIST){
     SOCKET_LIST[i].emit('addAlert', alertText);
   }
@@ -985,7 +479,7 @@ function updatePosition() {
   }
 }
 
-function updateMoney() {
+global.updateMoney = function updateMoney() {
   for(var i in SOCKET_LIST){
     SOCKET_LIST[i].emit('updateMoney', player, turn, meineBank, meinStaat, pcount);
   }
@@ -998,7 +492,7 @@ function updateDice() {
   }
 }
 
-function updateOwned() {
+global.updateOwned = function updateOwned() {
   for(var i in SOCKET_LIST){
     SOCKET_LIST[i].emit('updateOwned', player, square);
   }
@@ -1027,7 +521,7 @@ function chanceAction(chanceIndex) {
 }
 
 
-function payeachplayer(amount, cause) {
+global.payeachplayer = function payeachplayer(amount, cause) {
 	var p = player[turn];
 	var total = 0;
 
@@ -1118,7 +612,7 @@ function payState(amount, reason="") {
 	}
 }
 
-function sozialHilfe(key=turn) {
+global.sozialHilfe = function sozialHilfe(key=turn) {
 	var p = player[key];
 	var amount = p.money - p.sumKredit + p.verfuegbareHypothek;
 	payState(amount, " Sozialhilfe");
@@ -1186,7 +680,7 @@ function receiveBankguthaben() {
 percent = 0;
 discount = 0;
 
-function buyHouse(index) {
+global.buyHouse = function buyHouse(index) {
 
 	var sq = square[index];
 	var p = player[sq.owner];
@@ -1250,7 +744,7 @@ function auctionHouse() {
 		properties.sort(function() { return 0.5 - Math.random();});
 		auctionHouseP(properties.pop())
 	}
-	
+
 }
 
 function auctionHouseP(propertyindex) {
@@ -1379,7 +873,7 @@ function mortgage(index) {
 	return true;
 }
 
-function unmortgage(index) {
+global.unmortgage = function unmortgage(index) {
 	var sq = square[index];
 	var p = player[sq.owner];
 	var mortgagePrice = sq.price;
@@ -1497,7 +991,7 @@ function chanceCommunityChest() {
 
 var timePassed = false;
 
-function roll() {
+global.roll = function roll() {
 	var p = player[turn];
 
 	if (p == undefined) return;
@@ -1547,7 +1041,7 @@ function roll() {
 	land();
 }
 
-function play() {  
+global.play = function play() {  
 	percent = 0;
 	discount = 0;
 	turn++;
@@ -1662,7 +1156,7 @@ function setup(isKapitalismus, playernumber, nieten) {
 
 	if (isKapitalismus) {
 		while (properties.length != 0) {
-			for (var i = 1; i <= pcount; i++) {
+			for (var i = 2; i <= pcount; i++) {
 				p = player[playerArray[i - 1]];
 				var pos = properties.pop();
 				if (pos == -1) {
@@ -1692,7 +1186,7 @@ function setup(isKapitalismus, playernumber, nieten) {
 	play();
 }
 
-function popup(HTML, option, doMortgage, key=turn) {
+global.popup = function popup(HTML, option, doMortgage, key=turn) {
 	if (!player[key].human) return;
   	SOCKET_LIST[key].emit('popup', HTML, option, doMortgage);
 }
@@ -1740,33 +1234,7 @@ function loadWindow() {
 
 //Start old code: classicedition.js
 
-function Square(name, pricetext, color, rent, houseprice) {
-	this.name = name;
-	this.pricetext = pricetext;
-	this.color = color;
-	this.owner = 0;
-	this.mortgage = false;
-	this.mortgageHouse = false;
-	this.house = 0;
-	this.price = (houseprice || 0);
-	this.rent = (rent || 0);
-	this.landcount = 0;
-	this.houseprice = (houseprice || 0);
-	this.groupNumber = this.price != 0 ? 1 : 0
-	this.reset = function() {
-	  this.owner = 0;
-	  this.mortgage = false;
-	  this.mortgageHouse = false;
-	  this.house = 0;
-	  this.landcount = 0;
-  	}
-}
-
-function Card(title, text, action) {
-	this.title = title;
-  this.text = text;
-	this.action = action;
-}
+var Card = require('./Card');
 
 function citytax() {
 	addAlert(player[turn].name + " ist auf oder über das Feld Staat/Finanzamt gezogen und Steuern aufs Guthaben gezahlt.");
@@ -1796,20 +1264,7 @@ function citytax() {
 	//$("#landed").show().text("You landed on Staat/Finanzamt. Zahle 10% von Deinem Guthaben."); //TODO
 }
 
-var square = [];
-
-square[0] = new Square("Start/Bank", "Wer auf oder über dieses Feld zieht, zahlt Zinsen für alle offenen Kredite.", "yellow");
-square[1] = new Square("Kiesweg 1", "Miete:12.000", "rgb(255, 252, 92)", 12000, 36000);
-square[2] = new Square("Kiesweg 2", "Miete:14.000", "rgb(255, 252, 92)", 14000, 42000);
-square[3] = new Square("Ereignisfeld", "", "transparent");
-square[4] = new Square("Alleenring 1", "Miete:22.000", "rgb(119, 248, 140)", 22000, 66000);
-square[5] = new Square("Alleenring 2", "Miete:24.000", "rgb(119, 248, 140)", 24000, 72000);
-square[6] = new Square("Staat/Finanzamt", "Wer auf oder über dieses Feld zieht, zahlt 10% Steuern aufs aktuelle Guthaben. Zieht Gelb auf oder über dieses Feld zahlt der Staat Zinsen auf alle Anleihen.", "yellow");
-square[7] = new Square("Ziegelstraße 1", "Miete:16.000", "red", 16000, 48000);
-square[8] = new Square("Ziegelstraße 2", "Miete:16.000", "red", 16000, 48000);
-square[9] = new Square("Ereignisfeld", "", "transparent");
-square[10] = new Square("Nasse Gasse 1", "Miete:18.000", "rgb(92, 195, 255)", 18000, 54000);
-square[11] = new Square("Nasse Gasse 2", "Miete:18.000", "rgb(92, 195, 255)", 18000, 54000);
+global.square = require('./Square.js').square;
 
 var chanceCards = [];
 
@@ -1847,156 +1302,4 @@ chanceCards2[11] = new Card("Einbauküche","Du kaufst für 24.000 eine Einbaukü
 chanceCards2[12] = new Card("Erbstreit","Wegen eines Erbstreits musst Du ein Grundstück versteigern. Die Hälfte des Erlöses zahlst du anteilig an alle aus.", function() { auctionHouse();});
 chanceCards2[13] = new Card("Beitragserhöhung","Deine Krankenkasse erhöht die Beiträge. Zahle 3.000 an den Staat.", function() { payState(3000);});
 
-
-// The purpose of this AI is not to be a relistic opponant, but to give an example of a vaild AI player.
-function AITest(p) {
-	this.alertList = "";
-
-	// This variable is static, it is not related to each instance.
-	this.constructor.count++;
-
-	p.name = "AI Test " + this.constructor.count;
-
-	// Decide whether to buy a property the AI landed on.
-	// Return: boolean (true to buy).
-	// Arguments:
-	// index: the property's index (0-39).
-	this.buyProperty = function(index) {
-		console.log("buyProperty");
-		var s = square[index];
-
-		if (p.money > s.price) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	// Determine the response to an offered trade.
-	// Return: boolean/instanceof Trade: a valid Trade object to counter offer (with the AI as the recipient); false to decline; true to accept.
-	// Arguments:
-	// tradeObj: the proposed trade, an instanceof Trade, has the AI as the recipient.
-	this.acceptTrade = function(tradeObj) {
-		console.log("acceptTrade");
-
-		var tradeValue = 0;
-		var money = tradeObj.getMoney();
-		var initiator = tradeObj.getInitiator();
-		var recipient = tradeObj.getRecipient();
-		var property = [];
-
-		tradeValue += money;
-
-		for (var i = 0; i < 12; i++) {
-			property[i] = tradeObj.getProperty(i);
-			tradeValue += tradeObj.getProperty(i) * square[i].price * (square[i].mortgage ? 0.5 : 1);
-		}
-
-		tradeValue += tradeObj.derivate;
-		tradeValue += tradeObj.anleihen;
-
-		var proposedMoney = -25 - tradeValue + money;
-		var condition = proposedMoney < 0 ? initiator.money > -proposedMoney : recipient.money > proposedMoney;
-		if (tradeValue < 0) {
-			return true;
-		} else if (tradeValue <= 50 && condition) {
-			var reversedTradeProperty = [];
-			// Ensure that some properties are selected.
-			for (var i = 0; i < 12; i++) {
-				reversedTradeProperty[i] = -tradeObj.property[i];
-			}
-			return new Trade(recipient, initiator, -proposedMoney, reversedTradeProperty, -tradeObj.anleihen, -tradeObj.derivate);
-		}
-
-		return false;
-	}
-
-	// This function is called at the beginning of the AI's turn, before any dice are rolled. The purpose is to allow the AI to manage property and/or initiate trades.
-	// Return: boolean: Must return true if and only if the AI proposed a trade.
-	this.beforeTurn = function() {
-		console.log("beforeTurn");
-		var s;
-
-		// Buy houses.
-		for (var i = 0; i < 12; i++) {
-			s = square[i];
-
-			if (s.owner === p.index) {
-
-				if (p.money > s.houseprice) {
-					buyHouse(i);
-				}
-			}
-		}
-
-		// Unmortgage property
-		for (var i = 11; i >= 0; i--) {
-			s = square[i];
-
-			if (s.owner === p.index && s.mortgage && p.money > s.price) {
-				unmortgage(i);
-			}
-		}
-
-		return false;
-	}
-
-
-	// This function is called every time the AI lands on a square. The purpose is to allow the AI to manage property and/or initiate trades.
-	// Return: boolean: Must return true if and only if the AI proposed a trade.
-	this.onLand = function() {
-		console.log("onLand");
-		return false;
-	}
-
-	// Mortgage enough properties to pay debt.
-	// Return: void: don't return anything, just call the functions mortgage()/sellhouse()
-	this.payDebt = function() {
-		console.log("payDebt");
-		
-		if (p.money < 0) {
-			if (p.verfuegbareHypothek < p.sumKredit - p.money) {
-				sozialHilfe(p.index);
-			}
-			game.kreditAufnehmen(-p.money, 0);
-		}
-
-	}
-
-	// Determine what to bid during an auction.
-	// Return: integer: -1 for exit auction, 0 for pass, a positive value for the bid.
-	this.bid = function(property, currentBid) {
-		console.log("bid");
-		var bid;
-
-		bid = currentBid + Math.round(Math.random() * 20 + 10);
-
-		if (p.money < bid || bid > square[property].price * 1.5) {
-			console.log("AI passes.")
-		} else {
-			game.highestbidder = p.index;
-			game.highestbid = bid;
-		}
-	  
-		while (true) {
-			game.currentbidder++;
-
-			if (game.currentbidder > pcount) {
-				game.currentbidder -= pcount;
-			}
-			if (game.currentbidder == game.highestbidder) {
-				game.finalizeAuction();
-				return;
-			} else if (player[game.currentbidder].bidding) {
-				break;
-			}
-		}
-
-		if (player[game.currentbidder].human) {
-			SOCKET_LIST[game.currentbidder].emit("auction", game.auctionproperty, player, square, game.highestbidder, game.highestbid)
-		} else {
-			player[game.currentbidder].AI.bid(game.auctionproperty, game.highestbid);
-		}
-	}
-}
+var AITest = require('./AI.js');

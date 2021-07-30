@@ -12,7 +12,7 @@ start.onclick = function(e){
 
     socket.emit("windowload");
     
-    var isKapitalismus = document.getElementById('capitalism').value == "Kapitalismus";
+    var isKapitalismus = true; //document.getElementById('capitalism').value == "Kapitalismus";
     var nieten = document.getElementById("nieten").value;
     var pNo = document.getElementById("spieler").value;
     socket.emit('setup', isKapitalismus, pNo, nieten);
@@ -1119,10 +1119,10 @@ function playernumber_onchange() {
 }
 
 function capitalism_onchange() {
-    if (document.getElementById("capitalism").value != "Kapitalismus") {
+    /*if (document.getElementById("capitalism").value != "Kapitalismus") {
         $("#nietenfield").hide()
         return;
-    }
+    }*/
 
     $("#nietenfield").show()
     $("#spielerfield").show()
@@ -1140,27 +1140,33 @@ function capitalism_onchange() {
     var anzahlSpieler = document.getElementById("spieler").value;
     switch (parseInt(anzahlSpieler)) {
         case 3:
+            $("#nieten0").show();
+            document.getElementById("nieten0").selected = true;
+            $("#nieten2").show();
+            $("#nieten4").show();
+            break;
+        case 4:
             $("#nieten1").show();
             document.getElementById("nieten1").selected = true;
             $("#nieten4").show();
             $("#nieten7").show();
             break;
-        case 4:
+        case 5:
             $("#nieten0").show();
             document.getElementById("nieten0").selected = true;
             $("#nieten4").show();
             $("#nieten8").show();
             break;
-        case 5:
+        case 6:
             $("#nieten2").show();
             document.getElementById("nieten2").selected = true;
             $("#nieten7").show();
             break;
-        case 6:
+        /*case 6:
             $("#nieten4").show();
             document.getElementById("nieten4").selected = true;
             $("#nieten10").show();
-            break;
+            break;*/
     }
 }
 
@@ -1180,7 +1186,7 @@ window.onload = function() {
 
     $("#spieler").on("change", capitalism_onchange);
 
-    $("#capitalism").on("change", capitalism_onchange);
+    //$("#capitalism").on("change", capitalism_onchange);
     capitalism_onchange();
 
     $("#noscript").hide();
