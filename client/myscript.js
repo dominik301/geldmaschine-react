@@ -69,6 +69,7 @@ function cancelkredit() {
 var next = document.getElementById('nextbutton');
 var resign = document.getElementById('resignbutton');
 var creditB = document.getElementById('creditbutton');
+var round = 0;
 
 next.onclick = function(e){
     //prevent the form from refreshing the page
@@ -79,6 +80,11 @@ next.onclick = function(e){
     if (next.value == "Spielzug beenden") {
         $("#nextbutton").hide();
         allow2houses = false;
+        xValues.push(round);
+        geldMengen.push(meineBank.geldMenge)
+        bankZinsen.push(meineBank.zinsenLotto)
+        round++;
+        myChart.update();
     }
 }
 
@@ -157,6 +163,7 @@ function readTrade() {
     var money;
     var anleihen;
     var derivate;
+    var assets = []
 
     for (var i = 0; i < 12; i++) {
 
@@ -169,6 +176,31 @@ function readTrade() {
         }
     }
 
+    if (document.getElementById("tradeleftcheckboxM") && document.getElementById("tradeleftcheckboxM").checked) {
+        assets[0] = 1;
+    } else if (document.getElementById("traderightcheckboxM") && document.getElementById("traderightcheckboxM").checked) {
+        assets[0] = -1;
+    } else {
+        assets[0] = 0;
+    }
+    if (document.getElementById("tradeleftcheckboxA") && document.getElementById("tradeleftcheckboxA").checked) {
+        assets[1] = 1;
+    } else if (document.getElementById("traderightcheckboxA") && document.getElementById("traderightcheckboxA").checked) {
+        assets[1] = -1;
+    } else {
+        assets[1] = 0;
+    }
+    if (document.getElementById("tradeleftcheckboxY") && document.getElementById("tradeleftcheckboxY").checked) {
+        assets[2] = 1;
+    } else if (document.getElementById("traderightcheckboxY") && document.getElementById("traderightcheckboxY").checked) {
+        assets[2] = -1;
+    } else {
+        assets[2] = 0;
+    }
+
+    if (assets[2] == 0 && assets[1] == 0 && assets[0] == 0)
+        assets = []
+
     money = parseInt(document.getElementById("trade-leftp-money").value, 10) || 0;
     money -= parseInt(document.getElementById("trade-rightp-money").value, 10) || 0;
 
@@ -178,7 +210,7 @@ function readTrade() {
     derivate = parseInt(document.getElementById("trade-leftp-derivate").value, 10) || 0;
     derivate -= parseInt(document.getElementById("trade-rightp-derivate").value, 10) || 0;
     
-    socket.emit('newTrade', initiator, recipient, money, property, anleihen, derivate);
+    socket.emit('newTrade', initiator, recipient, money, property, anleihen, derivate, assets);
 };
 
 function writeTrade(tradeObj) {
@@ -198,6 +230,48 @@ function writeTrade(tradeObj) {
             if (tradeObj.property[i]=== -1) {
                 document.getElementById("traderightcheckbox" + i).checked = true;
             }
+        }
+    }
+
+    if (document.getElementById("tradeleftcheckboxM")) {
+        document.getElementById("tradeleftcheckboxM").checked = false;
+        if (tradeObj.assets[0] > 0) {
+            document.getElementById("tradeleftcheckboxM").checked = true;
+        }
+    }
+
+    if (document.getElementById("traderightcheckboxM")) {
+        document.getElementById("traderightcheckboxM").checked = false;
+        if (tradeObj.assets[0] < 0) {
+            document.getElementById("traderightcheckboxM").checked = true;
+        }
+    }
+    
+    if (document.getElementById("tradeleftcheckboxA")) {
+        document.getElementById("tradeleftcheckboxA").checked = false;
+        if (tradeObj.assets[1] > 0) {
+            document.getElementById("tradeleftcheckboxA").checked = true;
+        }
+    }
+
+    if (document.getElementById("traderightcheckboxA")) {
+        document.getElementById("traderightcheckboxA").checked = false;
+        if (tradeObj.assets[1] < 0) {
+            document.getElementById("traderightcheckboxA").checked = true;
+        }
+    }
+
+    if (document.getElementById("tradeleftcheckboxY")) {
+        document.getElementById("tradeleftcheckboxY").checked = false;
+        if (tradeObj.assets[2] > 0) {
+            document.getElementById("tradeleftcheckboxY").checked = true;
+        }
+    }
+
+    if (document.getElementById("traderightcheckboxY")) {
+        document.getElementById("traderightcheckboxY").checked = false;
+        if (tradeObj.assets[2] < 0) {
+            document.getElementById("traderightcheckboxY").checked = true;
         }
     }
 
@@ -270,6 +344,8 @@ document.getElementById("trade-leftp-derivate").onchange = tradeAltered;
 document.getElementById("trade-rightp-derivate").onchange = tradeAltered;
 document.getElementById("trade-leftp-property").onchange = tradeAltered;
 document.getElementById("trade-rightp-property").onchange = tradeAltered;
+document.getElementById("trade-leftp-assets").onchange = tradeAltered;
+document.getElementById("trade-rightp-assets").onchange = tradeAltered;
 
 function tradeAltered() {
     $("#proposetradebutton").show();
@@ -283,6 +359,8 @@ function finishProposeTrade() {
     var reversedTradeProperty = [];
     var anleihen = tradeObj.anleihen;
     var derivate = tradeObj.derivate;
+    var assets = tradeObj.assets;
+    var reversedAssets = [];
 
     if (recipient.index == 0) {
         recipient.anleihen = recipient.anleihenBank
@@ -327,6 +405,10 @@ function finishProposeTrade() {
         isAPropertySelected |= tradeObj.property[i];
     }
 
+    for (i = 0; i < assets.length; i++) {
+        reversedAssets[i] = -assets[i];
+    }
+
     /*if (isAPropertySelected === 0) {
         popup("<p>One or more properties must be selected in order to trade.</p>");
 
@@ -337,7 +419,7 @@ function finishProposeTrade() {
         return false;
     }
 
-    socket.emit('newTrade', recipient, initiator, -money, reversedTradeProperty, -anleihen, -derivate);
+    socket.emit('newTrade', recipient, initiator, -money, reversedTradeProperty, -anleihen, -derivate, reversedAssets);
     socket.emit('sendOffer');
 
     cancelTrade();
@@ -401,6 +483,7 @@ function finishAcceptTrade(showAlerts) {
     derivate = tradeObj.derivate;
     initiator = tradeObj.initiator;
     recipient = tradeObj.recipient;
+    assets = tradeObj.assets;
 
     /*if (money > 0 && money > initiator.money) {
         document.getElementById("trade-leftp-money").value = initiator.name + " does not have $" + money + ".";
@@ -440,6 +523,10 @@ function finishAcceptTrade(showAlerts) {
             socket.emit('addAlert', initiator.name + " hat " + square[i].name + " von " + recipient.name + " erhalten.");
         }
 
+    }
+
+    if (tradeObj.assets.length == 3) {
+        socket.emit('transferAssets', initiator.index, recipient.index, assets)
     }
 
     // Exchange money.
@@ -505,6 +592,11 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
     var currentOption;
     var currentName;
 
+    if (recipient.index == 0) {
+        document.getElementById("description-derivate").innerHTML = "Derivate (Kurs: " + meineBank.derivateKurs + "):";
+    } else {
+        document.getElementById("description-derivate").innerHTML = "Derivate";
+    }
 
     var tableRowOnClick = function(e) {
         var checkboxElement = this.firstChild.firstChild;
@@ -623,6 +715,154 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
         recipientProperty.textContent = recipient.name + " hat keine Grundstücke zum Handeln.";
     }
 
+    var initiatorAssets= document.getElementById("trade-leftp-assets");
+    var recipientAssets = document.getElementById("trade-rightp-assets");
+
+    // Empty elements.
+    while (initiatorAssets.lastChild) {
+        initiatorAssets.removeChild(initiatorAssets.lastChild);
+    }
+
+    while (recipientAssets.lastChild) {
+        recipientAssets.removeChild(recipientAssets.lastChild);
+    }
+
+    var initiatorSideTable = document.createElement("table");
+    var recipientSideTable = document.createElement("table");
+
+    if (initiator.yacht > 0) {
+        currentTableRow = initiatorSideTable.appendChild(document.createElement("tr"));
+        currentTableRow.onclick = tableRowOnClick;
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "propertycellcheckbox";
+        currentTableCellCheckbox = currentTableCell.appendChild(document.createElement("input"));
+        currentTableCellCheckbox.type = "checkbox";
+        currentTableCellCheckbox.id = "tradeleftcheckboxY";
+        currentTableCellCheckbox.title = "Check this box to include Yacht in the trade.";
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "assetcellcolor";
+        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/5/53/Segeln_2.svg' title='Yacht' class='asset' />";
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "propertycellname";
+        currentTableCell.textContent = "Yacht";
+    }
+    if (recipient.yacht > 0) {
+        currentTableRow = recipientSideTable.appendChild(document.createElement("tr"));
+        currentTableRow.onclick = tableRowOnClick;
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "propertycellcheckbox";
+        currentTableCellCheckbox = currentTableCell.appendChild(document.createElement("input"));
+        currentTableCellCheckbox.type = "checkbox";
+        currentTableCellCheckbox.id = "traderightcheckboxY";
+        currentTableCellCheckbox.title = "Check this box to include Yacht in the trade.";
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "assetcellcolor";
+        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/5/53/Segeln_2.svg' title='Yacht' class='asset' />";
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "propertycellname";
+        currentTableCell.textContent = "Yacht";
+    }
+
+    if (initiator.auto > 0) {
+        currentTableRow = initiatorSideTable.appendChild(document.createElement("tr"));
+        currentTableRow.onclick = tableRowOnClick;
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "propertycellcheckbox";
+        currentTableCellCheckbox = currentTableCell.appendChild(document.createElement("input"));
+        currentTableCellCheckbox.type = "checkbox";
+        currentTableCellCheckbox.id = "tradeleftcheckboxA";
+        currentTableCellCheckbox.title = "Check this box to include Auto in the trade.";
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "assetcellcolor";
+        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/b/b2/CH-Zusatztafel-Leichte_Motorwagen.svg' title='Auto' class='asset' />";
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "propertycellname";
+        currentTableCell.textContent = "Auto";
+    }
+    if (recipient.auto > 0) {
+        currentTableRow = recipientSideTable.appendChild(document.createElement("tr"));
+        currentTableRow.onclick = tableRowOnClick;
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "propertycellcheckbox";
+        currentTableCellCheckbox = currentTableCell.appendChild(document.createElement("input"));
+        currentTableCellCheckbox.type = "checkbox";
+        currentTableCellCheckbox.id = "traderightcheckboxA";
+        currentTableCellCheckbox.title = "Check this box to include Auto in the trade.";
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "assetcellcolor";
+        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/b/b2/CH-Zusatztafel-Leichte_Motorwagen.svg' title='Auto' class='asset' />";
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "propertycellname";
+        currentTableCell.textContent = "Auto";
+    }
+
+    if (initiator.motorrad > 0) {
+        currentTableRow = initiatorSideTable.appendChild(document.createElement("tr"));
+        currentTableRow.onclick = tableRowOnClick;
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "propertycellcheckbox";
+        currentTableCellCheckbox = currentTableCell.appendChild(document.createElement("input"));
+        currentTableCellCheckbox.type = "checkbox";
+        currentTableCellCheckbox.id = "tradeleftcheckboxM";
+        currentTableCellCheckbox.title = "Check this box to include Motorrad in the trade.";
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "assetcellcolor";
+        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/0/06/Motorrad_aus_Zusatzzeichen_1046-12.svg' title='Motorrad' class='asset' />";
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "propertycellname";
+        currentTableCell.textContent = "Motorrad";
+    }
+    if (recipient.motorrad > 0) {
+        currentTableRow = recipientSideTable.appendChild(document.createElement("tr"));
+        currentTableRow.onclick = tableRowOnClick;
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "propertycellcheckbox";
+        currentTableCellCheckbox = currentTableCell.appendChild(document.createElement("input"));
+        currentTableCellCheckbox.type = "checkbox";
+        currentTableCellCheckbox.id = "traderightcheckboxM";
+        currentTableCellCheckbox.title = "Check this box to include Motorrad in the trade.";
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "assetcellcolor";
+        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/0/06/Motorrad_aus_Zusatzzeichen_1046-12.svg' title='Motorrad' class='asset' />";
+
+        /*currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "propertycellcolor";
+        currentTableCell.style.backgroundColor = currentSquare.color;*/
+
+        currentTableCell = currentTableRow.appendChild(document.createElement("td"));
+        currentTableCell.className = "propertycellname";
+        currentTableCell.textContent = "Motorrad";
+    }
+
+    if (initiatorSideTable.lastChild) {
+        initiatorAssets.appendChild(initiatorSideTable);
+    } else {
+        initiatorAssets.textContent = initiator.name + " hat keine Wertgegenstände zum Handeln.";
+    }
+
+    if (recipientSideTable.lastChild) {
+        recipientAssets.appendChild(recipientSideTable);
+    } else {
+        recipientAssets.textContent = recipient.name + " hat keine Wertgegenstände zum Handeln.";
+    }
+
     document.getElementById("trade-leftp-name").textContent = initiator.name;
 
     currentName = document.getElementById("trade-rightp-name");
@@ -675,7 +915,7 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
 
     document.getElementById("trade-leftp-derivate").value = "0";
     document.getElementById("trade-rightp-derivate").value = "0";
-
+    
 };
 
 socket.on('setPlayerId',function(data){
@@ -774,9 +1014,10 @@ socket.on('updateMoney', function(_player, turn, _meineBank, meinStaat, _pcount)
 
         $("#moneybarrow" + i).show();
         document.getElementById("p" + i + "moneybar").style.border = "2px solid " + p_i.color;
-        document.getElementById("p" + i + "money").innerHTML = p_i.money;
+        document.getElementById("p" + i + "money").innerHTML = p_i.money > 0 ? p_i.money : 0;
         document.getElementById("p" + i + "moneyname").innerHTML = p_i.name;
         document.getElementById("p" + i + "credit").innerHTML = -p_i.sumKredit;
+        document.getElementById("p" + i + "dispocredit").innerHTML = p_i.money > 0 ? 0 : p_i.money;
         document.getElementById("p" + i + "avcredit").innerHTML = p_i.verfuegbareHypothek;
         document.getElementById("p" + i + "anleihen").innerHTML = p_i.anleihen;
         document.getElementById("p" + i + "derivate").innerHTML = p_i.derivate;
@@ -804,9 +1045,10 @@ socket.on('updateMoney', function(_player, turn, _meineBank, meinStaat, _pcount)
     if (turn == playerId) {
         if (p.money < 0) {
             // document.getElementById("nextbutton").disabled = true;
-            if (p.verfuegbareHypothek < p.sumKredit - p.money) $("#resignbutton").show();
+            //if (p.verfuegbareHypothek < p.sumKredit - p.money) $("#resignbutton").show();
+            $("#resignbutton").hide();
             $("#creditbutton").show();
-            $("#nextbutton").hide();
+            $("#nextbutton").show();
         } else {
             // document.getElementById("nextbutton").disabled = false;
             $("#resignbutton").hide();
@@ -1749,3 +1991,26 @@ function auctionExit() {
     auctionPass();
 };
 
+var xValues = [];
+var geldMengen = [];
+var bankZinsen = []
+
+var myChart = new Chart("myChart", {
+  type: "line",
+  data: {
+    labels: xValues,
+    datasets: [{
+        backgroundColor: "rgba(255,0,0,1.0)",
+        borderColor: "rgba(255,0,0,0.1)",
+        data: geldMengen,
+        label: "Geldmenge"
+    },
+    {
+        backgroundColor: "rgba(0,0,255,1.0)",
+        borderColor: "rgba(0,0,255,0.1)",
+        data: bankZinsen,
+        label: "Zinsen"
+        }]
+  },
+  options:{}
+});

@@ -67,6 +67,8 @@ exports.sellPoorest = function sellPoorest(amount) {
 	poorest.pay(amount, idx);
 
 	addAlert(poorest.name + " hat " + amount + " an " + p.name + "gezahlt.");
+
+	return poorest.index
 }
 
 exports.receiveFromBank = function receiveFromBank(amount, key=turn) {
@@ -155,7 +157,12 @@ exports.handleOffer = function handleOffer(){
 		initiator = meineBank;
 		recipient = player[game.tradeObj.recipient.index];
 
-		if (money + anleihen + derivate != 0)
+		if (game.tradeObj.assets.length > 0) {
+			popup("<p>Es können keine Fahrzeuge oder Yachten an die Bank verkauft werdem.</p>", key=receiver);
+			return;
+		}
+		
+		if (money + anleihen + (derivate * initiator.derivateKurs) != 0)
 			return;
 
 		// Exchange money.
@@ -214,10 +221,11 @@ exports.handleOffer = function handleOffer(){
 			derivate = game.tradeObj.derivate;
 			initiator = player[receiver];
 			recipient = player[game.tradeObj.recipient.index];
+			tradeAssets = game.tradeObj.assets;
 
 			//Exchange properties
 			for (var i = 0; i < 12; i++) {
-
+				
 				if (game.tradeObj.property[i] === 1) {
 					square[i].owner = recipient.index;
 					addAlert(recipient.name + " hat " + square[i].name + " von " + initiator.name + " erhalten.");
@@ -225,7 +233,34 @@ exports.handleOffer = function handleOffer(){
 					square[i].owner = initiator.index;
 					addAlert(initiator.name + " hat " + square[i].name + " von " + recipient.name + " erhalten.");
 				}
-		
+			}
+
+			//Exchange assets
+			if (tradeAssets.length == 3) {
+				recipient.motorrad += tradeAssets[0]
+				initiator.motorrad -= tradeAssets[0]
+				if (tradeAssets[0] > 0) {
+					addAlert(recipient.name + " hat Motorrad von " + initiator.name + " erhalten.");
+				}
+				else if (tradeAssets[0] < 0) {
+					addAlert(initiator.name + " hat Motorrad von " + recipient.name + " erhalten.");
+				}
+				recipient.auto += tradeAssets[1]
+				initiator.auto -= tradeAssets[1]
+				if (tradeAssets[1] > 0) {
+					addAlert(recipient.name + " hat Auto von " + initiator.name + " erhalten.");
+				}
+				else if (tradeAssets[1] < 0) {
+					addAlert(initiator.name + " hat Auto von " + recipient.name + " erhalten.");
+				}
+				recipient.yacht += tradeAssets[2]
+				initiator.yacht -= tradeAssets[2]
+				if (tradeAssets[2] > 0) {
+					addAlert(recipient.name + " hat Yacht von " + initiator.name + " erhalten.");
+				}
+				else if (tradeAssets[2] < 0) {
+					addAlert(initiator.name + " hat Yacht von " + recipient.name + " erhalten.");
+				}
 			}
 
 			// Exchange money.
@@ -263,7 +298,7 @@ exports.handleOffer = function handleOffer(){
 				initiator.derivate -= derivate;
 				recipient.derivate += derivate;
 
-				addAlert(initiator.name + " hat Anleihen im Wert von " + (-derivate) + " von " + recipient.name + " erhalten.");
+				addAlert(initiator.name + " hat Derivate im Wert von " + (-derivate) + " von " + recipient.name + " erhalten.");
 			}
 
 			updateOwned()

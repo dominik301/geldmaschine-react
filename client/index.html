@@ -6,6 +6,7 @@
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 	<link rel="stylesheet" type="text/css" href="./client/styles.css" />
 </head>
 
@@ -125,6 +126,7 @@
 						<div><span id="p1moneyname" >Player 1</span>:</div>
 						<div>Guthaben: <span id="p1money">1500</span></div>
 						<div>Kredit: <span id="p1credit" class="player-credit">0</span></div>
+						<div>Dispokredit: <span id="p1dispocredit" class="player-credit">0</span></div>
                         <div>verfügbare Kreditsumme: <span id="p1avcredit" class="player-avcredit">0</span></div>
                         <div>Anleihen: <span id="p1anleihen" class="player-anleihen">0</span></div>
                         <div>Derivate: <span id="p1derivate" class="player-derivate">0</span></div>
@@ -136,6 +138,7 @@
 						<div><span id="p2moneyname" >Player 2</span>:</div>
 						<div>Guthaben: <span id="p2money">1500</span></div>
 						<div>Kredit: <span id="p2credit" class="player-credit">1500</span></div>
+						<div>Dispokredit: <span id="p2dispocredit" class="player-credit">0</span></div>
                         <div>verfügbare Kreditsumme: <span id="p2avcredit" class="player-avcredit">0</span></div>
                         <div>Anleihen: <span id="p2anleihen" class="player-anleihen">0</span></div>
                         <div>Derivate: <span id="p2derivate" class="player-derivate">0</span></div>
@@ -147,6 +150,7 @@
 						<div><span id="p3moneyname" >Player 3</span>:</div>
 						<div>Guthaben: <span id="p3money">1500</span></div>
 						<div>Kredit: <span id="p3credit" class="player-credit">1500</span></div>
+						<div>Dispokredit: <span id="p3dispocredit" class="player-credit">0</span></div>
                         <div>verfügbare Kreditsumme: <span id="p3avcredit" class="player-avcredit">0</span></div>
                         <div>Anleihen: <span id="p3anleihen" class="player-anleihen">0</span></div>
                         <div>Derivate: <span id="p3derivate" class="player-derivate">0</span></div>
@@ -158,6 +162,7 @@
 						<div><span id="p4moneyname" >Player 4</span>:</div>
 						<div>Guthaben: <span id="p4money">1500</span></div>
 						<div>Kredit: <span id="p4credit" class="player-credit">1500</span></div>
+						<div>Dispokredit: <span id="p4dispocredit" class="player-credit">0</span></div>
                         <div>verfügbare Kreditsumme: <span id="p4avcredit" class="player-avcredit">0</span></div>
                         <div>Anleihen: <span id="p4anleihen" class="player-anleihen">0</span></div>
                         <div>Derivate: <span id="p4derivate" class="player-derivate">0</span></div>
@@ -169,6 +174,7 @@
 						<div><span id="p5moneyname" >Player 5</span>:</div>
 						<div>Guthaben: <span id="p5money">1500</span></div>
 						<div>Kredit: <span id="p5credit" class="player-credit">1500</span></div>
+						<div>Dispokredit: <span id="p5dispocredit" class="player-credit">0</span></div>
                         <div>verfügbare Kreditsumme: <span id="p5avcredit" class="player-avcredit">0</span></div>
                         <div>Anleihen: <span id="p5anleihen" class="player-anleihen">0</span></div>
                         <div>Derivate: <span id="p5derivate" class="player-derivate">0</span></div>
@@ -180,6 +186,7 @@
 						<div><span id="p6moneyname" >Player 6</span>:</div>
 						<div>Guthaben: <span id="p6money">1500</span></div>
 						<div>Kredit: <span id="p6credit" class="player-credit">1500</span></div>
+						<div>Dispokredit: <span id="p6dispocredit" class="player-credit">0</span></div>
                         <div>verfügbare Kreditsumme: <span id="p6avcredit" class="player-avcredit">0</span></div>
                         <div>Anleihen: <span id="p6anleihen" class="player-anleihen">0</span></div>
                         <div>Derivate: <span id="p6derivate" class="player-derivate">0</span></div>
@@ -213,6 +220,11 @@
             <div id="zinsen">
                 Zinssatz <input type="text" id="zinssatzInput" title="Zinssatz" maxlength="3" value="5" size="3"/> % <input type="button" value="Ändern" id="zinsbutton"/>
             </div>
+			<tr class="money-bar-row">
+				<td class= "moneybarcell">
+					<canvas id="myChart" style="background-color:white; width:100%; max-width:700px; height:width; color:black"></canvas>
+				</td>
+			</tr>
 		</div>
 	</div>
 
@@ -379,7 +391,7 @@
 					Derivate: &nbsp;<input id="trade-leftp-derivate" value="0" title="Wie viele Derivate möchtest du tauschen?" />
 				</td>
 				<td class="trade-cell">
-					Derivate: &nbsp;<input id="trade-rightp-derivate" value="0" title="Wie viele Derivate möchtest du tauschen?" />
+					<span id="description-derivate" >Derivate:</span> &nbsp;<input id="trade-rightp-derivate" value="0" title="Wie viele Derivate möchtest du tauschen?" />
 				</td>
 			</tr>
             <tr>
@@ -393,6 +405,10 @@
 			<tr>
 				<td id="trade-leftp-property" class="trade-cell"></td>
 				<td id="trade-rightp-property" class="trade-cell"></td>
+			</tr>
+			<tr>
+				<td id="trade-leftp-assets" class="trade-cell"></td>
+				<td id="trade-rightp-assets" class="trade-cell"></td>
 			</tr>
 			<tr>
 				<td colspan="2" class="trade-cell">

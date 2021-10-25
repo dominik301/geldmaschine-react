@@ -12,6 +12,9 @@ module.exports = function Player(name, color) {
 	this.anleihen = 0;
 	this.derivate = 0;
 	this.AI = null;
+	this.yacht = 0
+	this.auto = 0
+	this.motorrad = 0
 
 	this.pay = function (amount, creditor) {
 		if (amount <= this.money) {
@@ -31,7 +34,6 @@ module.exports = function Player(name, color) {
 					if (c.verfuegbareHypothek < c.sumKredit - c.money) {
 						sozialHilfe(creditor);
 					}
-					game.kreditAufnehmen(-c.money, creditor);
 				}
 			}
 
@@ -45,7 +47,6 @@ module.exports = function Player(name, color) {
 				if (this.verfuegbareHypothek < this.sumKredit - this.money) {
 					sozialHilfe(i);
 				}
-				game.kreditAufnehmen(-this.money, i);
 			}
 
 			this.update();
@@ -55,12 +56,12 @@ module.exports = function Player(name, color) {
 	};
 
 	this.buyDerivate = function (amount) {
-		if (this.money < amount || meineBank.derivateBank < amount) {
+		if (this.money < amount * meineBank.derivateKurs || meineBank.derivateBank < amount) {
 			return false;
 		}
 		this.derivate += amount;
 		meineBank.derivateBank -= amount;
-		this.money -= amount;
+		this.money -= amount * meineBank.derivateKurs;
 		this.update();
 	};
 

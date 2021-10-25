@@ -46,6 +46,12 @@ module.exports = function AITest(p) {
 		tradeValue += tradeObj.derivate;
 		tradeValue += tradeObj.anleihen;
 
+		if (tradeObj != []) {
+			tradeValue += 8000 * tradeObj.assets[0]
+			tradeValue += 4000 * tradeObj.assets[1]
+			tradeValue += 40000 * tradeObj.assets[2]
+		}
+
 		var proposedMoney = -25 - tradeValue + money;
 		var condition = proposedMoney < 0 ? initiator.money > -proposedMoney : recipient.money > proposedMoney;
 		if (tradeValue < 0) {
@@ -66,16 +72,24 @@ module.exports = function AITest(p) {
 	// This function is called at the beginning of the AI's turn, before any dice are rolled. The purpose is to allow the AI to manage property and/or initiate trades.
 	// Return: boolean: Must return true if and only if the AI proposed a trade.
 	this.beforeTurn = function() {
-		console.log("beforeTurn");
 		var s;
+
+		if (p.money < 0) {
+			p.kreditAufnehmen(-p.money)
+		}
 
 		// Buy houses.
 		for (var i = 0; i < 12; i++) {
 			s = square[i];
 
 			if (s.owner === p.index) {
-
+				if (s.house >= 1)
+					continue;
 				if (p.money > s.houseprice) {
+					buyHouse(i);
+				}
+				else if (p.verfuegbareHypothek - p.sumKredit + p.money > s.houseprice) {
+					p.kreditAufnehmen(-p.money + s.houseprice);
 					buyHouse(i);
 				}
 			}
@@ -97,7 +111,6 @@ module.exports = function AITest(p) {
 	// This function is called every time the AI lands on a square. The purpose is to allow the AI to manage property and/or initiate trades.
 	// Return: boolean: Must return true if and only if the AI proposed a trade.
 	this.onLand = function() {
-		console.log("onLand");
 		return false;
 	}
 
@@ -110,9 +123,7 @@ module.exports = function AITest(p) {
 			if (p.verfuegbareHypothek < p.sumKredit - p.money) {
 				sozialHilfe(p.index);
 			}
-			game.kreditAufnehmen(-p.money, 0);
 		}
-
 	}
 
 	// Determine what to bid during an auction.

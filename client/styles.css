@@ -738,6 +738,12 @@ td {
 	border-color: white;
 }
 
+.asset {
+	width: 25px;
+	height: 19px;
+	float: none;
+}
+
 .propertycellname {
 	height: 20px;
 	width: 250px;

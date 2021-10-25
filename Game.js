@@ -2,7 +2,8 @@ module.exports = function Game() {
 	var die1;
 	var areDiceRolled = false;
 
-	this.zinssatz = 10;
+	this.zinssatz = 5;
+	this.dispoZinssatz = 10;
 
 	this.phase = 1;
 

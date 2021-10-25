@@ -162,8 +162,8 @@ io.sockets.on('connection', function(socket){
     socket.emit('updatePlayer', player, meineBank);
   });
 
-  socket.on('newTrade', function(ini, rec, mon, pro, anl, der) {
-    game.tradeObj = new Trade(ini, rec, mon, pro, anl, der);
+  socket.on('newTrade', function(ini, rec, mon, pro, anl, der, ass) {
+    game.tradeObj = new Trade(ini, rec, mon, pro, anl, der, ass);
     socket.emit('tradeObj', game.tradeObj);
   });
 
@@ -172,6 +172,37 @@ io.sockets.on('connection', function(socket){
   socket.on('changeOwner', function(sq_idx, rcp_idx) {
     square[sq_idx].owner = rcp_idx;
   })
+
+  socket.on('transferAssets', function(ini_idx, rcp_idx, assets) {
+	  var recipient = player[rcp_idx];
+	  var initiator = player[ini_idx];
+	if (assets.length == 3) {
+		recipient.motorrad += assets[0]
+		initiator.motorrad -= assets[0]
+		if (assets[0] > 0) {
+			addAlert(recipient.name + " hat Motorrad von " + initiator.name + " erhalten.");
+		}
+		else if (assets[0] < 0) {
+			addAlert(initiator.name + " hat Motorrad von " + recipient.name + " erhalten.");
+		}
+		recipient.auto += assets[1]
+		initiator.auto -= assets[1]
+		if (assets[1] > 0) {
+			addAlert(recipient.name + " hat Auto von " + initiator.name + " erhalten.");
+		}
+		else if (assets[1] < 0) {
+			addAlert(initiator.name + " hat Auto von " + recipient.name + " erhalten.");
+		}
+		recipient.yacht += assets[2]
+		initiator.yacht -= assets[2]
+		if (assets[2] > 0) {
+			addAlert(recipient.name + " hat Yacht von " + initiator.name + " erhalten.");
+		}
+		else if (assets[2] < 0) {
+			addAlert(initiator.name + " hat Yacht von " + recipient.name + " erhalten.");
+		}
+	}
+  });
 
   socket.on('buyDerivate', function(initiator, recipient, derivate) {
 	var p = recipient == 0 ? meineBank : player[recipient];
@@ -379,8 +410,14 @@ function advance(destination, pass) {
 			p.position = pass;
 		} else {
 			p.position = pass;
-			p.money -= Math.floor(p.sumKredit * game.zinssatz / 100);
-			meineBank.zinsenLotto += Math.floor(p.sumKredit * game.zinssatz / 100);
+			var kreditZinsen = Math.floor(p.sumKredit * game.zinssatz / 100);
+			meineBank.zinsenLotto += kreditZinsen
+			p.pay(kreditZinsen, 0);
+			if (p.money < 0) {
+				var dispoZinsen = Math.floor(-p.money * game.dispoZinssatz / 100);
+				meineBank.zinsenLotto += dispoZinsen
+				p.pay(dispoZinsen, 0);
+			}
 			addAlert(p.name + " ist über Start gezogen und hat Zinsen auf Kredite gezahlt.");
 		}
 	}
@@ -388,8 +425,14 @@ function advance(destination, pass) {
 		p.position = destination;
 	} else {
 		p.position = destination;
-		p.money -= Math.floor(p.sumKredit * game.zinssatz / 100);
-		meineBank.zinsenLotto += Math.floor(p.sumKredit * game.zinssatz / 100);
+		var kreditZinsen = Math.floor(p.sumKredit * game.zinssatz / 100);
+		meineBank.zinsenLotto += kreditZinsen
+		p.pay(kreditZinsen, 0);
+		if (p.money < 0) {
+			var dispoZinsen = Math.floor(-p.money * game.dispoZinssatz / 100);
+			meineBank.zinsenLotto += dispoZinsen
+			p.pay(dispoZinsen, 0);
+		}
 		addAlert(p.name + " ist über Start gezogen und hat Zinsen auf Kredite gezahlt.");
 	}
 
@@ -464,7 +507,11 @@ global.buyHouse = function buyHouse(index) {
 	sq.house++;
     addAlert(p.name + " hat ein Haus in der " + sq.name + " gekauft.");
 	payState(price - sq.houseprice);
-	SOCKET_LIST[turn].emit('buyhouse2', false);
+	if (SOCKET_LIST[turn])
+		SOCKET_LIST[turn].emit('buyhouse2', false);
+	else {
+		return;
+	}
   }  else {
     return;
   }
@@ -680,8 +727,15 @@ global.roll = function roll() {
 	}
 	if (p.position >= 12) {
 		p.position -= 12;
-		meineBank.zinsenLotto += Math.floor(p.sumKredit * game.zinssatz / 100);
-		p.money -= Math.floor(p.sumKredit * game.zinssatz / 100);
+		var kreditZinsen = Math.floor(p.sumKredit * game.zinssatz / 100);
+		meineBank.zinsenLotto += kreditZinsen
+		p.pay(kreditZinsen, 0);
+		if (p.money < 0) {
+			var dispoZinsen = Math.floor(-p.money * game.dispoZinssatz / 100);
+			meineBank.zinsenLotto += dispoZinsen
+			p.pay(dispoZinsen, 0);
+		}
+		
 		addAlert(p.name + " ist über Start gezogen und hat Zinsen auf Kredite gezahlt.");
 	}
 
@@ -689,6 +743,11 @@ global.roll = function roll() {
 }
 
 global.play = function play() {  
+
+	if (player[turn].human && player[turn].money < 0) {
+		popup("<p>Du hast dein Konto um " + (-player[turn].money) + " überzogen. Nimm einen Kredit auf, um Dispo-Zinsen zu vermeiden.</p>")
+	}
+
 	percent = 0;
 	discount = 0;
 	turn++;
@@ -916,7 +975,7 @@ global.square = require('./Square.js').square;
 var chanceCards = [];
 
 chanceCards[0] = new Card("TÜV","Dein Auto muss zum TÜV. Zahle 5.000 an die Werkstatt: Linke/r Mitspieler*in.", function() { payplayer(1, 5000);});
-chanceCards[1] = new Card("Konsum","Du kaufst ein Motorrad. Überweise 8.000 an die Person rechts neben Dir.", function() { payplayer(-1, 8000);});
+chanceCards[1] = new Card("Konsum","Du kaufst ein Motorrad. Überweise 8.000 an die Person rechts neben Dir.", function() { payplayer(-1, 8000); assets.push(new Asset("Motorrad", player[turn].motorrad += 1));});
 chanceCards[2] = new Card("Urlaub","Mache Urlaub im Umland. Überweise 6.000 anteilig an alle, da sie für Dich kochen, putzen, singen...", function() { payeachplayer(6000,"Ereignisfeld");});
 chanceCards[3] = new Card("Lobbyarbeit","Der Besuch des Opernballs kostet Dich 3.000. Überweise an den Staat.", function() { payState(3000);});
 chanceCards[4] = new Card("Geburtstag","Du hast einen runden Geburtstag. Die Party kostet 6.000. Überweise an alle Mitspieler*innen.", function() { payeachplayer(6000,"Ereignisfeld");});
@@ -926,7 +985,7 @@ chanceCards[7] = new Card("Hauptgewinn","Glückwunsch! Du hast im Lotto gewonnen
 chanceCards[8] = new Card("Zuzahlung","Du warst zur Kur und musst 2.000 zuzahlen. Überweise an den Staat.", function() { payState(2000);});
 chanceCards[9] = new Card("Banküberfall","Du hast die Bank überfallen und den Tresor geräumt. Die Bank überweist Dir ihr gesamtes Guthaben.", function() { receiveBankguthaben();});
 chanceCards[10] = new Card("Finanzamt","Rücke direkt ins Finanzamt vor und zahle Steuern auf dein aktuelles Guthaben.", function() { advance(6);}); //TODO Du kannst vorher andere Geschäfte tätigen.
-chanceCards[11] = new Card("Gebrauchtwagen", "Du verkaufst an die Person mit dem aktuell niedrigsten Saldo ein Auto. Lass Dir 4.000 überweisen. Kreditaufnahme für Kauf möglich.", function() { sellPoorest(4000);});
+chanceCards[11] = new Card("Gebrauchtwagen", "Du verkaufst an die Person mit dem aktuell niedrigsten Saldo ein Auto. Lass Dir 4.000 überweisen. Kreditaufnahme für Kauf möglich.", function() { var _p = sellPoorest(4000); player[_p].auto += 1;});
 chanceCards[12] = new Card("Spende","Spende 10.000 für das Gemeinwohl. Überweise an den Staat.", function() { payState(10000);});
 chanceCards[13] = new Card("GEMA","Die GEMA fordert 1.000 für die Musikbeschallung in deiner Firma. Überweise an den Staat.", function() { payState(1000);});
 chanceCards[14] = new Card("Steuererstattung","Du bekommst 5.000 vom Finanzamt (Staat) erstattet.", function() { payState(-5000);});
@@ -934,7 +993,7 @@ chanceCards[14] = new Card("Steuererstattung","Du bekommst 5.000 vom Finanzamt (
 var chanceCards2 = [];
 
 chanceCards2[0] = new Card("Steuerforderung","Zahle 10.000 an den Staat.", function() { payState(10000);});
-chanceCards2[1] = new Card("Konsum","Du verkaufst der/dem Reichsten eine Yacht für 40.000.", function() { sellRichest(40000);});
+chanceCards2[1] = new Card("Konsum","Du verkaufst der/dem Reichsten eine Yacht für 40.000.", function() { sellRichest(40000); player[turn].yacht += 1;});
 chanceCards2[2] = new Card("Wasserrohrbruch","Zahle für die Reparatur 8.000 an Deine*n rechte*n Mitspieler*in", function() { payplayer(-1, 8000);});
 chanceCards2[3] = new Card("Studiengebühren","Deine Tochter macht ein Auslandssemester. Du unterstützt sie mit 15.000. Überweise an den Staat.", function() { payState(15000);});
 chanceCards2[4] = new Card("Investitionsbeihilfe","Der Staat übernimmt 10% deiner Baukosten, wenn du ein 2. Haus auf eins Deiner Grundstücke baust. Du darfst keine Miete dafür erheben. Steuerbegünstigter Leerstand um Geld in Umlauf zu bringen! Du kannst Kredit aufnehmen.", function() { percent=10; SOCKET_LIST[turn].emit('buyhouse2', true); updateOption();});
@@ -950,3 +1009,4 @@ chanceCards2[12] = new Card("Erbstreit","Wegen eines Erbstreits musst Du ein Gru
 chanceCards2[13] = new Card("Beitragserhöhung","Deine Krankenkasse erhöht die Beiträge. Zahle 3.000 an den Staat.", function() { payState(3000);});
 
 var AITest = require('./AI.js');
+const { kMaxLength } = require('node:buffer');

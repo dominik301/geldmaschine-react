@@ -8,6 +8,7 @@ module.exports = function Bank(name="Bank", color="black") {
 	this.geldMenge = 0;
 	this.zinsenLotto = 0;
 	this.derivateBank = 0;
+	this.derivateKurs = 1.05;
 	this.anleihenBank = 0;
 	this.index = 0;
 
@@ -22,7 +23,6 @@ module.exports = function Bank(name="Bank", color="black") {
 				if (c.verfuegbareHypothek < c.sumKredit - c.money) {
 					sozialHilfe(creditor);
 				}
-				game.kreditAufnehmen(-c.money, creditor);
 			}
 
 			return true;

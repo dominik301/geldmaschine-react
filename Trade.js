@@ -1,4 +1,4 @@
-module.exports = function Trade(initiator, recipient, money, property, anleihen=0, derivate=0) {
+module.exports = function Trade(initiator, recipient, money, property, anleihen=0, derivate=0, assets=[]) {
 	// For each property and anleihen or derivate, 1 means offered, -1 means requested, 0 means neither.
   this.initiator = initiator;
   this.recipient = recipient;
@@ -6,6 +6,7 @@ module.exports = function Trade(initiator, recipient, money, property, anleihen=
   this.property = property;
   this.anleihen = anleihen;
   this.derivate = derivate;
+  this.assets = assets;
 
 	this.getInitiator = function() {
 		return initiator;
@@ -30,4 +31,8 @@ module.exports = function Trade(initiator, recipient, money, property, anleihen=
 	this.getDerivate = function() {
 		return derivate;
 	};
+
+	this.getAssets = function() {
+		return assets;
+	}
 }
