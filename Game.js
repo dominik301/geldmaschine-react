@@ -159,6 +159,7 @@ module.exports = function Game() {
 		updateMoney();
 
 		if (Object.keys(SOCKET_LIST).length == 0) {
+			gameRunning = false;
 			player = [];
 			return;
 		}

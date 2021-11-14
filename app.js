@@ -16,10 +16,11 @@ SOCKET_LIST = {};
 
 global.playerNo = 1;
 global.playerNames = {};
+global.gameRunning = false;
 
 var io = require('socket.io')(server);
 io.sockets.on('connection', function(socket){
-              
+  if (gameRunning) return;
   console.log('new user!');
   //var socketId = Math.random();
   //SOCKET_LIST[socketId] = socket;
@@ -33,6 +34,34 @@ io.sockets.on('connection', function(socket){
     SOCKET_LIST[i].emit('playerno', playerNo-1);
 	SOCKET_LIST[i].emit('playerNames', playerNames);
   }
+  //delete player if inactive for at least 10 min
+  var x = setInterval(function() {
+	Object.keys(SOCKET_LIST).forEach(function eachKey(key) {
+		if(SOCKET_LIST[key] == socket){
+			if (gameRunning) {
+				var p = player[key];
+				if (p.active) {
+					p.active = false;
+					return;
+				}
+				socket.emit("popup", "Du warst längere Zeit inaktiv und wurdest aus dem Spiel entfernt.");
+				game.eliminatePlayer(key);
+			} else {
+				socket.emit("popup", "Du warst längere Zeit inaktiv und wurdest aus dem Spiel entfernt.");
+				playerNo -= 1;
+				delete playerNames[key];
+				delete SOCKET_LIST[key];
+
+				for (var i = parseInt(key); i < playerNo; i++) {
+					playerNames[i] = playerNames[i + 1];
+					SOCKET_LIST[i] = SOCKET_LIST[i + 1];
+					SOCKET_LIST[i].emit('setPlayerId', i);
+				}
+			}
+			socket.disconnect()
+		}
+	});
+  }, 1000*60*10);
 
   socket.on('setup', setup);
 
@@ -41,7 +70,15 @@ io.sockets.on('connection', function(socket){
 	console.log('zinssatz changed to', game.zinssatz)
   })
 
-  socket.on('next', function() {game.next()});
+  socket.on('next', function() {
+	Object.keys(SOCKET_LIST).forEach(function eachKey(key) {
+		if(SOCKET_LIST[key] == socket){
+			var p = player[key];
+			p.active = true;
+		}
+	});
+	  game.next();
+	});
 
   socket.on('resign', function() {game.resign()});
 
@@ -241,7 +278,7 @@ io.sockets.on('connection', function(socket){
   socket.on('disconnect',function(){
 	Object.keys(SOCKET_LIST).forEach(function eachKey(key) {
 		if(SOCKET_LIST[key] == socket){
-			if (game) {
+			if (gameRunning) {
 				game.eliminatePlayer(key);
 			} else {
 				playerNo -= 1;
@@ -905,6 +942,7 @@ function popupAll(HTML, option, doMortgage) {
 
 function loadWindow() {
   	game = new Game();
+	gameRunning = true
 
 	for (var i = 0; i <= 6; i++) {
 		player[i] = new Player("", "");

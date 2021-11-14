@@ -15,6 +15,7 @@ module.exports = function Player(name, color) {
 	this.yacht = 0
 	this.auto = 0
 	this.motorrad = 0
+	this.active = true
 
 	this.pay = function (amount, creditor) {
 		if (amount <= this.money) {
