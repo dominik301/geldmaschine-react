@@ -290,6 +290,8 @@ io.sockets.on('connection', function(socket){
 					SOCKET_LIST[i] = SOCKET_LIST[i + 1];
 					SOCKET_LIST[i].emit('setPlayerId', i);
 				}
+				delete playerNames[playerNo];
+				delete SOCKET_LIST[playerNo];
 			}
 		}
 	});
