@@ -136,6 +136,18 @@ td {
 	display: none;
 }
 
+#audio {
+	width: 308px;
+	height: 120px;
+	border: 1px solid gray;
+	display: none;
+	overflow-y: auto;
+}
+
+#audio-menu-item {
+	display: none;
+}
+
 #option {
 	border-bottom: 1px solid gray;
 	background-color: white;

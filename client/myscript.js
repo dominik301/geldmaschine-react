@@ -1308,6 +1308,7 @@ socket.on('roll', function() {
     $("#option").hide();
     $("#buy").show();
     $("#manage").hide();
+    $("#audio").hide();
 
     document.getElementById("nextbutton").focus();
 });
@@ -1521,15 +1522,23 @@ window.onload = function() {
     $("#buy-menu-item").click(function() {
         $("#buy").show();
         $("#manage").hide();
+        $("#audio").hide();
 
         // Scroll alerts to bottom.
         $("#alert").scrollTop($("#alert").prop("scrollHeight"));
+    });
+
+    $("#audio-menu-item").click(function() {
+        $("#audio").show();
+        $("#buy").hide()
+        $("#manage").hide();
     });
 
 
     $("#manage-menu-item").click(function() {
         $("#manage").show();
         $("#buy").hide();
+        $("#audio").hide();
     });
 
 
