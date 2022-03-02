@@ -191,8 +191,8 @@ td {
 }
 
 #audio {
-	width: 245px;
-	height: 142px;
+	width: 308px;
+	height: 120px;
 	border: 1px solid gray;
 	display: none;
 	overflow-y: auto;

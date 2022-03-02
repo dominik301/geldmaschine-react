@@ -488,6 +488,12 @@ function payState(amount, reason="") {
 	meinStaat.steuer += amount;
 
 	if (meinStaat.steuer < 0) {
+		if (game.phase = 1) {
+			game.phase = 2;
+			for (var i in SOCKET_LIST) {
+				SOCKET_LIST[i].emit("popup", "Phase 2 beginnt.");
+			}
+		}
 		meineBank.geldMenge -= meinStaat.steuer;
 		meineBank.buyAnleihen(-meinStaat.steuer);
 		meinStaat.staatsSchuld += meinStaat.steuer;
@@ -555,12 +561,12 @@ global.buyHouse = function buyHouse(index) {
     return;
   }
 
-  if (houseSum + 1 == 8) {
+  /*if (houseSum + 1 == 8) {
 	  game.phase = 2;
 	  for (var i in SOCKET_LIST) {
 		SOCKET_LIST[i].emit("popup", "Phase 2 beginnt.");
 	  }
-  }
+  }*/
 
   payeachplayer(sq.houseprice, "Hauskauf");
 
@@ -1001,6 +1007,12 @@ function citytax() {
 	}
 
 	if (meinStaat.steuer < 0) {
+		if (game.phase = 1) {
+			game.phase = 2;
+			for (var i in SOCKET_LIST) {
+				SOCKET_LIST[i].emit("popup", "Phase 2 beginnt.");
+			}
+		}
 		meineBank.geldMenge -= meinStaat.steuer;
 		meineBank.buyAnleihen(meinStaat.steuer);
 		meinStaat.staatsSchuld += meinStaat.steuer;
@@ -1015,7 +1027,7 @@ global.square = require('./Square.js').square;
 var chanceCards = [];
 
 chanceCards[0] = new Card("TÜV","Dein Auto muss zum TÜV. Zahle 5.000 an die Werkstatt: Linke/r Mitspieler*in.", function() { payplayer(1, 5000);});
-chanceCards[1] = new Card("Konsum","Du kaufst ein Motorrad. Überweise 8.000 an die Person rechts neben Dir.", function() { payplayer(-1, 8000); assets.push(new Asset("Motorrad", player[turn].motorrad += 1));});
+chanceCards[1] = new Card("Konsum","Du kaufst ein Motorrad. Überweise 8.000 an die Person rechts neben Dir.", function() { payplayer(-1, 8000); player[turn].motorrad += 1;});
 chanceCards[2] = new Card("Urlaub","Mache Urlaub im Umland. Überweise 6.000 anteilig an alle, da sie für Dich kochen, putzen, singen...", function() { payeachplayer(6000,"Ereignisfeld");});
 chanceCards[3] = new Card("Lobbyarbeit","Der Besuch des Opernballs kostet Dich 3.000. Überweise an den Staat.", function() { payState(3000);});
 chanceCards[4] = new Card("Geburtstag","Du hast einen runden Geburtstag. Die Party kostet 6.000. Überweise an alle Mitspieler*innen.", function() { payeachplayer(6000,"Ereignisfeld");});
