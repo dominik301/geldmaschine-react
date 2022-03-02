@@ -64,6 +64,9 @@ function cancelkredit() {
     $("#board").show();
     $("#control").show();
     $("#credit").hide();
+
+    $("#gamemenu").show();
+    $("#returnToLog").hide();
 }
 
 var next = document.getElementById('nextbutton');
@@ -447,6 +450,9 @@ function cancelTrade() {
     $("#control").show();
     $("#trade").hide();
     $("#credit").hide();
+
+    $("#gamemenu").show();
+    $("#returnToLog").hide();
 };
 function acceptTrade() {
     if (isNaN(document.getElementById("trade-leftp-money").value)) {
@@ -995,8 +1001,7 @@ function eliminatePlayer() {
 
 socket.on('playerNames', function(names) {
     for (var i in names) {
-        document.getElementById("player" + i + "name").value = names[i];
-        console.log(i, names[i])
+        document.getElementById("player" + i + "name").innerHTML = names[i];
     }
 });
 
@@ -1308,6 +1313,7 @@ socket.on('roll', function() {
     $("#option").hide();
     $("#buy").show();
     $("#manage").hide();
+    $("#audio").hide();
 
     document.getElementById("nextbutton").focus();
 });
@@ -1336,10 +1342,7 @@ function playernumber_onchange() {
 
     for (var i = 1; i <= pcount; i++) {
         $("#player" + i + "input").show();
-        $("#name" + i + "button").hide();
-        if (i != playerId) document.getElementById("player" + i + "name").disabled = true;
     }
-    $("#name" + playerId + "button").show();
     switch(pcount) {
         case 6:
             $("#spieler5").hide();
@@ -1450,8 +1453,8 @@ window.onload = function() {
 
 
         if (object.classList.contains("propertycellcolor") || object.classList.contains("statscellcolor")) {
-            if (e.clientY + 20 > window.innerHeight - 279) {
-                document.getElementById("deed").style.top = (window.innerHeight - 279) + "px";
+            if (e.clientY + 20 > window.innerHeight - 404) {
+                document.getElementById("deed").style.top = (window.innerHeight - 404) + "px";
             } else {
                 document.getElementById("deed").style.top = (e.clientY + 20) + "px";
             }
@@ -1512,36 +1515,42 @@ window.onload = function() {
     };
 
     
-    $("#viewstats").on("click", showStats);
     $("#statsclose, #statsbackground").on("click", function() {
         $("#statswrap").hide();
         $("#statsbackground").fadeOut(400);
     });
 
-    $("#buy-menu-item").click(function() {
-        $("#buy").show();
-        $("#manage").hide();
-
-        // Scroll alerts to bottom.
-        $("#alert").scrollTop($("#alert").prop("scrollHeight"));
-    });
-
-
-    $("#manage-menu-item").click(function() {
-        $("#manage").show();
-        $("#buy").hide();
-    });
-
-
-    $("#trade-menu-item").on("click", showTradeMenu);
-
-    $("#credit-menu-item").on("click", showCreditMenu);
-
-    $("#zinsbutton").on("click", function() {
-        socket.emit("zinssatz", parseInt(document.getElementById("zinssatzInput").value))
-    });
+    setName();
 
 };
+
+
+function openImmobilien() {
+    $("#manage").show();
+    $("#buy").hide();
+    $("#audio").hide();
+}
+
+function openLog() {
+    $("#buy").show();
+    $("#manage").hide();
+    $("#audio").hide();
+    cancelkredit();
+    cancelTrade();
+
+    // Scroll alerts to bottom.
+    $("#alert").scrollTop($("#alert").prop("scrollHeight"));
+}
+
+function openAudioMenu() {
+    $("#audio").show();
+    $("#buy").hide()
+    $("#manage").hide();
+}
+
+function changeZinssatz() {
+    socket.emit("zinssatz", parseInt(document.getElementById("zinssatzInput").value))
+}
 
 socket.on('setupsquares', function(square) {
     setupSquares(square);
@@ -1724,11 +1733,56 @@ socket.on('updatePosition', function(square, turn, player){
 
 });
 
-function popup(HTML, action, option) {
+function setName() {
+    setPopuptext("<p>Gib deinen Namen ein</p>");
+
+    let popupText = "<div><input type=\"text\" id=\"playername\" title=\"SpielerIn Name\" maxlength=\"16\" /> <input type=\"button\" value=\"OK\" id=\"namebutton\"/></div>";
+    document.getElementById("popuptext").innerHTML += popupText;
+
+    $("#namebutton").on("click", function() {
+        $("#popupwrap").hide();
+        $("#popupbackground").fadeOut(400);
+
+        let name = document.getElementById("playername").value;
+        socket.emit('setName', name);
+
+    });
+
+    // Show using animation.
+    $("#popupbackground").fadeIn(400, function() {
+        $("#popupwrap").show();
+    });
+}
+
+function setZinssatz() {
+    setPopuptext("<p>Zinssatz ändern</p>");
+
+    let popupText = "<div><input type=\"text\" id=\"zinssatzInput\" title=\"Zinssatz\" maxlength=\"3\" value=\"5\" size=\"3\"/> % <input type=\"button\" value=\"Ändern\" id=\"zinsbutton\"/></div>";
+    document.getElementById("popuptext").innerHTML += popupText;
+
+    $("#zinsbutton").on("click", function() {
+        $("#popupwrap").hide();
+        $("#popupbackground").fadeOut(400);
+
+        socket.emit("zinssatz", parseInt(document.getElementById("zinssatzInput").value))
+
+    });
+
+    // Show using animation.
+    $("#popupbackground").fadeIn(400, function() {
+        $("#popupwrap").show();
+    });
+}
+
+function setPopuptext(HTML) {
     document.getElementById("popuptext").innerHTML = HTML;
     document.getElementById("popup").style.width = "300px";
     document.getElementById("popup").style.top = "0px";
     document.getElementById("popup").style.left = "0px";
+}
+
+function popup(HTML, action, option) {
+    setPopuptext(HTML);
 
     if (!option && typeof action === "string") {
         option = action;
@@ -2003,14 +2057,53 @@ var myChart = new Chart("myChart", {
         backgroundColor: "rgba(255,0,0,1.0)",
         borderColor: "rgba(255,0,0,0.1)",
         data: geldMengen,
-        label: "Geldmenge"
+        label: "Geldmenge",
+        yAxisID: 'y',
     },
     {
         backgroundColor: "rgba(0,0,255,1.0)",
         borderColor: "rgba(0,0,255,0.1)",
         data: bankZinsen,
-        label: "Zinsen"
-        }]
+        label: "Zinsen",
+        yAxisID: 'y1',
+    }]
   },
-  options:{}
+  options:{
+    responsive: true,
+    interaction: {
+        mode: 'index',
+        intersect: false,
+    },
+    plugins: {},
+    stacked: false,
+    scales: {
+        y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+        },
+        y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+
+            grid: {
+                drawOnChartArea: false,
+            }
+        },
+    },
+  }
 });
+
+function openNav() {
+    document.getElementById("menulist").style.width = "250px";
+}
+
+function closeNav() {
+    document.getElementById("menulist").style.width = "0px";
+}
+
+function switchMenu() {
+    $("#gamemenu").hide();
+    $("#returnToLog").show();
+}

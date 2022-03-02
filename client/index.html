@@ -6,8 +6,10 @@
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js"></script>
+	<link rel="icon" type="image/x-icon" href="./client/favicon.ico">
 	<link rel="stylesheet" type="text/css" href="./client/styles.css" />
+	<link rel="manifest" href="./client/manifest.json" />
 </head>
 
 <body>
@@ -29,6 +31,9 @@
 				<img id="statsclose" src="./client/images/close.png" title="Close" alt="x" />
 				<div id="statstext"></div>
 				<div id="statsdrag"></div>
+				<div id="graph">
+					<canvas id="myChart" width="183px" height="150px"></canvas>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -116,7 +121,7 @@
 			<td class="cell board-corner" id="cell0"></td>
 		</tr>
 	</table>
-
+	
 	<div id="moneybarwrap">
 		<div id="moneybar">
 			<table>
@@ -210,44 +215,13 @@
 						<div>Steuer: <span id="p8credit">1500</span></div>
 					</td>
 				</tr>
-				<tr id="moneybarrowbutton">
-					<td class="moneybararrowcell">&nbsp;</td>
-					<td style="border: none;">
-						<input type="button" id="viewstats" value="Statistik einblenden" title="View a pop-up window that shows a list of each player's properties." />
-					</td>
-				</tr>
 			</table>
-            <div id="zinsen">
-                Zinssatz <input type="text" id="zinssatzInput" title="Zinssatz" maxlength="3" value="5" size="3"/> % <input type="button" value="Ändern" id="zinsbutton"/>
-            </div>
-			<tr class="money-bar-row">
-				<td class= "moneybarcell">
-					<canvas id="myChart" style="background-color:white; width:100%; max-width:700px; height:width; color:black"></canvas>
-				</td>
-			</tr>
 		</div>
 	</div>
 
 	<div id="setup">
-		<!--<div style="margin-bottom: 20px;">
-			Select number of players.
-			<select id="playernumber" title="Select the number of players for the game.">
-				<option>3</option>
-				<option selected="selected">4</option>
-				<option>5</option>
-				<option>6</option>
-			</select>
-		</div>-->
 
 		<div id="mytitle" > Spiel - Geldmaschine </div>
-
-		<!--<div id="verteilung" style="margin-bottom: 20px;">
-			Chancengleichheit oder Kapitalismus?
-			<select id="capitalism" title="Wähle zwischen Chancengleichheit und Kapitalismus.">
-				<option>Chancengleichheit</option>
-				<option selected="selected">Kapitalismus</option>
-			</select>
-		</div>-->
 
 		<div id="nietenfield" style="margin-bottom: 20px;">
 			Anzahl Nieten
@@ -273,27 +247,27 @@
 		</div>
 
 		<div id="player1input" class="player-input">
-			SpielerIn 1: <input type="text" id="player1name" title="SpielerIn Name" maxlength="16" value="SpielerIn 1" /> <input type="button" value="Name ändern" id="name1button"/>
+			SpielerIn 1: <span id="player1name" ></span>
 		</div>
 
 		<div id="player2input" class="player-input">
-			SpielerIn 2: <input type="text" id="player2name" title="SpielerIn Name" maxlength="16" value="SpielerIn 2" /> <input type="button" value="Name ändern" id="name2button"/>
+			SpielerIn 2: <span id="player2name" ></span>
 		</div>
 
 		<div id="player3input" class="player-input">
-			SpielerIn 3: <input type="text" id="player3name" title="SpielerIn Name" maxlength="16" value="SpielerIn 3" /> <input type="button" value="Name ändern" id="name3button"/>
+			SpielerIn 3: <span id="player3name" ></span>
 		</div>
 
 		<div id="player4input" class="player-input">
-			SpielerIn 4: <input type="text" id="player4name" title="SpielerIn Name" maxlength="16" value="SpielerIn 4" /> <input type="button" value="Name ändern" id="name4button"/>
+			SpielerIn 4: <span id="player4name" ></span>
 		</div>
 
 		<div id="player5input" class="player-input">
-			SpielerIn 5: <input type="text" id="player5name" title="SpielerIn Name" maxlength="16" value="SpielerIn 5" /> <input type="button" value="Name ändern" id="name5button"/>
+			SpielerIn 5: <span id="player5name" ></span>
 		</div>
 
 		<div id="player6input" class="player-input">
-			SpielerIn 6: <input type="text" id="player6name" title="SpielerIn Name" maxlength="16" value="SpielerIn 6" /> <input type="button" value="Name ändern" id="name6button"/>
+			SpielerIn 6: <span id="player6name" ></span>
 		</div>
 
 		<div style="margin: 20px 0px;">
@@ -304,32 +278,25 @@
 		<div id="credits"><a href="https://falschgeldsystem.de/spiel/" target="_blank">Spielidee: Samirah Kenawi</a><br><a href="mailto:dominik.huesener@rwth-aachen.de">Programmierung: Dominik Hüsener</a></div>
 	</div>
 
+	<div>
+		<span id="gamemenu" style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776; Menü</span>
+		<span id="returnToLog" style="font-size:30px;cursor:pointer" onclick="openLog();" title="Den Spielverlauf anzeigen">&times;</span>
+
+		<div id="menulist" class="sidenav">
+			<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+			<a href="javascript:void(0)" onclick="closeNav();openImmobilien();switchMenu()" title="Grundstücke anzeigen und Häuser kaufen">Immobilien</a>
+			<a href="javascript:void(0)" onclick="closeNav();showTradeMenu();switchMenu()" title="Grundstücke, Anleihen und Derivate mit Spielern und Bank tauschen.">Tauschen</a>
+			<a href="javascript:void(0)" onclick="closeNav();showCreditMenu();switchMenu()" title="Kredit aufnehmen oder tilgen.">Kredit</a>
+			<a href="javascript:void(0)" onclick="closeNav();showStats()">Statistik</a>
+			<a id="zinsen" href="javascript:void(0)" onclick="closeNav();setZinssatz()">Zinssatz ändern</a>
+			<!--<a href="javascript:void(0)" onclick="closeNav();openAudioMenu();switchMenu()">Audio</a>-->
+		</div>
+	</div>
+
 	<div id="control">
 		<table>
 			<tr>
 				<td style="text-align: left; vertical-align: top; border: none;">
-					<div id="menu">
-						<table id="menutable" cellspacing="0">
-							<tr>
-								<td class="menu-item" id="buy-menu-item">
-
-									<a href="javascript:void(0);" title="Den Spielverlauf anzeigen">Log</a>
-								</td>
-								<td class="menu-item" id="manage-menu-item">
-
-									<a href="javascript:void(0);" title="Grundstücke anzeigen und Häuser kaufen">Immobilien</a>
-								</td>
-								<td class="menu-item" id="trade-menu-item">
-
-									<a href="javascript:void(0);" title="Grundstücke, Anleihen und Derivate mit Spielern und Bank tauschen.">Handel</a>
-								</td>
-								<td class="menu-item" id="credit-menu-item">
-
-									<a href="javascript:void(0);" title="Kredit aufnehmen oder tilgen.">Kredit</a>
-								</td>
-							</tr>
-						</table>
-					</div>
 
 					<div id="buy">
 						<div id="alert"></div>
@@ -345,11 +312,19 @@
 						</div>
 						<div id="owned"></div>
 					</div>
+
+					<div id="audio">
+						<div>Beitrag</div>
+						<audio controls>
+							<source src="./path/to.mp3" type="audio/mpeg">
+							Your browser does not support the audio element.
+						</audio>
+					</div>
 				</td>
 				<td style="vertical-align: top; border: none;">
 					<div id="quickstats" >
-							<div><span id="pname" >Player 1</span>:</div>
-							<div><span id="pmoney">$1500</span></div>
+						<div><span id="pname" >Player 1</span>:</div>
+						<div><span id="pmoney">$1500</span></div>
 					</div>
 					<div>
 						<div id="die0" title="Die" class="die die-no-img"></div>

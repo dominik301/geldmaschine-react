@@ -808,8 +808,8 @@ global.play = function play() {
 	p.pay(0, p.creditor);
 
 	if (p.human) {
-		SOCKET_LIST[turn].emit('show', "#landed, #option, #manage", false);
-		SOCKET_LIST[turn].emit('show', "#board, #control, #moneybar, #viewstats, #buy", true);
+		SOCKET_LIST[turn].emit('show', "#landed, #option, #manage, #audio", false);
+		SOCKET_LIST[turn].emit('show', "#board, #control, #moneybar, #buy", true);
 
 		SOCKET_LIST[turn].emit('focusbutton', "nextbutton");
 		SOCKET_LIST[turn].emit('changeButton', "nextbutton", "Würfeln", "Würfeln und Figur entsprechend vorrücken.");
@@ -917,7 +917,7 @@ function setup(isKapitalismus, playernumber, nieten) {
 	}
 
   for(var i in SOCKET_LIST){
-    SOCKET_LIST[i].emit('show', "#control, #board, #moneybar", true);
+    SOCKET_LIST[i].emit('show', "#control, #board, #moneybar, #gamemenu", true);
     SOCKET_LIST[i].emit('show', "#setup, #nextbutton, #resignbutton, #creditbutton", false);
   }  
 	

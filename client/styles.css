@@ -5,11 +5,16 @@ body {
 	background-size: cover;
 	margin: 0px;
 	min-width: 1075px;
+	font-family: arial, sans-serif;
+	font-size:large;
+}
+
+input,
+select {
+	font-size:large;
 }
 
 td {
-	font-size: 12px;
-	font-family: arial, sans-serif;
 	border: 1px solid black;
 	text-align: center;
 }
@@ -18,8 +23,8 @@ td {
 	left: 50%;
 	position: absolute;
 	font-size: xx-large;
-	width: 300px;
-	margin-left: -150px;
+	width: 350px;
+	margin-left: -175px;
 	margin-top: -50px;
 }
 
@@ -55,6 +60,8 @@ td {
 	right: 0px;
 	-webkit-user-select: none;
 	user-select: none;
+	height: 97%;
+	overflow-y: auto;
 }
 
 #propertystats {
@@ -75,37 +82,86 @@ td {
 }
 
 #board {
+	position: absolute;
+	top: 10px;
+	left: 0;
 	display: none;
 	border: 2px solid black;
 	border-spacing: 3px;
 	margin: 25px;
-	float: left;
 	background-color: white;
 }
 
 #control {
 	position: absolute;
 	z-index: 9;
-	top: 250px;
-	left: 250px;
-	border: 2px solid black;
+	top: 200px;
+	left: 240px;
 	padding: 10px;
 	display: none;
 	background-color: white;
 }
 
 #quickstats {
-	font-size: 12px;
+	display: none;
 	font-weight: bold;
-	font-family: arial, sans-serif;
 	border: 2px solid blue;
 	margin: 5px;
 	padding: 3px;
 	width: 80px;
 }
 
-#pname {
-	background-color: white;
+#gamemenu {
+	display: none;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
+#returnToLog {
+	display: none;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
+.sidenav {
+	height: 100%;
+	width: 0;
+	position: fixed;
+	z-index: 10;
+	top: 0;
+	left: 0;
+	background-color: #111;
+	overflow-x: hidden;
+	transition: 0.5s;
+	padding-top: 60px;
+}
+  
+.sidenav a {
+	padding: 8px 8px 8px 32px;
+	text-decoration: none;
+	font-size: 25px;
+	color: #818181;
+	display: block;
+	transition: 0.3s;
+}
+  
+.sidenav a:hover {
+	color: #f1f1f1;
+}
+  
+.sidenav .closebtn {
+	position: absolute;
+	top: 0;
+	right: 25px;
+	font-size: 36px;
+	margin-left: 50px;
+}
+  
+@media screen and (max-height: 450px) {
+	.sidenav {padding-top: 15px;}
+	.sidenav a {font-size: 18px;}
 }
 
 #landed {
@@ -120,12 +176,10 @@ td {
 
 #alert {
 	width: 307px;
-	height: 92px;
+	height: 142px;
 	margin: 0px;
 	padding-left: 1px;
 	border: 1px solid gray;
-	font-family: Consolas, "Courier New", monospace;
-	font-size: 13px;
 	background-color: #FFFFFF;
 	overflow-y: scroll;
 }
@@ -134,6 +188,14 @@ td {
 	width: 308px;
 	border: 1px solid gray;
 	display: none;
+}
+
+#audio {
+	width: 245px;
+	height: 142px;
+	border: 1px solid gray;
+	display: none;
+	overflow-y: auto;
 }
 
 #option {
@@ -150,7 +212,6 @@ td {
 #buildings {
 	margin: auto;
 	height: 21px;
-	font-size: 16px;
 	font-weight: bold;
 }
 
@@ -179,6 +240,8 @@ td {
 }
 
 #trade {
+	position: absolute;
+	left: 10%;
 	border: 2px solid black;
 	display: none;
 	width: 630px;
@@ -190,22 +253,18 @@ td {
 }
 
 #trade-leftp-name {
-	font-size: 13px;
 	font-weight: bold;
 }
 
 #trade-leftp-name option {
-	font-size: 13px;
 	font-weight: normal;
 }
 
 #trade-rightp-name {
-	font-size: 13px;
 	font-weight: bold;
 }
 
 #trade-rightp-name option {
-	font-size: 13px;
 	font-weight: normal;
 }
 /*
@@ -220,6 +279,8 @@ td {
 /* begin*/
 #credit {
 	border: 2px solid black;
+	position: absolute;
+	left: 33%;
 	display: none;
 	width: 315px;
 	margin: 15px auto;
@@ -230,12 +291,10 @@ td {
 }
 
 #credit-leftp-name {
-	font-size: 13px;
 	font-weight: bold;
 }
 
 #credit-leftp-name option {
-	font-size: 13px;
 	font-weight: normal;
 }
 
@@ -255,64 +314,9 @@ td {
 	font-size: 20px;
 	background-color: white;
 }
-
-#menu {
-	width: 290px;
-	height: 32px;
-	margin: 0px 10px;
-}
-
-#menutable {
-	padding: 0px;
-	text-align: left;
-	font-family: arial, sans-serif;
-	color: white;
-	font-weight: bold;
-	font-size: 16px;
-	border: 1px solid blue;
-	border-radius: 5px 5px 0px 0px;
-	height: 30px;
-	width: 99%;
-	margin: 0px;
-	background-color: #305BC9;
-	/* background-image: -webkit-linear-gradient(bottom,#213EB2,#4787ED);
-	background-image: -moz-linear-gradient(bottom,#213EB2,#4787ED); */
-	background-image: url(images/menu_background.png);
-	/* background-repeat: repeat-x; */
-	overflow: hidden;
-}
-
-#menutable td {
-	vertical-align: top;
-}
-
-#menu a {
-	color: #FFFFFF;
-	text-decoration: none;
-	display: block;
-	height: 100%;
-	width: 100%;
-	padding-top: 8px;
-}
-
-#buy-menu-item {
-	color: #FFFFFF;
-	margin-left: 2px;
-	border-left: none;
-}
-
-#credit-menu-item {
-	color: #AAAAAA;
-	border-right: none;
-	margin-right: 2px;
-}
-
-
 #popup {
 	width: 300px;
 	min-width: 300px;
-	font-family: Arial, sans-serif;
-	font-size: 14px;
 	padding: 10px;
 	text-align: center;
 	word-wrap: break-word;
@@ -342,19 +346,6 @@ td {
 #popuptext {
 	overflow-x: auto;
 }
-
-/* #popupclose {
-	display: none;
-	position: absolute;
-	top: -24px;
-	right: -25px;
-	width: 30px;
-	height: 30px;
-	border: none;
-	cursor: pointer;
-	overflow: visible;
-	z-index: 12;
-} */
 
 #popupclose input {
 	margin: 0px;
@@ -387,8 +378,6 @@ td {
 #stats {
 	max-width: 914px;
 	min-width: 454px;
-	font-family: Arial, sans-serif;
-	font-size: 14px;
 	padding: 10px;
 	text-align: center;
 	word-wrap: break-word;
@@ -408,7 +397,7 @@ td {
 
 #statswrap {
 	position: absolute;
-	top: 250px;
+	top: 10px;
 	left: 0px;
 	width: 100%;
 	display: none;
@@ -460,7 +449,7 @@ td {
 	position: fixed;
 	border: 2px solid black;
 	width: 235px;
-	height: 275px;
+	height: 400px;
 	background-color: white;
 	z-index: 18;
 	-webkit-user-select: none;
@@ -479,11 +468,9 @@ td {
 	background-color: yellow;
 	text-align: center;
 	text-transform: uppercase;
-	font-family: Calibri, Arial;
 }
 
 #deed-name {
-	font-size: 15px;
 	font-weight: bold;
 
 }
@@ -491,31 +478,26 @@ td {
 #deed-table {
 	margin: 9px;
 	width: 217px;
-	border-spacing: 1px;
+	border-spacing: 10px;
 }
 
 #deed-mortgaged {
-	font-family: Calibri, Arial;
-	font-size: 16px;
 	text-align: center;
 
 }
 
 #deed-mortgaged-name {
-	font-size: 18px;
 	font-weight: bold;
 	text-transform: uppercase;
 	margin: 30px 20px 20px;
 }
 
 #deed-special {
-	font-family: Calibri, Arial;
 	text-align: justify;
 }
 
 #deed-special-name {
 	text-align: center;
-	font-size: 18px;
 	font-weight: bold;
 	border-style: solid;
 	border-width: 2px 0px;
@@ -525,7 +507,6 @@ td {
 
 #deed-special-text {
 	margin: 20px;
-	font-size: 15px;
 }
 
 #deed-special-footer {
@@ -533,7 +514,6 @@ td {
 	width: 195px;
 	position: absolute;
 	bottom: 20px;
-	font-size: 16px;
 }
 
 #enlarge-wrap {
@@ -570,8 +550,6 @@ td {
 }
 
 .die-no-img {
-
-
 	border-radius: 6px;
 	font-weight: bold;
 	border: 2px solid black;
@@ -602,8 +580,6 @@ td {
 	background-color: rgb(218, 218, 218);
 	border: 2px solid black;
 	text-align: center;
-	font-size: 12px;
-	font-family: arial, sans-serif;
 }
 
 .cell-color {
@@ -614,6 +590,11 @@ td {
 
 #cell0, #cell6 {
 	background-color: yellow;
+}
+
+#cell6price {
+	font-size: smaller;
+	margin-top: -30px;
 }
 
 #cell3, #cell9 {
@@ -635,37 +616,22 @@ td {
 
 
 .board-center {
-	width: 470px;
+	width: 320px;
 	border: none;
 	vertical-align: bottom;
 	background-repeat: no-repeat;
 	background-size: auto 40px;
 }
 
-.board-corner {
-	width: 200px;
-	height: 150px;
-}
-
-.board-top {
-	width: 200px;
-	height: 150px;
-}
-
-.board-bottom {
-	width: 200px;
-	height: 150px;
-}
-
-.board-left {
-	width: 200px;
-	height: 150px;
-}
-
+.board-corner,
+.board-top,
+.board-bottom,
+.board-left,
 .board-right {
 	width: 200px;
 	height: 150px;
 }
+
 
 .enlarge {
 	width: 150px;
@@ -674,8 +640,6 @@ td {
 	background-color: white;
 	border: 2px solid black;
 	text-align: center;
-	font-size: 12px;
-	font-family: arial, sans-serif;
 	position: fixed;
 	z-index: 15;
 }
@@ -708,6 +672,12 @@ td {
 	width: 183px;
 	min-width: 83px;
 	background: white;
+}
+
+#graph {
+	width: 40%;
+	position: relative;
+	left: 30%;
 }
 
 .moneybararrowcell {
@@ -930,3 +900,46 @@ td {
 	position: absolute;
 	bottom: 0;
   }
+
+@media screen and (max-height: 770px) {
+	.board-corner,
+	.board-top,
+	.board-bottom,
+	.board-left,
+	.board-right {
+		width: 160px;
+		height: 114px;
+	}
+
+	#control {
+		top: 160px;
+		left: 200px;
+	}
+
+	#landed {
+		width: 245px;
+		font-size: medium;
+	}
+	
+	#alert {
+		width: 250px;
+		height: 102px;
+		font-size: medium;
+	}
+	
+	#manage {
+		width: 245px;
+	}
+
+	#cell6price {
+		font-size: x-small;
+	}
+	
+	#cell0price {
+		font-size: small;
+	}
+
+	#owned {
+		max-height: 100px;
+	}
+}
