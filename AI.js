@@ -1,5 +1,5 @@
 // The purpose of this AI is not to be a relistic opponant, but to give an example of a vaild AI player.
-module.exports = function AITest(p) {
+module.exports = function AITest(p, game) {
 	this.alertList = "";
 
 	// This variable is static, it is not related to each instance.
@@ -13,7 +13,7 @@ module.exports = function AITest(p) {
 	// index: the property's index (0-39).
 	this.buyProperty = function(index) {
 		console.log("buyProperty");
-		var s = square[index];
+		var s = game.square[index];
 
 		if (p.money > s.price) {
 			return true;
@@ -35,21 +35,22 @@ module.exports = function AITest(p) {
 		var initiator = tradeObj.getInitiator();
 		var recipient = tradeObj.getRecipient();
 		var property = [];
+		var assets = tradeObj.getAssets();
 
 		tradeValue += money;
 
 		for (var i = 0; i < 12; i++) {
 			property[i] = tradeObj.getProperty(i);
-			tradeValue += tradeObj.getProperty(i) * square[i].price * (square[i].mortgage ? 0.5 : 1);
+			tradeValue += tradeObj.getProperty(i) * game.square[i].price * (game.square[i].mortgage ? 0.5 : 1);
 		}
-
+		
 		tradeValue += tradeObj.derivate;
 		tradeValue += tradeObj.anleihen;
 
-		if (tradeObj != []) {
-			tradeValue += 8000 * tradeObj.assets[0]
-			tradeValue += 4000 * tradeObj.assets[1]
-			tradeValue += 40000 * tradeObj.assets[2]
+		if (assets.length > 0) {
+			tradeValue += 8000 * assets[0]
+			tradeValue += 4000 * assets[1]
+			tradeValue += 40000 * assets[2]
 		}
 
 		var proposedMoney = -25 - tradeValue + money;
@@ -80,27 +81,27 @@ module.exports = function AITest(p) {
 
 		// Buy houses.
 		for (var i = 0; i < 12; i++) {
-			s = square[i];
+			s = game.square[i];
 
 			if (s.owner === p.index) {
 				if (s.house >= 1)
 					continue;
 				if (p.money > s.houseprice) {
-					buyHouse(i);
+					buyHouse(game,i);
 				}
 				else if (p.verfuegbareHypothek - p.sumKredit + p.money > s.houseprice) {
 					p.kreditAufnehmen(-p.money + s.houseprice);
-					buyHouse(i);
+					buyHouse(game,i);
 				}
 			}
 		}
 
 		// Unmortgage property
 		for (var i = 11; i >= 0; i--) {
-			s = square[i];
+			s = game.square[i];
 
 			if (s.owner === p.index && s.mortgage && p.money > s.price) {
-				unmortgage(i);
+				unmortgage(game,i);
 			}
 		}
 
@@ -116,12 +117,12 @@ module.exports = function AITest(p) {
 
 	// Mortgage enough properties to pay debt.
 	// Return: void: don't return anything, just call the functions mortgage()/sellhouse()
-	this.payDebt = function() {
+	function payDebt() {
 		console.log("payDebt");
 		
 		if (p.money < 0) {
 			if (p.verfuegbareHypothek < p.sumKredit - p.money) {
-				sozialHilfe(p.index);
+				sozialHilfe(game,p.index);
 			}
 		}
 	}
@@ -134,13 +135,13 @@ module.exports = function AITest(p) {
 
 		bid = currentBid + Math.round(Math.random() * 20 + 10);
 
-		if (p.money < bid || bid > square[property].price * 1.5) {
+		if (p.money < bid || bid > game.square[property].price * 1.5) {
 			console.log("AI passes.")
 		} else {
 			game.highestbidder = p.index;
 			game.highestbid = bid;
 		}
 
-		require('./transactionFunctions').bid();
+		require('./transactionFunctions').bid(game);
 	}
 }

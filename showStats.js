@@ -1,21 +1,21 @@
-module.exports = function showStats(key=turn) {
-	if (!player[key].human) return;
+module.exports = function showStats(game, key) {
+	if (!game.player[key].human) return;
 	var HTML, sq, p;
 	var mortgagetext,
 	housetext;
 	var write;
 	HTML = "<table align='center'><tr>";
 
-	for (var x = 1; x <= pcount; x++) {
+	for (var x = 1; x <= game.pcount; x++) {
 		write = false;
-		p = player[x];
+		p = game.player[x];
 		if (x == 5) {
 			HTML += "</tr><tr>";
 		}
 		HTML += "<td class='statscell' id='statscell" + x + "' style='border: 2px solid " + p.color + "' ><div class='statsplayername'>" + p.name + "</div>";
 
 		for (var i = 0; i < 12; i++) {
-			sq = square[i];
+			sq = game.square[i];
 
 			if (sq.owner == x) {
 				mortgagetext = "",
@@ -60,5 +60,5 @@ module.exports = function showStats(key=turn) {
 	}
 	HTML += "</tr></table><div id='titledeed'></div>";
 
-  SOCKET_LIST[key].emit('showstats', HTML);
+  	game.SOCKET_LIST[key].emit('showstats', HTML);
 }

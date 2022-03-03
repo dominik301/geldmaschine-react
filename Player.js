@@ -1,4 +1,4 @@
-module.exports = function Player(name, color) {
+module.exports = function Player(game, name, color) {
 	this.name = name;
 	this.color = color;
 	this.position = 0;
@@ -24,16 +24,16 @@ module.exports = function Player(name, color) {
 			this.update();
 
 			if (creditor == 0) {
-				if (meineBank.zinsenLotto < 0) {
-					meineBank.derivateEmittieren(-meineBank.zinsenLotto);
+				if (game.meineBank.zinsenLotto < 0) {
+					game.meineBank.derivateEmittieren(-game.meineBank.zinsenLotto);
 				}
 			}
 			else {
-				var c = player[creditor];
+				var c = game.player[creditor];
 				if (c==undefined) return true;
 				if (c.money < 0) {
 					if (c.verfuegbareHypothek < c.sumKredit - c.money) {
-						sozialHilfe(creditor);
+						sozialHilfe(game, creditor);
 					}
 				}
 			}
@@ -43,10 +43,10 @@ module.exports = function Player(name, color) {
 			this.money -= amount;
 			this.creditor = creditor;
 
-			var i = player.indexOf(this);
+			var i = game.player.indexOf(this);
 			if (this.money < 0) {
 				if (this.verfuegbareHypothek < this.sumKredit - this.money) {
-					sozialHilfe(i);
+					sozialHilfe(game, i);
 				}
 			}
 
@@ -57,12 +57,12 @@ module.exports = function Player(name, color) {
 	};
 
 	this.buyDerivate = function (amount) {
-		if (this.money < amount * meineBank.derivateKurs || meineBank.derivateBank < amount) {
+		if (this.money < amount * game.meineBank.derivateKurs || game.meineBank.derivateBank < amount) {
 			return false;
 		}
 		this.derivate += amount;
-		meineBank.derivateBank -= amount;
-		this.money -= amount * meineBank.derivateKurs;
+		game.meineBank.derivateBank -= amount;
+		this.money -= amount * game.meineBank.derivateKurs;
 		this.update();
 	};
 
@@ -77,15 +77,15 @@ module.exports = function Player(name, color) {
 		this.gesamtHypothek = 0;
 
 		for (var i = 0; i < 12; i++) {
-			sq = square[i];
-			if (player[sq.owner] == this) {
+			sq = game.square[i];
+			if (game.player[sq.owner] == this) {
 				if(!sq.mortgage)
 					this.gesamtHypothek += sq.price * (1 + sq.house)
 			}
 		}
 
 		this.verfuegbareHypothek = this.gesamtHypothek + this.anleihen + this.derivate;
-		updateMoney();
+		game.updateMoney();
 	};
 
 	this.kreditAufnehmen = function (amount) {
@@ -93,11 +93,11 @@ module.exports = function Player(name, color) {
 			this.money += amount;
 			this.sumKredit += amount;
 
-			meineBank.geldMenge += amount;
+			game.meineBank.geldMenge += amount;
 
-			updateMoney();
+			game.updateMoney();
 
-			addAlert(this.name + " hat einen Kredit in Höhe von " + amount + " aufgenommen.");
+			game.addAlert(this.name + " hat einen Kredit in Höhe von " + amount + " aufgenommen.");
 
 			return true;
 		} else {
@@ -110,9 +110,9 @@ module.exports = function Player(name, color) {
 			this.money -= amount;
 			this.sumKredit -= amount;
 
-			meineBank.geldMenge -= amount;
+			game.meineBank.geldMenge -= amount;
 
-			updateMoney();
+			game.updateMoney();
 
 			return true;
 		} else {

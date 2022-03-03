@@ -1,10 +1,10 @@
-module.exports = function Bank(name="Bank", color="black") {
+module.exports = function Bank(game, name="Bank", color="black") {
 	this.name = name;
 	this.color = color;
 	this.position = 0;
 	this.creditor = -1;
-	this.bidding = true;
-	this.human = true;
+	this.bidding = false;
+	this.human = false;
 	this.geldMenge = 0;
 	this.zinsenLotto = 0;
 	this.derivateBank = 0;
@@ -16,12 +16,12 @@ module.exports = function Bank(name="Bank", color="black") {
 		if (amount <= this.money) {
 			this.zinsenLotto -= amount;
 
-			updateMoney();
+			game.updateMoney();
 
-			var c = player[creditor];
+			var c = game.player[creditor];
 			if (c.money < 0) {
 				if (c.verfuegbareHypothek < c.sumKredit - c.money) {
-					sozialHilfe(creditor);
+					sozialHilfe(game,creditor);
 				}
 			}
 
@@ -34,7 +34,7 @@ module.exports = function Bank(name="Bank", color="black") {
 				this.derivateEmittieren(-this.zinsenLotto);
 			}
 
-			updateMoney();
+			game.updateMoney();
 
 			return false;
 		}
@@ -45,13 +45,13 @@ module.exports = function Bank(name="Bank", color="black") {
 		this.zinsenLotto += amount;
 		this.geldMenge += amount;
 
-		updateMoney();
+		game.updateMoney();
 	};
 
 	this.buyAnleihen = function (amount) {
 		this.anleihenBank += amount;
 
-		updateMoney();
+		game.updateMoney();
 		//this.zinsenLotto -= amount;
 	};
 }
