@@ -34,7 +34,7 @@ kreditaufnehmen.onclick = function(e){
 
     var money = kredit.value;
 
-    if (!confirm(document.getElementById("player" + playerId + "name").value + ", möchtest Du wirklich einen Kredit aufnehmen?")) {
+    if (!confirm(document.getElementById("player" + playerId + "name").innerHTML + ", möchtest Du wirklich einen Kredit aufnehmen?")) {
         return false;
     }
     
@@ -52,7 +52,7 @@ kredittilgen.onclick = function(e){
         return false;
     }
 
-    if (!confirm(document.getElementById("player" + playerId + "name").value + ", möchtest Du wirklich deinen Kredit tilgen?")) {
+    if (!confirm(document.getElementById("player" + playerId + "name").innerHTML + ", möchtest Du wirklich deinen Kredit tilgen?")) {
         return false;
     }
     
@@ -929,7 +929,7 @@ socket.on('setPlayerId',function(data){
     playerId = data;
 
     $("#name" + playerId + "button").on("click", function() {
-        var name = document.getElementById("player" + playerId + "name").value;
+        var name = document.getElementById("player" + playerId + "name").innerHTML;
         socket.emit('setName', name);
     });
 
