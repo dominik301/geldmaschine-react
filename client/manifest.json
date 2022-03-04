@@ -3,7 +3,7 @@
     "short_name": "Geldmaschine",  
     "theme_color": "#43a047",  
     "background_color": "#43a047",  
-    "display": "fullScreen",  
+    "display": "fullscreen",  
     "orientation": "landscape",  
     "scope": "/",  
     "start_url": "/",
