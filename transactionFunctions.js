@@ -51,7 +51,7 @@ exports.sellPoorest = function sellPoorest(game, amount) {
 	var poorest;
 	var idx = 0;
 	var money = 1e6;
-	for (var i = 1; i <= pcount; i++) {
+	for (var i = 1; i <= game.pcount; i++) {
 		p = game.player[i];
 		if (p.money <= money) {
 			poorest = p;

@@ -4,11 +4,11 @@ body {
 	/*background: brown;*/
 	background-size: cover;
 	margin: 0px;
-	min-width: 1075px;
 	font-family: arial, sans-serif;
 	font-size:large;
 }
 
+button,
 input,
 select {
 	font-size:large;
@@ -20,18 +20,14 @@ td {
 }
 
 #mytitle {
-	left: 50%;
-	position: absolute;
 	font-size: xx-large;
-	width: 350px;
-	margin-left: -175px;
-	margin-top: -50px;
+	text-align: center;
+	margin-bottom: 1em;
 }
 
 #setup {
 	display: none;
-	margin: 15px;
-	margin-top: 75px;
+	margin-top: 1em;
 }
 
 #moneybar {
@@ -71,10 +67,6 @@ td {
 #refresh {
 	display: none;
 	margin: 15px;
-}
-
-#noF5 {
-	display: none;
 }
 
 #noscript {
@@ -897,9 +889,10 @@ td {
 }
 
 #credits {
+	width: 100%;
 	position: absolute;
 	bottom: 0;
-  }
+	}
 
 @media screen and (max-height: 770px) {
 	.board-corner,
@@ -1050,10 +1043,6 @@ td {
 		font-size: small;
 	}
 	
-	#noF5 {
-		font-size: small;
-	}
-	
 	#stats {
 		font-size: small;
 		max-width: 700px;
@@ -1086,9 +1075,37 @@ td {
 	}
 }
 
-.add-button {
-	position: absolute;
-	top: 1px;
-	left: 1px;
+#setup ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	background-color: #333;
   }
   
+#setup li {
+	float: left;
+  }
+  
+#setup li a {
+	display: block;
+	color: white;
+	text-align: center;
+	padding: 14px 16px;
+	text-decoration: none;
+  }
+  
+#setup li a:hover {
+	background-color: #111;
+  }
+
+#setup table {
+	border-collapse: collapse;
+	border-style: hidden;
+	margin: 0 auto;
+	}
+
+#setup table td {
+	border: none;
+	padding: 0.5em 0;
+}

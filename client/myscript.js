@@ -1,10 +1,18 @@
-var socket = io();
+window.addEventListener('beforeunload', function (e) {
+    // Cancel the event
+    e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
+    e.stopImmediatePropagation();
+    // Chrome requires returnValue to be set
+    e.returnValue = '';
+  });
+
+const socket = io();
 var typing = false;
 
 var playerId;
 var pcount;
 
-var start = document.getElementById('startbutton');
+const start = document.getElementById('startbutton');
 
 start.onclick = function(e){
     //prevent the form from refreshing the page
@@ -1435,7 +1443,7 @@ window.onload = function() {
     capitalism_onchange();
 
     $("#noscript").hide();
-    $("#setup, #noF5").show();
+    $("#setup").show();
     $("credit").hide();
 
     // Create event handlers for hovering and draging.

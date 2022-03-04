@@ -223,64 +223,89 @@
 
 		<div id="mytitle" > Spiel - Geldmaschine </div>
 
-		<button class="add-button">Add to home screen</button>
+		<table>
+			<tbody>
+			<tr>
+				<td><div id="nietenfield">
+					Anzahl Nieten
+				</div></td>
+				<td>
+					<select id="nieten" title="Wähle die Anzahl der Nieten.">
+						<option id="nieten0">0</option>
+						<option id="nieten1">1</option>
+						<option id="nieten2">2</option>
+						<option id="nieten4">4</option>
+						<option id="nieten7">7</option>
+						<option id="nieten8">8</option>
+						<option id="nieten10">10</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td><div id="spielerfield">
+					Anzahl SpielerInnen
+				</div></td>
+				<td>
+					<select id="spieler" title="Wähle die Anzahl der Spieler.">
+						<option id="spieler3">3</option>
+						<option id="spieler4">4</option>
+						<option id="spieler5">5</option>
+						<option id="spieler6">6</option>
+					</select>
+				</td>
+			</tr>
+			<tr id="player1input" class="player-input">
+				<td><span>SpielerIn 1:</span></td>
+				<td>
+					<span id="player1name" ></span>
+				</td>
+			</tr>
+			<tr id="player2input" class="player-input">
+				<td><span>SpielerIn 2:</span></td>
+				<td>
+					<span id="player2name" ></span>
+				</td>
+			</tr>
+			<tr id="player3input" class="player-input">
+				<td><span>SpielerIn 3:</span></td>
+				<td>
+					<span id="player3name" ></span>
+				</td>
+			</tr>
+			<tr id="player4input" class="player-input">
+				<td><span>SpielerIn 4:</span></td>
+				<td>
+					<span id="player4name" ></span>
+				</td>
+			</tr>
+			<tr id="player5input" class="player-input">
+				<td><span>SpielerIn 5:</span></td>
+				<td>
+					<span id="player5name" ></span>
+				</td>
+			</tr>
+			<tr id="player6input" class="player-input">
+				<td><span>SpielerIn 6:</span></td>
+				<td>
+					<span id="player6name" ></span>
+				</td>
+			</tr><tr>
+				<td><div style="margin: 20px 0px;">
+					<input id="startbutton" type="button" value="Spiel beginnen" title="Starte das Spiel." />
+				</div></td>
+				<td>
+					<button class="add-button">App installieren</button>
+				</td>
+				</tr>
+			</tbody>
+		</table>
 
-		<div id="nietenfield" style="margin-bottom: 20px;">
-			Anzahl Nieten
-			<select id="nieten" title="Wähle die Anzahl der Nieten.">
-				<option id="nieten0">0</option>
-				<option id="nieten1">1</option>
-				<option id="nieten2">2</option>
-				<option id="nieten4">4</option>
-				<option id="nieten7">7</option>
-				<option id="nieten8">8</option>
-				<option id="nieten10">10</option>
-			</select>
-		</div>
-
-		<div id="spielerfield" style="margin-bottom: 20px;">
-			Anzahl SpielerInnen
-			<select id="spieler" title="Wähle die Anzahl der Spieler.">
-				<option id="spieler3">3</option>
-				<option id="spieler4">4</option>
-				<option id="spieler5">5</option>
-				<option id="spieler6">6</option>
-			</select>
-		</div>
-
-		<div id="player1input" class="player-input">
-			SpielerIn 1: <span id="player1name" ></span>
-		</div>
-
-		<div id="player2input" class="player-input">
-			SpielerIn 2: <span id="player2name" ></span>
-		</div>
-
-		<div id="player3input" class="player-input">
-			SpielerIn 3: <span id="player3name" ></span>
-		</div>
-
-		<div id="player4input" class="player-input">
-			SpielerIn 4: <span id="player4name" ></span>
-		</div>
-
-		<div id="player5input" class="player-input">
-			SpielerIn 5: <span id="player5name" ></span>
-		</div>
-
-		<div id="player6input" class="player-input">
-			SpielerIn 6: <span id="player6name" ></span>
-		</div>
-
-		<div style="margin: 20px 0px;">
-			<input id="startbutton" type="button" value="Spiel beginnen" title="Starte das Spiel." />
-		</div>
-
-		<div id="noF5">Hinweis: Neuladen der Seite oder Aufrufen einer anderen Seite beendet das Spiel für dich ohne Warnung.</div>
 		<div id="credits">
-			<a href="https://falschgeldsystem.de/spiel/" target="_blank">Spielidee: Samirah Kenawi</a><br>
-			<a href="mailto:dominik.huesener@rwth-aachen.de">Programmierung: Dominik Hüsener</a><br>
-			<a href="./client/privacy.html" target="_blank">Privacy Policy</a>
+			  <ul>
+			<li><a href="https://falschgeldsystem.de/spiel/" target="_blank">Anleitung</a></li>
+			<li><a href="mailto:dominik.huesener@rwth-aachen.de">Feedback</a></li>
+			<li><a href="./client/privacy.html" target="_blank">Datenschutz</a></li>
+		</ul>
 		</div>
 	</div>
 
