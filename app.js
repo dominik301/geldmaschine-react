@@ -2,6 +2,14 @@ var express = require('express');
 const { title } = require('node:process');
 var app = express();
 
+/*const fs = require('fs');
+ 
+const options = {
+	key: fs.readFileSync('key.pem'), 
+	cert: fs.readFileSync('cert.pem')
+};
+
+var server = require('https').createServer(options, app);*/
 var server = require('http').createServer(app);
 
 app.get('/',function(req, res) {
@@ -9,7 +17,7 @@ app.get('/',function(req, res) {
 });
 app.use('/client',express.static(__dirname + '/client'));
 app.use('/.well-known',express.static(__dirname + '/.well-known'));
-
+app.use('/sw.js',express.static(__dirname + '/sw.js'));
 
 console.log("Server started.");
 
