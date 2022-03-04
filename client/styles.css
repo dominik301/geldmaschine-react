@@ -942,4 +942,146 @@ td {
 	#owned {
 		max-height: 100px;
 	}
+
+	#popupwrap {
+		top: 125px;
+	}
+}
+
+@media screen and (max-height: 550px) {
+	.board-corner,
+	.board-top,
+	.board-bottom,
+	.board-left,
+	.board-right {
+		height: 88px;
+	}
+
+	#control {
+		top: 135px;
+	}
+
+	#landed {
+		font-size: small;
+	}
+	
+	#alert {
+		height: 75px;
+		font-size: small;
+	}
+
+	#cell6price {
+		margin-top: -40px;
+	}
+	
+	#cell0price {
+		margin-top: -22px;
+	}
+
+	#owned {
+		max-height: 58px;
+	}
+
+	#manage input {
+		font-size: medium;
+	}
+}
+
+@media screen and (max-height: 360px) {
+	.board-corner,
+	.board-top,
+	.board-bottom,
+	.board-left,
+	.board-right {
+		height: 65px;
+		width: 120px;
+	}
+	
+	.board-center {
+		width: 240px;
+	}
+	
+	input {
+		font-size: small;
+	}
+
+	#control {
+		top: 110px;
+		left: 155px;
+		padding: 2px;
+	}
+
+	#landed {
+		font-size: small;
+		width:175px;
+	}
+	
+	#alert {
+		height: 48px;
+		font-size: small;
+		width: 180px;
+	}
+
+	#cell6price {
+		margin-top: -28px;
+		font-size: 8px;
+	}
+	
+	#cell0price {
+		margin-top: -22px;
+		font-size: x-small;
+	}
+
+	#owned {
+		max-height: 32px;
+		font-size: small;
+	}
+	
+	#manage {
+		width: 194px;
+	}
+
+	#manage input {
+		font-size: x-small;
+	}
+	
+	#moneybarwrap {
+		max-width: 220px;
+		font-size: small;
+	}
+	
+	#noF5 {
+		font-size: small;
+	}
+	
+	#stats {
+		font-size: small;
+		max-width: 700px;
+	}
+	
+	.statsplayername {
+		font-size: medium;
+	}
+	
+	.statscellname {
+		min-width: 120px;
+	}
+	
+	.cell-name {
+		font-size: small;
+	}
+	
+	.cell-color {
+		height: 20px;
+	}
+	
+	.cell-position {
+		width: 10px;
+		height: 10px;
+	}
+	
+	.cell-price {
+		top: 40px;
+		font-size: small;
+	}
 }
