@@ -732,7 +732,7 @@ function chanceCommunityChest(game) {
 		if (p.position === 3 || p.position === 9) {
 			var chanceIndex = chanceCards.deck[game.chanceIndex];
 
-			popupAll(game,"<img src='./client/images/chance_icon.png' style='height: 50px; width: 26px; float: left; margin: 8px 8px 8px 0px;' /><div style='font-weight: bold; font-size: 16px; '>" + chanceCards[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards[chanceIndex].text + "</div>"); //TODO
+			popupAll(game,"<i class=\"fa-solid fa-question\" style='font-size: xx-large; height: 1em; width: 1em; float: left; margin: 8px 8px 8px 0px;' ></i><div style='font-weight: bold; font-size: 16px; '>" + chanceCards[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards[chanceIndex].text + "</div>"); //TODO
 
 			chanceAction(game, chanceIndex);
 
@@ -755,7 +755,7 @@ function chanceCommunityChest(game) {
 
 			var chanceIndex = chanceCards2.deck[game.chanceIndex];
 
-			popupAll(game, "<img src='./client/images/chance_icon.png' style='height: 50px; width: 26px; float: left; margin: 8px 8px 8px 0px;' /><div style='font-weight: bold; font-size: 16px; '>" + chanceCards2[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards2[chanceIndex].text + "</div>");
+			popupAll(game, "<i class=\"fa-solid fa-question\" style='font-size: xx-large; height: 1em; width: 1em; float: left; margin: 8px 8px 8px 0px;' ></i><div style='font-weight: bold; font-size: 16px; '>" + chanceCards2[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards2[chanceIndex].text + "</div>");
 
 			chanceAction(game, chanceIndex);
 

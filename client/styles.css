@@ -485,32 +485,11 @@ td {
 	z-index: 0;
 }
 
-.menu-item:hover {
-	/* background-image: -webkit-linear-gradient(bottom,#000080,#4787ED);
-	background-image: -moz-linear-gradient(bottom,#000080,#4787ED); */
-
-	background-image: url(images/menu_background_hover.png);
-}
-
-.menu-item {
-	padding: 0px;
-	border-collapse: collapse;
-	text-align: center;
-	display: table-cell;
-	background-color: transparent;
-	border: none;
-	border-right: 2px solid white;
-	height: 30px;
-	min-width: 70px;
-	width: 70px;
-	max-width: 70px;
-	overflow: hidden;
-}
-
 .die {
 	display: none;
 	margin: 5px;
 	float: left;
+	font-size: xxx-large;
 }
 
 .die-no-img {
@@ -656,6 +635,7 @@ td {
 .money-bar-arrow {
 	height: 30px;
 	width: 30px;
+	font-size: xx-large;
 }
 .propertycellcheckbox {
 	width: 20px;
@@ -893,6 +873,10 @@ td {
 
 	#manage input {
 		font-size: large
+	}
+
+	button, input {
+		padding: 0.6em 0.8em; /* Some padding */
 	}
 }
 

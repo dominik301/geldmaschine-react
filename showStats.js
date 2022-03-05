@@ -31,7 +31,7 @@ module.exports = function showStats(game, key) {
 				}
 
 				if (sq.house > 0) {
-					housetext += "<span style='float: right; font-weight: bold;'>" + sq.house + "&nbsp;x&nbsp;<img src='./client/images/house.png' alt='' title='House' class='house' style='float: none;' /></span>";
+					housetext += "<span style='float: right; font-weight: bold;'>" + sq.house + "&nbsp;x&nbsp;<i class=\"fa-solid fa-house\" title='House' class='house' style='float: none;' ></i></span>";
 				}
 
 				HTML += "<tr><td class='statscellcolor' style='background: " + sq.color + ";";

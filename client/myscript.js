@@ -1083,14 +1083,17 @@ socket.on('updateDice', function(die0){
 
         element0.title = "Die (" + die0 + " spots)";
 
-        if (element0.firstChild) {
-            element0 = element0.firstChild;
-        } else {
-            element0 = element0.appendChild(document.createElement("img"));
+        const numbers = {
+            1:"one",
+            2:"two",
+            3:"three",
+            4:"four",
+            5:"five",
+            6:"six"
         }
+        let HTML = "<i class=\"fa-solid fa-dice-" + numbers[die0] + "\"></i>"
+        element0.innerHTML = HTML;
 
-        element0.src = "./client/images/Die_" + die0 + ".png";
-        element0.alt = die0;
     } else {
         document.getElementById("die0").textContent = die0;
 
@@ -1153,7 +1156,7 @@ socket.on('updateOwned', function(player, square) {
             housetext = "";
             if (sq.house >= 1 && sq.house <= 2) {
                 for (var x = 1; x <= sq.house; x++) {
-                    housetext += "<img src='./client/images/house.png' alt='' title='Haus' class='house' />";
+                    housetext += "<i class=\"fa-solid fa-house\" title='Haus' class='house' ></i>";
                 }
             } 
 
@@ -1661,11 +1664,6 @@ function setupSquares(square) {
         document.getElementById("enlarge" + i + "name").textContent = s.name;
         document.getElementById("enlarge" + i + "price").textContent = s.pricetext;
     }
-
-
-    // Add images to enlarges.
-    document.getElementById("enlarge0token").innerHTML += '<img src="./client/images/arrow_icon.png" height="40" width="136" alt="" />';
-    document.getElementById("enlarge6token").innerHTML += '<img src="./client/images/tax_icon.png" height="60" width="70" alt="" style="position: relative; top: -20px;" />';
 }
 
 function showCreditMenu() {
@@ -1944,7 +1942,7 @@ socket.on("chooseProperty", function(player, square) {
             housetext = "";
             if (sq.house >= 1 && sq.house <= 2) {
                 for (var x = 1; x <= sq.house; x++) {
-                    housetext += "<img src='./client/images/house.png' alt='' title='Haus' class='house' />";
+                    housetext += "<i class=\"fa-solid fa-house\" title='Haus' class='house' ></i>";
                 }
             } 
 
