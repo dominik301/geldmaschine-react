@@ -203,15 +203,16 @@ td {
 
 #trade {
 	position: absolute;
-	left: 10%;
+	left: 10vw;
 	border: 2px solid black;
 	display: none;
 	width: 630px;
-	margin: 15px auto;
+	margin: 1em auto;
 	background-color: white;
 	border-radius: 8px;
 	padding: 2px;
 	z-index: 14;
+	top: 0;
 }
 
 #trade-leftp-name {
