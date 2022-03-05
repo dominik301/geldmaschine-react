@@ -852,6 +852,10 @@ global.play = function play(game) {
 	}
 	game.addAlert(p.name + " ist an der Reihe.");
 
+	for (var i in game.SOCKET_LIST) {
+		game.SOCKET_LIST[i].emit('updateChart');
+	}
+
 	// Check for bankruptcy.
 	p.pay(0, p.creditor);
 

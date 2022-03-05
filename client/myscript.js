@@ -91,13 +91,16 @@ next.onclick = function(e){
     if (next.value == "Spielzug beenden") {
         $("#nextbutton").hide();
         allow2houses = false;
-        xValues.push(round);
-        geldMengen.push(meineBank.geldMenge)
-        bankZinsen.push(meineBank.zinsenLotto)
-        round++;
-        myChart.update();
     }
 }
+
+socket.on('updateChart', function() {
+    xValues.push(round);
+    geldMengen.push(meineBank.geldMenge)
+    bankZinsen.push(meineBank.zinsenLotto)
+    round++;
+    myChart.update();
+});
 
 function buy() {
     socket.emit('buy');
@@ -1308,6 +1311,12 @@ socket.on('showstats', function(HTML) {
     });
 });
 
+function showGraph() {
+    $("#statsbackground").fadeIn(400, function() {
+        $("#graphwrap").show();
+    });
+}
+
 socket.on('changeButton', function(button, value, title){
     document.getElementById(button).value = value;
     document.getElementById(button).title = title;
@@ -1504,6 +1513,24 @@ window.onload = function() {
         drag = true;
     };
 
+    document.getElementById("graphdrag").onmousedown = function(e) {
+        dragObj = document.getElementById("mgraph");
+        dragObj.style.position = "relative";
+
+        dragTop = parseInt(dragObj.style.top, 10) || 0;
+        dragLeft = parseInt(dragObj.style.left, 10) || 0;
+
+        if (window.event) {
+            dragX = window.event.clientX;
+            dragY = window.event.clientY;
+        } else if (e) {
+            dragX = e.clientX;
+            dragY = e.clientY;
+        }
+
+        drag = true;
+    };
+
     document.getElementById("popupdrag").onmousedown = function(e) {
         dragObj = document.getElementById("popup");
         dragObj.style.position = "relative";
@@ -1523,8 +1550,8 @@ window.onload = function() {
     };
 
     
-    $("#statsclose, #statsbackground").on("click", function() {
-        $("#statswrap").hide();
+    $("#graphclose, #statsclose, #statsbackground").on("click", function() {
+        $("#statswrap, #graphwrap").hide();
         $("#statsbackground").fadeOut(400);
 
         $('#icon-bar a.active').removeClass('active');
