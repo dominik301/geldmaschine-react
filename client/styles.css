@@ -14,6 +14,24 @@ select {
 	font-size:large;
 }
 
+button, input {
+	background-color: #c8e6c9; /* Blue background */
+	border: none; /* Remove borders */
+	/*padding: 0.6em 0.8em; /* Some padding */
+	cursor: pointer; /* Mouse pointer on hover */
+}
+
+select {
+	background-color: #c8e6c9; /* Blue background */
+	border: none; /* Remove borders */
+	cursor: pointer; /* Mouse pointer on hover */
+}
+
+button:hover, input:hover, select:hover {
+	background-color: #81c784;
+}
+
+
 td {
 	border: 1px solid black;
 	text-align: center;
@@ -119,7 +137,7 @@ td {
 	margin: 0;
 	padding-left: 1px;
 	border: 1px solid gray;
-	background-color: #FFFFFF;
+	background-color: transparent;
 	overflow-y: scroll;
 	font-size: small;
 }
@@ -144,7 +162,7 @@ td {
 
 #option {
 	border-bottom: 1px solid gray;
-	background-color: white;
+	background-color: transparent;
 	display: none;
 	background: white;
 	vertical-align: middle;
@@ -168,7 +186,7 @@ td {
 
 #owned {
 	padding: 3px 0px;
-	background-color: white;
+	background-color: transparent;
 	text-align: center;
 	max-height: 15vh;
 	overflow-y: auto;
@@ -617,7 +635,8 @@ td {
 .moneybarcell {
 	width: 183px;
 	min-width: 83px;
-	background: white;
+	background-color: white;
+	border: 2px solid black;
 }
 
 #graph {
@@ -765,29 +784,26 @@ td {
 	position: absolute;
 }
 
-.cell-house {
-	background-size: cover;
-	display: none;
-	position: absolute;
-
-	background-image: url("https://upload.wikimedia.org/wikipedia/commons/e/e6/Home_Icon.svg");
-
-	left: 0px;
-	top: 0px;
-	height: 20px;
-	width: 20px;
-}
+.cell-house,
 .cell-house2 {
 	background-size: cover;
 	display: none;
 	position: absolute;
+	height: 1em;
+	width: 1em;
+	left: 0;
+}
 
-	background-image: url("https://upload.wikimedia.org/wikipedia/commons/e/e6/Home_Icon.svg");
-
-	left: 0px;
-	top: 20px;
-	height: 20px;
-	width: 20px;
+.cell-house:before,
+.cell-house2:before{
+	font-family: "FontAwesome";
+	content: "\f015";
+}
+.cell-house {
+	top: 0;
+}
+.cell-house2 {
+	top: 1em;
 }
 
 .board-top .cell-owner {
@@ -1032,4 +1048,62 @@ td {
 
 .active {
 	background-color: #04AA6D;
+}
+
+.moneyopt {
+	display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+	body {
+		background-image: url("https://www.publicdomainpictures.net/pictures/70000/velka/wood-texture-1385971419t2h.jpg");
+		background-color: black;
+		color: white;
+	}
+
+	button, input, select {
+		background-color: #1b5e20; /* Blue background */
+		color: white; /* White text */
+	}
+
+	button:hover, input:hover, select:hover {
+		background-color: #388e3c;
+	}
+
+	#board {
+		border-color: white;
+		background-color: #111;
+	}
+
+	.cell {
+		background-color: #333;
+	}
+
+	.cell-house {
+		color: black;
+	}
+
+	#mgraph,
+	#stats,
+	#popup,
+	#trade, 
+	#credit,
+	.moneybarcell {
+		background-color: black;
+		border-color: white;
+	}
+
+	#option {
+		background-color: transparent;
+	}
+
+	.cell-name, 
+	#cell0price,
+	#cell6price {
+		color: black;
+	}
+
+	#deed {
+		color: black;
+	}
 }

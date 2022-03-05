@@ -760,7 +760,7 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "assetcellcolor";
-        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/5/53/Segeln_2.svg' title='Yacht' class='asset' />";
+        currentTableCell.innerHTML = '<i class="fa-solid fa-sailboat"></i>';
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "propertycellname";
@@ -779,7 +779,7 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "assetcellcolor";
-        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/5/53/Segeln_2.svg' title='Yacht' class='asset' />";
+        currentTableCell.innerHTML = '<i class="fa-solid fa-sailboat"></i>';
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "propertycellname";
@@ -799,7 +799,7 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "assetcellcolor";
-        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/b/b2/CH-Zusatztafel-Leichte_Motorwagen.svg' title='Auto' class='asset' />";
+        currentTableCell.innerHTML = '<i class="fa-solid fa-car"></i>';
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "propertycellname";
@@ -818,7 +818,7 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "assetcellcolor";
-        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/b/b2/CH-Zusatztafel-Leichte_Motorwagen.svg' title='Auto' class='asset' />";
+        currentTableCell.innerHTML = '<i class="fa-solid fa-car"></i>';
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "propertycellname";
@@ -838,7 +838,7 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "assetcellcolor";
-        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/0/06/Motorrad_aus_Zusatzzeichen_1046-12.svg' title='Motorrad' class='asset' />";
+        currentTableCell.innerHTML = '<i class="fa-solid fa-motorcycle"></i>';
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "propertycellname";
@@ -857,7 +857,7 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "assetcellcolor";
-        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/0/06/Motorrad_aus_Zusatzzeichen_1046-12.svg' title='Motorrad' class='asset' />";
+        currentTableCell.innerHTML = '<i class="fa-solid fa-motorcycle"></i>';
 
         /*currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "propertycellcolor";
@@ -946,7 +946,7 @@ socket.on('setPlayerId',function(data){
 
     if (playerId != 1) {
         $("#zinsen").hide();
-        $("#verteilung").hide();
+        $("#setup-nieten, #setup-spieler").hide();
         $("#startbutton").hide();
     }
             
@@ -1042,14 +1042,12 @@ socket.on('updateMoney', function(_player, turn, _meineBank, meinStaat, _pcount)
     //var bank = player[0];
 
     $("#moneybarrow7").show();
-    document.getElementById("p7moneybar").style.border = "2px solid " + "black";
     document.getElementById("p7money").innerHTML = meineBank.geldMenge;
     document.getElementById("p7credit").innerHTML = meineBank.zinsenLotto;
     document.getElementById("p7anleihen").innerHTML = meineBank.anleihenBank;
     document.getElementById("p7derivate").innerHTML = meineBank.derivateBank;
 
     $("#moneybarrow8").show();
-    document.getElementById("p8moneybar").style.border = "2px solid " + "black";
     document.getElementById("p8money").innerHTML = meinStaat.staatsSchuld;
     document.getElementById("p8credit").innerHTML = meinStaat.steuer;
 
@@ -1227,7 +1225,7 @@ socket.on('updateOption', function(square){
     document.getElementById("mortgagebutton").disabled = false;
 
     if (sq.mortgage) {
-        document.getElementById("mortgagebutton").value = "Hypothek zurückzahlen ($" + sq.price + ")";
+        document.getElementById("mortgagebutton").value = "Hypothek zurückzahlen";
         document.getElementById("mortgagebutton").title = "Hypothek auf " + sq.name + " für " + sq.price + " zurückzahlen.";
         $("#buyhousebutton").hide();
         $("#sellhousebutton").hide();
@@ -1246,7 +1244,7 @@ socket.on('updateOption', function(square){
 
     if (sq.house == 0) {
         $("#sellhousebutton").hide();
-        buyhousebutton.value = "Haus kaufen (" + sq.houseprice + ")";
+        buyhousebutton.value = "Haus kaufen";
         buyhousebutton.title = "Kaufe ein Haus für " + sq.houseprice;
     }
     
@@ -1255,17 +1253,17 @@ socket.on('updateOption', function(square){
         if (!allow2houses || sq.house == 2) {
             $("#buyhousebutton").hide();
         } else {
-            buyhousebutton.value = "Haus kaufen (" + sq.houseprice + ")";
+            buyhousebutton.value = "Haus kaufen";
             buyhousebutton.title = "Kaufe ein Haus für " + sq.houseprice;
         }
-        sellhousebutton.value = "Haus verkaufen (" + (sq.houseprice) + ")";
+        sellhousebutton.value = "Haus verkaufen";
         sellhousebutton.title = "Verkaufe eine Haus für " + (sq.houseprice);
 
         $("#mortgagebutton").show();
         document.getElementById("mortgagebutton").disabled = false;
 
         if (sq.mortgage) {
-            document.getElementById("mortgagebutton").value = "Hypothek zurückzahlen ($" + sq.price + ")";
+            document.getElementById("mortgagebutton").value = "Hypothek zurückzahlen";
             document.getElementById("mortgagebutton").title = "Hypothek auf " + sq.name + " für " + sq.price + " zurückzahlen.";
             $("#buyhousebutton").hide();
             $("#sellhousebutton").hide();
@@ -2211,6 +2209,26 @@ window.addEventListener('beforeinstallprompt', (e) => {
         $('#icon-bar a.active').removeClass('active');
 
         $(this).addClass('active');
+        e.preventDefault();
+    });
+
+    $('.max-button').click(function(e) {
+
+        var $parent = $(this).parent().parent();
+        $parent.children(".moneyopt").show();
+        $(this).parent().children(".min-button").show();
+        $(this).hide();
+
+        e.preventDefault();
+    });
+
+    $('.min-button').click(function(e) {
+
+        var $parent = $(this).parent().parent();
+        $parent.children(".moneyopt").hide();
+        $(this).parent().children(".max-button").show();
+        $(this).hide();
+
         e.preventDefault();
     });
 });

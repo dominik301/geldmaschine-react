@@ -47,13 +47,13 @@ module.exports = function showStats(game, key) {
 		}
 
 		if (p.motorrad) {
-			HTML += "<span><img src='https://upload.wikimedia.org/wikipedia/commons/0/06/Motorrad_aus_Zusatzzeichen_1046-12.svg' title='Motorrad' class='asset' /></span>";
+			HTML += "<span><i class=\"fa-solid fa-motorcycle\"></i></span>";
 		}
 		if (p.yacht) {
-			HTML += "<span><img src='https://upload.wikimedia.org/wikipedia/commons/5/53/Segeln_2.svg' title='Yacht' class='asset' /></span>";
+			HTML += "<span><i class=\"fa-solid fa-sailboat\"></i></span>";
 		}
 		if (p.auto) {
-			HTML += "<span><img src='https://upload.wikimedia.org/wikipedia/commons/b/b2/CH-Zusatztafel-Leichte_Motorwagen.svg' title='Auto' class='asset' /></span>";
+			HTML += "<span><i class=\"fa-solid fa-car\"></i></span>";
 		}
 
 		HTML += "</td>";
