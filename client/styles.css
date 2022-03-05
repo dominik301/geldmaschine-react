@@ -92,7 +92,7 @@ td {
 
 #board {
 	position: absolute;
-	left: 2em;
+	left: 4em;
 	display: none;
 	border: 2px solid black;
 	border-spacing: 3px;
@@ -107,7 +107,7 @@ td {
 	top: 20vh;
 	left: 17vw;
 	margin-top: 1.2em;
-	margin-left: 3.2em;
+	margin-left: 5.2em;
 	padding: 0.5em;
 	display: none;
 }
@@ -1013,7 +1013,7 @@ td {
 }
 
 #icon-bar {
-	width: 2em;
+	width: 4em;
 	background-color: #555;
 	display: none;
 }
@@ -1024,7 +1024,7 @@ td {
 	padding: 0.5em;
 	transition: all 0.3s ease;
 	color: white;
-	font-size: large;
+	font-size: xx-large;
 }
 
 #icon-bar a:hover {
