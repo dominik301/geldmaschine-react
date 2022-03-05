@@ -1092,3 +1092,9 @@ td {
 		color: black;
 	}
 }
+
+#donate {text-align: center;}
+
+#donate input {
+	background-color: transparent;
+}
