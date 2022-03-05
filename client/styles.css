@@ -51,10 +51,9 @@ td {
 
 #moneybarwrap {
 	position: absolute;
-	min-width: 135px;
-	top: 0px;
-	right: 0px;
-	-webkit-user-select: none;
+	max-width: 25vw;
+	top: 0;
+	right: 0;
 	user-select: none;
 	height: 97%;
 	overflow-y: auto;
@@ -75,23 +74,24 @@ td {
 
 #board {
 	position: absolute;
-	top: 10px;
-	left: 0;
+	left: 2em;
 	display: none;
 	border: 2px solid black;
 	border-spacing: 3px;
-	margin: 25px;
+	margin: 1.2em;
 	background-color: white;
+	max-height: 97%;
 }
 
 #control {
 	position: absolute;
 	z-index: 9;
-	top: 200px;
-	left: 240px;
-	padding: 10px;
+	top: 20vh;
+	left: 17vw;
+	margin-top: 1.2em;
+	margin-left: 3.2em;
+	padding: 0.5em;
 	display: none;
-	background-color: white;
 }
 
 #quickstats {
@@ -103,83 +103,35 @@ td {
 	width: 80px;
 }
 
-#gamemenu {
-	display: none;
-	position: absolute;
-	top: 0px;
-	left: 0px;
-}
-
-#returnToLog {
-	display: none;
-	position: absolute;
-	top: 0px;
-	left: 0px;
-}
-
-.sidenav {
-	height: 100%;
-	width: 0;
-	position: fixed;
-	z-index: 10;
-	top: 0;
-	left: 0;
-	background-color: #111;
-	overflow-x: hidden;
-	transition: 0.5s;
-	padding-top: 60px;
-}
-  
-.sidenav a {
-	padding: 8px 8px 8px 32px;
-	text-decoration: none;
-	font-size: 25px;
-	color: #818181;
-	display: block;
-	transition: 0.3s;
-}
-  
-.sidenav a:hover {
-	color: #f1f1f1;
-}
-  
-.sidenav .closebtn {
-	position: absolute;
-	top: 0;
-	right: 25px;
-	font-size: 36px;
-	margin-left: 50px;
-}
-  
-@media screen and (max-height: 450px) {
-	.sidenav {padding-top: 15px;}
-	.sidenav a {font-size: 18px;}
-}
-
 #landed {
 	padding: 3px;
 	border: 1px solid gray;
 	border-top: none;
-	width: 302px;
-
+	width: 27.6vw;
 	margin: 0px;
 	text-align: center;
+	font-size: small;
 }
 
 #alert {
-	width: 307px;
-	height: 142px;
-	margin: 0px;
+	width: 28vw;
+	height: 20vh;
+	margin: 0;
 	padding-left: 1px;
 	border: 1px solid gray;
 	background-color: #FFFFFF;
 	overflow-y: scroll;
+	font-size: small;
 }
 
 #manage {
-	width: 308px;
+	width: 28vw;
 	border: 1px solid gray;
 	display: none;
+}
+
+#manage input {
+	font-size: medium;
 }
 
 #audio {
@@ -218,7 +170,7 @@ td {
 	padding: 3px 0px;
 	background-color: white;
 	text-align: center;
-	max-height: 390px;
+	max-height: 15vh;
 	overflow-y: auto;
 }
 
@@ -325,8 +277,7 @@ td {
 
 #popupwrap {
 	position: absolute;
-	top: 255px;
-	left: 0px;
+	top: 30vh;
 	width: 100%;
 	display: none;
 	background-color: transparent;
@@ -561,14 +512,14 @@ td {
 /*begin: TODO*/
 .cell {
 	position: relative;
-	top: 0px;
-	left: 0px;
-	padding: 0px;
+	top: 0;
+	left: 0;
+	padding: 0;
 	/*vertical-align: bottom;
 	background-repeat: no-repeat;
 	background-size: auto 40px;*/
-	/*height: 150px;
-	width: 200px;*/
+	width: 8em;
+	height: 5em;
 	background-color: rgb(218, 218, 218);
 	border: 2px solid black;
 	text-align: center;
@@ -620,8 +571,8 @@ td {
 .board-bottom,
 .board-left,
 .board-right {
-	width: 200px;
-	height: 150px;
+	height: 20vh;
+	width: 17vw;
 }
 
 
@@ -892,103 +843,54 @@ td {
 	width: 100%;
 	position: absolute;
 	bottom: 0;
-	}
+}
 
-@media screen and (max-height: 770px) {
-	.board-corner,
-	.board-top,
-	.board-bottom,
-	.board-left,
-	.board-right {
-		width: 160px;
-		height: 114px;
-	}
+#cell6price {
+	margin-top: -4em;
+	font-size: x-small;
+}
 
-	#control {
-		top: 160px;
-		left: 200px;
-	}
+#cell0price {
+	margin-top: -3em;
+	font-size: small;
+}
 
-	#landed {
-		width: 245px;
-		font-size: medium;
-	}
-	
+@media screen and (min-height: 600px) {
+
+	#landed,
 	#alert {
-		width: 250px;
-		height: 102px;
 		font-size: medium;
-	}
-	
-	#manage {
-		width: 245px;
 	}
 
 	#cell6price {
 		font-size: x-small;
+		margin-top: 0;
 	}
 	
 	#cell0price {
 		font-size: small;
-	}
-
-	#owned {
-		max-height: 100px;
-	}
-
-	#popupwrap {
-		top: 125px;
-	}
-}
-
-@media screen and (max-height: 550px) {
-	.board-corner,
-	.board-top,
-	.board-bottom,
-	.board-left,
-	.board-right {
-		height: 88px;
-	}
-
-	#control {
-		top: 135px;
-	}
-
-	#landed {
-		font-size: small;
-	}
-	
-	#alert {
-		height: 75px;
-		font-size: small;
-	}
-
-	#cell6price {
-		margin-top: -40px;
-	}
-	
-	#cell0price {
-		margin-top: -22px;
-	}
-
-	#owned {
-		max-height: 58px;
+		margin-top: 0;
 	}
 
 	#manage input {
-		font-size: medium;
+		font-size: large
 	}
 }
 
-@media screen and (max-height: 360px) {
-	.board-corner,
-	.board-top,
-	.board-bottom,
-	.board-left,
-	.board-right {
-		height: 65px;
-		width: 120px;
+@media screen and (min-height: 770px) {
+
+	#landed,
+	#alert,
+	#cell0price {
+		font-size: large;
 	}
+
+	#cell6price {
+		font-size: small;
+	}
+}
+
+@media screen and (max-height: 450px) {
 	
 	.board-center {
 		width: 240px;
@@ -999,19 +901,15 @@ td {
 	}
 
 	#control {
-		top: 110px;
-		left: 155px;
 		padding: 2px;
 	}
 
 	#landed {
-		font-size: small;
 		width:175px;
 	}
 	
 	#alert {
 		height: 48px;
-		font-size: small;
 		width: 180px;
 	}
 
@@ -1108,4 +1006,27 @@ td {
 #setup table td {
 	border: none;
 	padding: 0.5em 0;
+}
+
+#icon-bar {
+	width: 2em;
+	background-color: #555;
+	display: none;
+}
+
+#icon-bar a {
+	display: block;
+	text-align: center;
+	padding: 0.5em;
+	transition: all 0.3s ease;
+	color: white;
+	font-size: large;
+}
+
+#icon-bar a:hover {
+	background-color: #000;
+}
+
+.active {
+	background-color: #04AA6D;
 }

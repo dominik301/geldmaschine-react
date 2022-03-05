@@ -7,6 +7,7 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js"></script>
+	<script src="https://kit.fontawesome.com/3a8cad677a.js" crossorigin="anonymous"></script>
 	<link rel="icon" type="image/x-icon" href="./client/favicon.ico">
 	<link rel="stylesheet" type="text/css" href="./client/styles.css" />
 	<link rel="manifest" href="./client/manifest.webmanifest" />
@@ -309,19 +310,16 @@
 		</div>
 	</div>
 
-	<div>
-		<span id="gamemenu" style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776; Menü</span>
-		<span id="returnToLog" style="font-size:30px;cursor:pointer" onclick="openLog();" title="Den Spielverlauf anzeigen">&times;</span>
+	<div id="icon-bar">
 
-		<div id="menulist" class="sidenav">
-			<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-			<a href="javascript:void(0)" onclick="closeNav();openImmobilien();switchMenu()" title="Grundstücke anzeigen und Häuser kaufen">Immobilien</a>
-			<a href="javascript:void(0)" onclick="closeNav();showTradeMenu();switchMenu()" title="Grundstücke, Anleihen und Derivate mit Spielern und Bank tauschen.">Tauschen</a>
-			<a href="javascript:void(0)" onclick="closeNav();showCreditMenu();switchMenu()" title="Kredit aufnehmen oder tilgen.">Kredit</a>
-			<a href="javascript:void(0)" onclick="closeNav();showStats()">Statistik</a>
-			<a id="zinsen" href="javascript:void(0)" onclick="closeNav();setZinssatz()">Zinssatz ändern</a>
-			<!--<a href="javascript:void(0)" onclick="closeNav();openAudioMenu();switchMenu()">Audio</a>-->
-		</div>
+		<a class="active" id="logicon" href="javascript:void(0)" onclick="openLog()" title="Den Spielverlauf anzeigen"><i class="fa-solid fa-align-justify"></i></a>
+		<a href="javascript:void(0)" onclick="openImmobilien()" title="Grundstücke anzeigen und Häuser kaufen"><i class="fa-solid fa-house"></i></a>
+		<a href="javascript:void(0)" onclick="showTradeMenu()" title="Grundstücke, Anleihen und Derivate mit Spielern und Bank tauschen."><i class="fa-solid fa-people-arrows-left-right"></i></a>
+		<a href="javascript:void(0)" onclick="showCreditMenu()" title="Kredit aufnehmen oder tilgen."><i class="fa-solid fa-money-bill-1"></i></a>
+		<a href="javascript:void(0)" onclick="showStats()"><i class="fa-solid fa-info"></i></a>
+		<a id="zinsen" href="javascript:void(0)" onclick="setZinssatz()"><i class="fa-solid fa-percent"></i></a>
+		<!--<a href="javascript:void(0)" onclick="openAudioMenu()" title="Erklärungen anhören"><i class="fa-solid fa-headphones"></i></a>-->
+			
 	</div>
 
 	<div id="control">

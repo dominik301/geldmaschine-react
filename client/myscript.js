@@ -26,9 +26,9 @@ start.onclick = function(e){
     socket.emit('setup', isKapitalismus, pNo, nieten);
 }
 
-var kreditaufnehmen = document.getElementById('kreditaufnehmenbutton');
-var kredittilgen = document.getElementById('kredittilgenbutton');
-var kredit = document.getElementById('credit-leftp-money');
+const kreditaufnehmen = document.getElementById('kreditaufnehmenbutton');
+const kredittilgen = document.getElementById('kredittilgenbutton');
+const kredit = document.getElementById('credit-leftp-money');
 
 kreditaufnehmen.onclick = function(e){
     //prevent the form from refreshing the page
@@ -73,13 +73,13 @@ function cancelkredit() {
     $("#control").show();
     $("#credit").hide();
 
-    $("#gamemenu").show();
-    $("#returnToLog").hide();
+    $('#icon-bar a.active').removeClass('active');
+    $("#logicon").addClass('active');
 }
 
-var next = document.getElementById('nextbutton');
-var resign = document.getElementById('resignbutton');
-var creditB = document.getElementById('creditbutton');
+const next = document.getElementById('nextbutton');
+const resign = document.getElementById('resignbutton');
+const creditB = document.getElementById('creditbutton');
 var round = 0;
 
 next.onclick = function(e){
@@ -121,9 +121,9 @@ function doResign() {
     socket.emit('resign');
 }
 
-var buyhouse = document.getElementById('buyhousebutton');
-var mortgage = document.getElementById('mortgagebutton');
-var sellhouse = document.getElementById('sellhousebutton');
+const buyhouse = document.getElementById('buyhousebutton');
+const mortgage = document.getElementById('mortgagebutton');
+const sellhouse = document.getElementById('sellhousebutton');
 
 buyhouse.onclick = function(e){
     //prevent the form from refreshing the page
@@ -459,8 +459,8 @@ function cancelTrade() {
     $("#trade").hide();
     $("#credit").hide();
 
-    $("#gamemenu").show();
-    $("#returnToLog").hide();
+    $('#icon-bar a.active').removeClass('active');
+    $("#logicon").addClass('active');
 };
 function acceptTrade() {
     if (isNaN(document.getElementById("trade-leftp-money").value)) {
@@ -1526,6 +1526,9 @@ window.onload = function() {
     $("#statsclose, #statsbackground").on("click", function() {
         $("#statswrap").hide();
         $("#statsbackground").fadeOut(400);
+
+        $('#icon-bar a.active').removeClass('active');
+        $("#logicon").addClass('active');
     });
 
     setName();
@@ -1747,6 +1750,20 @@ function setName() {
     let popupText = "<div><input type=\"text\" id=\"playername\" title=\"SpielerIn Name\" maxlength=\"16\" /> <input type=\"button\" value=\"OK\" id=\"namebutton\"/></div>";
     document.getElementById("popuptext").innerHTML += popupText;
 
+    // Get the input field
+    const input = document.getElementById("playername");
+
+    // Execute a function when the user releases a key on the keyboard
+    input.addEventListener("keyup", function(event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.key === 'Enter') {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        document.getElementById("namebutton").click();
+    }
+    }); 
+
     $("#namebutton").on("click", function() {
         $("#popupwrap").hide();
         $("#popupbackground").fadeOut(400);
@@ -1765,8 +1782,22 @@ function setName() {
 function setZinssatz() {
     setPopuptext("<p>Zinssatz ändern</p>");
 
-    let popupText = "<div><input type=\"text\" id=\"zinssatzInput\" title=\"Zinssatz\" maxlength=\"3\" value=\"5\" size=\"3\"/> % <input type=\"button\" value=\"Ändern\" id=\"zinsbutton\"/></div>";
+    let popupText = "<div><input type=\"text\" id=\"zinssatzInput\" title=\"Zinssatz\" maxlength=\"3\" value=\"5\" size=\"3\"/> % <input type=\"button\" value=\"Ändern\" id=\"zinsbutton\"/> <input type=\"button\" value=\"Schließen\" id=\"closezinsbutton\"/></div>";
     document.getElementById("popuptext").innerHTML += popupText;
+
+    // Get the input field
+    const input = document.getElementById("zinssatzInput");
+
+    // Execute a function when the user releases a key on the keyboard
+    input.addEventListener("keyup", function(event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.key === 'Enter') {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        document.getElementById("zinsbutton").click();
+    }
+    }); 
 
     $("#zinsbutton").on("click", function() {
         $("#popupwrap").hide();
@@ -1774,6 +1805,14 @@ function setZinssatz() {
 
         socket.emit("zinssatz", parseInt(document.getElementById("zinssatzInput").value))
 
+    });
+
+    $("#closezinsbutton, #popupbackground").on("click", function() {
+        $("#popupwrap").hide();
+        $("#popupbackground").fadeOut(400);
+
+        $('#icon-bar a.active').removeClass('active');
+        $("#logicon").addClass('active');
     });
 
     // Show using animation.
@@ -1840,6 +1879,7 @@ function showdeed(property) {
     socket.emit('showdeed', property)
 }
 
+//TODO: check if necessary
 function menuitem_onmouseover(element) {
     element.className = "menuitem menuitem_hover";
     return;
@@ -2103,19 +2143,6 @@ var myChart = new Chart("myChart", {
   }
 });
 
-function openNav() {
-    document.getElementById("menulist").style.width = "250px";
-}
-
-function closeNav() {
-    document.getElementById("menulist").style.width = "0px";
-}
-
-function switchMenu() {
-    $("#gamemenu").hide();
-    $("#returnToLog").show();
-}
-
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker
       .register('./sw.js')
@@ -2150,3 +2177,13 @@ window.addEventListener('beforeinstallprompt', (e) => {
         });
     });
   });  
+
+  $(document).ready(function () {
+    $('#icon-bar a').click(function(e) {
+
+        $('#icon-bar a.active').removeClass('active');
+
+        $(this).addClass('active');
+        e.preventDefault();
+    });
+});

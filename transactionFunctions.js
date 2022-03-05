@@ -60,7 +60,7 @@ exports.sellPoorest = function sellPoorest(game, amount) {
 		}
 	}
 
-	var p = game.player[turn];
+	var p = game.player[game.turn];
 
 	p.money += amount;
 

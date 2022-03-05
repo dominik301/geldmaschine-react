@@ -974,7 +974,7 @@ function setup(isKapitalismus, playernumber, nieten) {
 	}
 
   for(var i in game.SOCKET_LIST){
-    game.SOCKET_LIST[i].emit('show', "#control, #board, #moneybar, #gamemenu", true);
+    game.SOCKET_LIST[i].emit('show', "#control, #board, #moneybar, #icon-bar", true);
     game.SOCKET_LIST[i].emit('show', "#setup, #nextbutton, #resignbutton, #creditbutton", false);
   }  
 	
