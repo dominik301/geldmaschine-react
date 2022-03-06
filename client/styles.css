@@ -1099,3 +1099,8 @@ td {
 #donate input {
 	background-color: transparent;
 }
+
+@keyframes changeOpacity {
+	from {opacity: 0;}
+	to {opacity: 1;}
+  }

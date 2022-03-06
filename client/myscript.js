@@ -7,7 +7,6 @@ window.addEventListener('beforeunload', function (e) {
   });
 
 const socket = io();
-var typing = false;
 
 var playerId;
 var pcount;
@@ -20,10 +19,9 @@ start.onclick = function(e){
 
     socket.emit("windowload");
     
-    var isKapitalismus = true; //document.getElementById('capitalism').value == "Kapitalismus";
     var nieten = document.getElementById("nieten").value;
     var pNo = document.getElementById("spieler").value;
-    socket.emit('setup', isKapitalismus, pNo, nieten);
+    socket.emit('setup', true, pNo, nieten);
 }
 
 const kreditaufnehmen = document.getElementById('kreditaufnehmenbutton');
@@ -130,20 +128,16 @@ const sellhouse = document.getElementById('sellhousebutton');
 
 buyhouse.onclick = function(e){
     //prevent the form from refreshing the page
-    e.preventDefault();
-
-    var checkedProperty = getCheckedProperty();            
+    e.preventDefault();          
     
-    socket.emit('buyhouse', checkedProperty);
+    socket.emit('buyhouse', getCheckedProperty());
 }
 
 mortgage.onclick = function(e){
     //prevent the form from refreshing the page
     e.preventDefault();
 
-    var checkedProperty = getCheckedProperty();
-
-    socket.emit('mortgage', checkedProperty);           
+    socket.emit('mortgage', getCheckedProperty());           
     
 }
 
@@ -939,11 +933,6 @@ socket.on('setPlayerId',function(data){
             
     playerId = data;
 
-    $("#name" + playerId + "button").on("click", function() {
-        var name = document.getElementById("player" + playerId + "name").innerHTML;
-        socket.emit('setName', name);
-    });
-
     if (playerId != 1) {
         $("#zinsen").hide();
         $("#setup-nieten, #setup-spieler").hide();
@@ -958,12 +947,7 @@ socket.on('playerno',function(pnumber){
 });
 
 socket.on('addAlert', function(alertText) {
-    $alert = $("#alert");
-
-    $(document.createElement("div")).text(alertText).appendTo($alert);
-
-    // Animate scrolling down alert element.
-    $alert.stop().animate({"scrollTop": $alert.prop("scrollHeight")}, 1000);
+    addAlert(alertText);
 })
 
 function addAlert(alertText) {
@@ -1073,7 +1057,15 @@ socket.on('updateMoney', function(_player, turn, _meineBank, meinStaat, _pcount)
 });
 
 socket.on('updateDice', function(die0){
+    
+    var snd = new Audio("client/short-dice-roll.wav"); // buffers automatically when created
+    snd.play();
 
+    setTimeout(() => { updateDice(die0);}, 500);
+});
+
+function updateDice(die0) {
+    
     $("#die0").show();
 
     if (document.images) {
@@ -1099,9 +1091,9 @@ socket.on('updateDice', function(die0){
 
         document.getElementById("die0").title = "Die";
     }
-});
+}
 
-socket.on('updateOwned', function(player, square) {
+socket.on('updateOwned', function(player, _square) {
     var checkedproperty = getCheckedProperty();
     var p = player[playerId];
     $("#option").show();
@@ -1112,11 +1104,13 @@ socket.on('updateOwned', function(player, square) {
 
     var mortgagetext = "",
     housetext = "";
-    var sq;
+    var sq, _sq;
 
     for (var i = 0; i < 12; i++) {
-        sq = square[i];
+        sq = _square[i];
+        _sq = square[i]
         if (sq.groupNumber && sq.owner === 0) {
+            //TODO: fadeOut
             $("#cell" + i + "owner").hide();
             $("#cell" + i + "house").hide();
             $("#cell" + i + "house2").hide();
@@ -1126,14 +1120,43 @@ socket.on('updateOwned', function(player, square) {
             currentCellOwner.style.display = "block";
             currentCellOwner.style.backgroundColor = player[sq.owner].color;
             currentCellOwner.title = player[sq.owner].name;
-
+            if (sq.owner != _sq.owner) {
+                currentCellOwner.animate([
+                    // keyframes
+                    { opacity: 0 },
+                    { opacity: 1 }
+                  ], {
+                    // timing options
+                    duration: 1000
+                  });
+            }
             if (sq.house) {
                 var currentCellHouse = document.getElementById("cell" + i + "house");
                 currentCellHouse.style.display = "block";
+                if (_sq.house == 0) {
+                    currentCellHouse.animate([
+                        // keyframes
+                        { opacity: 0 },
+                        { opacity: 1 }
+                      ], {
+                        // timing options
+                        duration: 1000
+                      });
+                }
 
                 if (sq.house == 2) {
                     var currentCellHouse2 = document.getElementById("cell" + i + "house2");
                     currentCellHouse2.style.display = "block";
+                    if (_sq.house == 0) {
+                        currentCellHouse2.animate([
+                            // keyframes
+                            { opacity: 0 },
+                            { opacity: 1 }
+                          ], {
+                            // timing options
+                            duration: 1000
+                          });
+                    }
                 }
             }     
             else {
@@ -1145,7 +1168,7 @@ socket.on('updateOwned', function(player, square) {
     }
 
     for (var i = 0; i < 12; i++) {
-        sq = square[i];
+        sq = _square[i];
         if (sq.owner == playerId) {
 
             mortgagetext = "";
@@ -1170,6 +1193,8 @@ socket.on('updateOwned', function(player, square) {
             HTML += "' onmouseover='showdeed(" + i + ");' onmouseout='hidedeed();'></td><td class='propertycellname' " + mortgagetext + ">" + sq.name + housetext + "</td></tr>";
         }
     }
+
+    square = _square;
 
     if (HTML === "") {
         HTML = p.name + ", du besitzt keine Grundstücke.";
@@ -1720,51 +1745,85 @@ function doMortgage() {
     socket.emit("doMortgage", getCheckedProperty());
 }
 
-socket.on('updatePosition', function(square, turn, player){
+socket.on('updatePosition', function(turn, p_old, p){
     // Reset borders
     for (var i = 0; i < 12; i++) {
         document.getElementById("cell" + i).style.border = "1px solid black";
-        document.getElementById("cell" + i + "positionholder").innerHTML = "";
-
     }
 
-    var sq, left, top;
+    //handle old position
+    
+    var elem = document.getElementById("player" + turn + "figure");
+    elem.animate([
+        // keyframes
+        { opacity: 1 },
+        { opacity: 0 }
+      ], {
+        // timing options
+        duration: 1000
+      });
+      
+    setTimeout(() => {updatePosition(turn, p_old, p);},1000);
+});
 
-    for (var x = 0; x < 12; x++) {
-        sq = square[x];
-        left = 0;
-        top = 0;
+function updatePosition(turn, p_old, p) {
+    document.getElementById("player" + turn + "figure").remove();
+    const myOldPosition = document.getElementById("cell" + p_old + "positionholder");
+    
+    NodeList.prototype.forEach = Array.prototype.forEach
+    var children = myOldPosition.childNodes;
+    var left = 0;
+    var top = 0;
+    children.forEach(function(item){
+        item.style.left = left + "px";
+        item.style.top = top + "px";
+        if (left == 120) {
+            left = 0;
+            top = 24;
+        } else
+            left += 24;
+    });
 
-        for (var y = turn; y <= pcount; y++) {
+    //handle new position
+    const myNewPosition = document.getElementById("cell" + p.position + "positionholder");
+    myNewPosition.innerHTML += "<div id='player" + turn + "figure' class='cell-position' title='" + p.name + "' style='background-color: " + p.color + "; animation-name:changeOpacity; animation-duration: 2s'></div>";
 
-            if (player[y].position == x) {
-
-                document.getElementById("cell" + x + "positionholder").innerHTML += "<div class='cell-position' title='" + player[y].name + "' style='background-color: " + player[y].color + "; left: " + left + "px; top: " + top + "px;'></div>";
-                if (left == 120) {
-                    left = 0;
-                    top = 24;
-                } else
-                    left += 24;
-            }
-        }
-
-        for (var y = 1; y < turn; y++) {
-
-            if (player[y].position == x) {
-                document.getElementById("cell" + x + "positionholder").innerHTML += "<div class='cell-position' title='" + player[y].name + "' style='background-color: " + player[y].color + "; left: " + left + "px; top: " + top + "px;'></div>";
-                if (left == 120) {
-                    left = 0;
-                    top = 24;
-                } else
-                    left += 24;
-            }
-        }
-    }
-
-    var p = player[turn];
+    NodeList.prototype.forEach = Array.prototype.forEach
+    children = myNewPosition.childNodes;
+    left = 0;
+    top = 0;
+    children.forEach(function(item){
+        item.style.left = left + "px";
+        item.style.top = top + "px";
+        if (left == 120) {
+            left = 0;
+            top = 24;
+        } else
+            left += 24;
+    });
 
     document.getElementById("cell" + p.position).style.border = "1px solid " + p.color;	
 
+}
+
+socket.on('displayFigures', function(player, pcount){
+    const zeroPosition = document.getElementById("cell" + 0 + "positionholder");
+
+    for (var i=1; i<=pcount; i++) {
+        zeroPosition.innerHTML += "<div id='player" + i + "figure' class='cell-position' title='" + player[i].name + "' style='background-color: " + player[i].color + ";'></div>";
+    }
+    var children = zeroPosition.childNodes;
+    left = 0;
+    top = 0;
+    children.forEach(function(item){
+        item.style.left = left + "px";
+        item.style.top = top + "px";
+        if (left == 120) {
+            left = 0;
+            top = 24;
+        } else
+            left += 24;
+    });
 });
 
 function setName() {
@@ -1900,17 +1959,6 @@ function hidedeed() {
 
 function showdeed(property) {
     socket.emit('showdeed', property)
-}
-
-//TODO: check if necessary
-function menuitem_onmouseover(element) {
-    element.className = "menuitem menuitem_hover";
-    return;
-}
-
-function menuitem_onmouseout(element) {
-    element.className = "menuitem";
-    return;
 }
 
 var auctionQueue = [];

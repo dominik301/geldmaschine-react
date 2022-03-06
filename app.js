@@ -439,10 +439,10 @@ global.addAlert = function addAlert(game, alertText) {
 }
 
 
-function updatePosition(game) {
-  for (var i in game.SOCKET_LIST) {
-    game.SOCKET_LIST[i].emit("updatePosition", game.square, game.turn, game.player);
-  }
+function updatePosition(game, p_old) {
+	for (var i in game.SOCKET_LIST) {
+		game.SOCKET_LIST[i].emit("updatePosition", game.turn, p_old, game.player[game.turn]);
+	}
 }
 
 global.updateMoney = function updateMoney(game) {
@@ -510,7 +510,7 @@ global.payeachplayer = function payeachplayer(game, amount, cause) {
 
 function advance(game, destination, pass) {
 	var p = game.player[game.turn];
-	
+	var p_old = p.position
 	if (typeof pass === "number") {
 		if (p.position < pass) {
 			p.position = pass;
@@ -541,7 +541,7 @@ function advance(game, destination, pass) {
 		}
 		game.addAlert(p.name + " ist über Start gezogen und hat Zinsen auf Kredite gezahlt.");
 	}
-
+	updatePosition(game, p_old);
 	land(game);
 }
 
@@ -608,7 +608,7 @@ global.buyHouse = function buyHouse(game, index) {
   } else if (game.phase == 2 && sq.house < 2) {
 	sq.house++;
     game.addAlert(p.name + " hat ein Haus in der " + sq.name + " gekauft.");
-	payState(price - sq.houseprice);
+	payState(game, price - sq.houseprice);
 	if (game.SOCKET_LIST[game.turn])
 		game.SOCKET_LIST[game.turn].emit('buyhouse2', false);
 	else {
@@ -718,8 +718,6 @@ function land(game) {
 	}
 
 	updateMoney(game);
-	updatePosition(game);
-	updateOwned(game);
 
 	chanceCommunityChest(game);
 }
@@ -777,32 +775,25 @@ global.roll = function roll(game) {
 
 	if (p == undefined) return;
 
-	if (!p.human && !game.timePassed) {
-		setTimeout(() => { game.roll();}, 2000);
-		game.timePassed = true;
-		return;
-	}
-
-	game.timePassed = false;
-
 	if (p.human) {
 		game.SOCKET_LIST[game.turn].emit('roll');
 		game.SOCKET_LIST[game.turn].emit('changeButton', "nextbutton", "Spielzug beenden", "Spielzug beenden und zum/zur nächsten SpielerIn wechseln.");
 	}
   
 	game.rollDice();
+	updateDice(game);
+	setTimeout(() => { move(game);}, 1000);
+
+}
+
+function move(game) {
+	var p = game.player[game.turn];
 	var die1 = game.getDie();
 
 	game.addAlert(p.name + " hat " + die1 + " gewürfelt.");
 
 	if (p.human) game.SOCKET_LIST[game.turn].emit('changeButton', "nextbutton", "Spielzug beenden", "Spielzug beenden und zum/zur nächsten SpielerIn wechseln.");
 
-	updatePosition(game);
-	updateMoney(game);
-	updateOwned(game);
-
-	
-	updateDice(game);
 
 	p_old = p.position;
 	// Move player
@@ -826,7 +817,8 @@ global.roll = function roll(game) {
 		game.addAlert(p.name + " ist über Start gezogen und hat Zinsen auf Kredite gezahlt.");
 	}
 
-	land(game);
+	updatePosition(game, p_old)
+	setTimeout(() => {land(game);}, 2000);
 }
 
 global.play = function play(game) {  
@@ -869,9 +861,6 @@ global.play = function play(game) {
 		game.SOCKET_LIST[game.turn].emit('show', "#die0", false);
 	}
 
-	updateMoney(game);
-	updatePosition(game);
-	updateOwned(game);
 
 	for (var i in game.SOCKET_LIST) {
 		game.SOCKET_LIST[i].emit('show', ".money-bar-arrow", false);
@@ -980,15 +969,9 @@ function setup(isKapitalismus, playernumber, nieten) {
   for(var i in game.SOCKET_LIST){
     game.SOCKET_LIST[i].emit('show', "#control, #board, #moneybar, #icon-bar", true);
     game.SOCKET_LIST[i].emit('show', "#setup, #nextbutton, #resignbutton, #creditbutton", false);
+	game.SOCKET_LIST[i].emit('displayFigures', game.player, game.pcount);
+	game.SOCKET_LIST[i].emit('updateSquare', game.square);
   }  
-	
-	/*if (pcount === 3) {
-		document.getElementById("stats").style.width = "686px";
-	}
-
-	document.getElementById("stats").style.top = "0px";
-	document.getElementById("stats").style.left = "0px";*/
-
 	play(game);
 }
 
@@ -1108,7 +1091,7 @@ chanceCards2[7] = new Card("Steuerfahndung","Dir wurde Steuerhinterziehung nachg
 //chanceCards2[8] = new Card("Fensterreparatur","Du hast im Haus auf diesem Feld die Fenster repariert. Der/die Eigentümer*in zahlt Dir 15.000. Dafür ist Kreditaufnahme möglich.", function() {}); //?
 chanceCards2[8] = new Card("Feinstaubplaketten","Kaufe Plaketten für deinen Fahrzeugpark. Zahle 1.000 an den Staat.", function(game) { payState(game,1000);});
 chanceCards2[9] = new Card("Investitionsbeihilfe","Wenn Du jetzt baust, zahlt der Staat 20.000 dazu. Du darfst ein 2. Haus auf eins Deiner Grundstücke bauen, aber keine Miete dafür erheben. Steuerbegünstigter Leerstand um Geld in Umlauf zu bringen! Du kannst Kredit aufnehmen.", function(game) { game.discount=20000; game.SOCKET_LIST[game.turn].emit('buyhouse2', true); updateOption(game);});
-chanceCards2[10] = new Card("Hackerangriff","Du hast die Bank gehackt und 80.000 erpresst. Die Bank schöpft das Geld durch Emission von Derivaten.", function(game) { tf.receiveFromBank(game,80000);});
+chanceCards2[10] = new Card("Hackerangriff","Du hast die Bank gehackt und 80.000 erpresst. Die Bank schöpft das Geld durch Emission von Derivaten.", function(game) { tf.receiveFromBank(game,80000,game.turn);});
 chanceCards2[11] = new Card("Einbauküche","Du kaufst für 24.000 eine Einbauküche. Überweise den Betrag anteilig an alle Mitspieler*innen", function(game) { payeachplayer(game,24000, "Ereignisfeld");});
 chanceCards2[12] = new Card("Erbstreit","Wegen eines Erbstreits musst Du ein Grundstück versteigern. Die Hälfte des Erlöses zahlst du anteilig an alle aus.", function(game) { auctionHouse(game);});
 chanceCards2[13] = new Card("Beitragserhöhung","Deine Krankenkasse erhöht die Beiträge. Zahle 3.000 an den Staat.", function(p) { payState(game,3000);});
