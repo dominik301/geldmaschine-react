@@ -251,6 +251,7 @@ td {
 	border-radius: 8px;
 	padding: 2px;
 	z-index: 14;
+	top: 0;
 }
 
 #credit-leftp-name {
