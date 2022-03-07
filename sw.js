@@ -1,17 +1,8 @@
-self.addEventListener('install', (e) => {
-  e.waitUntil((async () => {
-    const cache = await caches.open(cacheName);
-    console.log('[Service Worker] Caching all: app shell and content');
-    await cache.addAll(contentToCache);
-  })());
-});
-
 const cacheName = 'geldmaschine-v1';
 const appShellFiles = [
   'client/',
-  'client/index.html',
   'client/myscript.js',
-  'client/style.css',
+  'client/styles.css',
   'client/favicon.ico',
   'client/short-dice-roll.wav',
   'client/images/ereignisfeld.png',
@@ -20,7 +11,14 @@ const appShellFiles = [
   'client/images/icons/icon-192x192.png',
   'client/images/icons/icon-512x512.png'
 ];
-  
+
+self.addEventListener('install', (e) => {
+  e.waitUntil((async () => {
+    const cache = await caches.open(cacheName);
+    console.log('[Service Worker] Caching all: app shell and content');
+    await cache.addAll(appShellFiles);
+  })());
+});
 
 self.addEventListener('fetch', (e) => {
 
