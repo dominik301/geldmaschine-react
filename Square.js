@@ -1,17 +1,20 @@
-function Square(name, pricetext, color, rent, houseprice) {
-	this.name = name;
-	this.pricetext = pricetext;
-	this.color = color;
-	this.owner = 0;
-	this.mortgage = false;
-	this.mortgageHouse = false;
-	this.house = 0;
-	this.price = (houseprice || 0);
-	this.rent = (rent || 0);
-	this.landcount = 0;
-	this.houseprice = (houseprice || 0);
-	this.groupNumber = this.price != 0 ? 1 : 0
-	this.reset = function() {
+class Square {
+	constructor(name, pricetext, color, rent, houseprice) {
+		this.name = name;
+		this.pricetext = pricetext;
+		this.color = color;
+		this.owner = 0;
+		this.mortgage = false;
+		this.mortgageHouse = false;
+		this.house = 0;
+		this.price = (houseprice || 0);
+		this.rent = (rent || 0);
+		this.landcount = 0;
+		this.houseprice = (houseprice || 0);
+		this.groupNumber = this.price != 0 ? 1 : 0
+	}
+	
+	reset() {
 	  this.owner = 0;
 	  this.mortgage = false;
 	  this.mortgageHouse = false;

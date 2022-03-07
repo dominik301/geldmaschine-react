@@ -87,11 +87,11 @@ module.exports = function AITest(p, game) {
 				if (s.house >= 1)
 					continue;
 				if (p.money > s.houseprice) {
-					buyHouse(game,i);
+					game.buyHouse(i);
 				}
 				else if (p.verfuegbareHypothek - p.sumKredit + p.money > s.houseprice) {
 					p.kreditAufnehmen(-p.money + s.houseprice);
-					buyHouse(game,i);
+					game.buyHouse(i);
 				}
 			}
 		}
@@ -101,7 +101,7 @@ module.exports = function AITest(p, game) {
 			s = game.square[i];
 
 			if (s.owner === p.index && s.mortgage && p.money > s.price) {
-				unmortgage(game,i);
+				game.unmortgage(i);
 			}
 		}
 
@@ -122,7 +122,7 @@ module.exports = function AITest(p, game) {
 		
 		if (p.money < 0) {
 			if (p.verfuegbareHypothek < p.sumKredit - p.money) {
-				sozialHilfe(game,p.index);
+				game.sozialHilfe(p.index);
 			}
 		}
 	}
@@ -142,6 +142,6 @@ module.exports = function AITest(p, game) {
 			game.highestbid = bid;
 		}
 
-		require('./transactionFunctions').bid(game);
+		game.bid();
 	}
 }

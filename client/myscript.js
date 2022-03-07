@@ -18,7 +18,7 @@ start.onclick = function(e){
     e.preventDefault();
 
     socket.emit("windowload");
-    
+
     var nieten = document.getElementById("nieten").value;
     var pNo = document.getElementById("spieler").value;
     socket.emit('setup', true, pNo, nieten);
@@ -44,7 +44,11 @@ kreditaufnehmen.onclick = function(e){
         return false;
     }
     
-    socket.emit('kreditaufnehmen', money);
+    if (online)
+        socket.emit('kreditaufnehmen', money);
+    else
+        game.kreditAufnehmen(parseInt(money), playerId);
+
     kredit.value = "0";
 }
 
@@ -61,8 +65,11 @@ kredittilgen.onclick = function(e){
     if (!confirm(document.getElementById("player" + playerId + "name").innerHTML + ", möchtest Du wirklich deinen Kredit tilgen?")) {
         return false;
     }
-    
-    socket.emit('kredittilgen', kredit.value);
+    if (online)
+        socket.emit('kredittilgen', kredit.value);
+    else
+        game.kreditTilgen(parseInt(kredit.value), playerId);
+        
     kredit.value = "0";
 }
 
@@ -92,13 +99,15 @@ next.onclick = function(e){
     }
 }
 
-socket.on('updateChart', function() {
+socket.on('updateChart', updateChart);
+
+function updateChart() {
     xValues.push(round);
     geldMengen.push(meineBank.geldMenge)
     bankZinsen.push(meineBank.zinsenLotto)
     round++;
     myChart.update();
-});
+}
 
 function buy() {
     socket.emit('buy');
@@ -109,7 +118,6 @@ resign.onclick = function(e){
     e.preventDefault();
 
     socket.emit('sozialhilfe');
-    //popup("<p>Möchtest du wirklich aufgeben?</p>", doResign, "Ja/Nein");
 }
 
 creditB.onclick = function(e){
@@ -371,8 +379,8 @@ function finishProposeTrade() {
     var reversedAssets = [];
 
     if (recipient.index == 0) {
-        recipient.anleihen = recipient.anleihenBank
-        recipient.derivate = recipient.derivateBank
+        recipient.anleihen = recipient.anleihen
+        recipient.derivate = recipient.derivate
     }
 
     if (money > 0 && money > initiator.money) {
@@ -405,23 +413,13 @@ function finishProposeTrade() {
         return false;
     }
 
-    var isAPropertySelected = 0;
-
-    // Ensure that some properties are selected.
     for (var i = 0; i < 12; i++) {
         reversedTradeProperty[i] = -tradeObj.property[i];
-        isAPropertySelected |= tradeObj.property[i];
     }
 
     for (i = 0; i < assets.length; i++) {
         reversedAssets[i] = -assets[i];
     }
-
-    /*if (isAPropertySelected === 0) {
-        popup("<p>One or more properties must be selected in order to trade.</p>");
-
-        return false;
-    }*/
 
     if (!confirm(initiator.name + ", bist du sicher, dass du dieses Angebot an " + recipient.name + " machen willst?")) {
         return false;
@@ -506,18 +504,10 @@ function finishAcceptTrade(showAlerts) {
         return false;
     }*/
 
-    var isAPropertySelected = 0;
-
     // Ensure that some properties are selected.
     for (var i = 0; i < 12; i++) {
         isAPropertySelected |= tradeObj.property[i];
     }
-
-    /*if (isAPropertySelected === 0) {
-        popup("<p>One or more properties must be selected in order to trade.</p>");
-
-        return false;
-    }*/
 
     if (showAlerts && !confirm(initiator.name + ", bist du sicher, dass du diesen Tausch mit " + recipient.name + " machen willst?")) {
         return false;
@@ -930,16 +920,18 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
 };
 
 socket.on('setPlayerId',function(data){
-            
-    playerId = data;
+    setPlayerId(data);    
+});
+
+function setPlayerId(id) {
+    playerId = id;
 
     if (playerId != 1) {
         $("#zinsen").hide();
         $("#setup-nieten, #setup-spieler").hide();
         $("#startbutton").hide();
     }
-            
-});
+}
 
 socket.on('playerno',function(pnumber){
     pcount = pnumber;
@@ -960,6 +952,10 @@ function addAlert(alertText) {
 }
 
 socket.on('eliminatePlayer', function(HTML, action) {
+    showEliminatePlayer(HTML, action);
+});
+
+function showEliminatePlayer(HTML, action) {
     document.getElementById("popuptext").innerHTML = HTML;
     document.getElementById("popup").style.width = "300px";
     document.getElementById("popup").style.top = "0px";
@@ -988,19 +984,27 @@ socket.on('eliminatePlayer', function(HTML, action) {
     $("#popupbackground").fadeIn(400, function() {
         $("#popupwrap").show();
     });
-});
+}
 
 function eliminatePlayer() {
     socket.emit('eliminate');
 }
 
 socket.on('playerNames', function(names) {
+    setPlayernames(names);
+});
+
+function setPlayernames(names) {
     for (var i in names) {
         document.getElementById("player" + i + "name").innerHTML = names[i];
     }
-});
+}
 
 socket.on('updateMoney', function(_player, turn, _meineBank, meinStaat, _pcount) {
+    updateMoney(_player,turn,_meineBank,meinStaat,_pcount)
+});
+
+function updateMoney(_player, turn, _meineBank, meinStaat, _pcount) {
     player = _player;
     meineBank = _meineBank;
     var p = player[turn];
@@ -1028,8 +1032,8 @@ socket.on('updateMoney', function(_player, turn, _meineBank, meinStaat, _pcount)
     $("#moneybarrow7").show();
     document.getElementById("p7money").innerHTML = meineBank.geldMenge;
     document.getElementById("p7credit").innerHTML = meineBank.zinsenLotto;
-    document.getElementById("p7anleihen").innerHTML = meineBank.anleihenBank;
-    document.getElementById("p7derivate").innerHTML = meineBank.derivateBank;
+    document.getElementById("p7anleihen").innerHTML = meineBank.anleihen;
+    document.getElementById("p7derivate").innerHTML = meineBank.derivate;
 
     $("#moneybarrow8").show();
     document.getElementById("p8money").innerHTML = meinStaat.staatsSchuld;
@@ -1054,15 +1058,18 @@ socket.on('updateMoney', function(_player, turn, _meineBank, meinStaat, _pcount)
             $("#nextbutton").show();
         }
     }
-});
+}
 
 socket.on('updateDice', function(die0){
-    
+    playDiceSound(die0);
+});
+
+function playDiceSound(die0) {
     var snd = new Audio("client/short-dice-roll.wav"); // buffers automatically when created
     snd.play();
 
     setTimeout(() => { updateDice(die0);}, 500);
-});
+}
 
 function updateDice(die0) {
     
@@ -1094,6 +1101,10 @@ function updateDice(die0) {
 }
 
 socket.on('updateOwned', function(player, _square) {
+    updateOwned(player, _square);
+});
+
+function updateOwned(player, _square) {
     var checkedproperty = getCheckedProperty();
     var p = player[playerId];
     $("#option").show();
@@ -1228,9 +1239,13 @@ socket.on('updateOwned', function(player, _square) {
 
         socket.emit('updateOption');
     });
-});
+}
 
 socket.on('updateOption', function(square){
+    updateOption(square);
+});
+
+function updateOption(square) {
     var checkedproperty = getCheckedProperty();
     var sq = square[checkedproperty];
 
@@ -1303,10 +1318,14 @@ socket.on('updateOption', function(square){
         }
     }
     
-});
+}
 
 
 socket.on('showdeed', function(sq) {
+    showdeed2(sq);
+});
+
+function showdeed2(sq) {
     $("#deed").show();
 
     $("#deed-normal").hide();
@@ -1327,15 +1346,19 @@ socket.on('showdeed', function(sq) {
         //document.getElementById("deed-mortgage").textContent = (sq.price);
         document.getElementById("deed-houseprice").textContent = sq.houseprice;
     }
-});
+}
 
 socket.on('showstats', function(HTML) {
+    displayStats(HTML);
+});
+
+function displayStats(HTML) {
     document.getElementById("statstext").innerHTML = HTML;
     // Show using animation.
     $("#statsbackground").fadeIn(400, function() {
         $("#statswrap").show();
     });
-});
+}
 
 function showGraph() {
     $("#statsbackground").fadeIn(400, function() {
@@ -1344,26 +1367,40 @@ function showGraph() {
 }
 
 socket.on('changeButton', function(button, value, title){
+    changeButton(button, value, title)
+});
+
+function changeButton(button,value, title) {
     document.getElementById(button).value = value;
     document.getElementById(button).title = title;
-});
+}
 
 socket.on('focusbutton', function(button) {
-    document.getElementById(button).focus();
+    focusButton(button);
 });
 
-socket.on('roll', function() {
+function focusButton(button) {
+    document.getElementById(button).focus();
+}
+
+socket.on('roll', roll);
+
+function roll() {
     $("#option").hide();
     $("#buy").show();
     $("#manage").hide();
     $("#audio").hide();
 
     document.getElementById("nextbutton").focus();
-});
+}
 
 socket.on('setHTML', function(element, text) {
-    document.getElementById(element).innerHTML = text;
+    setHTML(element, text);
 });
+
+function setHTML(element, text) {
+    document.getElementById(element).innerHTML = text;
+}
 
 socket.on('show', function(element, isShow) {
     if (isShow) {
@@ -1374,6 +1411,8 @@ socket.on('show', function(element, isShow) {
     
 });
 
+function show(element) {$(element).show();}
+function hide(element) {$(element).hide();}
 
 
 var pcount;
@@ -1734,18 +1773,26 @@ function showStats() {
 }
 
 socket.on('popup', function(HTML, option, mortgage=false) {
+    rcvPopupReq(HTML, option, mortgage);
+})
+
+function rcvPopupReq(HTML, option, mortgage=false) {
     if (mortgage) {
         popup(HTML, doMortgage, option);
     } else {
         popup(HTML, option);
     }
-})
+}
 
 function doMortgage() {
     socket.emit("doMortgage", getCheckedProperty());
 }
 
 socket.on('updatePosition', function(turn, p_old, p){
+    preUpdatePosition(turn, p_old, p);
+});
+
+function preUpdatePosition(turn, p_old, p) {
     // Reset borders
     for (var i = 0; i < 12; i++) {
         document.getElementById("cell" + i).style.border = "1px solid black";
@@ -1764,7 +1811,7 @@ socket.on('updatePosition', function(turn, p_old, p){
       });
       
     setTimeout(() => {updatePosition(turn, p_old, p);},1000);
-});
+}
 
 function updatePosition(turn, p_old, p) {
     document.getElementById("player" + turn + "figure").remove();
@@ -1864,7 +1911,7 @@ function setName() {
 function setZinssatz() {
     setPopuptext("<p>Zinssatz ändern</p>");
 
-    let popupText = "<div><input type=\"text\" id=\"zinssatzInput\" title=\"Zinssatz\" maxlength=\"3\" value=\"5\" size=\"3\"/> % <input type=\"button\" value=\"Ändern\" id=\"zinsbutton\"/> <input type=\"button\" value=\"Schließen\" id=\"closezinsbutton\"/></div>";
+    let popupText = "<div><input type=\"number\" id=\"zinssatzInput\" title=\"Zinssatz\" maxlength=\"3\" value=\"5\" size=\"3\"/> % <input type=\"button\" value=\"Ändern\" id=\"zinsbutton\"/> <input type=\"button\" value=\"Schließen\" id=\"closezinsbutton\"/></div>";
     document.getElementById("popuptext").innerHTML += popupText;
 
     // Get the input field
@@ -2052,6 +2099,10 @@ function finalizeAuction() {
 };
 
 socket.on("auction", function(_auctionproperty, _player, _square, _highestbidder, _highestbid) {
+    rcvAuction(_auctionproperty, _player, _square, _highestbidder, _highestbid)
+});
+
+function rcvAuction(_auctionproperty, _player, _square, _highestbidder, _highestbid) {
     player = _player;
     auctionproperty = _auctionproperty;
     highestbidder = _highestbidder;
@@ -2110,7 +2161,7 @@ socket.on("auction", function(_auctionproperty, _player, _square, _highestbidder
             this.value = "";
         }
     };
-});
+}
 
 //player
 function auctionPass() {
@@ -2277,3 +2328,8 @@ window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
     });
 });
+
+var online;
+  window.addEventListener("load", () => {
+    online = navigator.onLine;
+  });

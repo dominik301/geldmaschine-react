@@ -105,7 +105,7 @@ io.sockets.on('connection', function(socket){
 
   socket.on('sozialhilfe', function() {
 	let game = socket2game[socket.id];
-	  sozialHilfe(game,game.turn);
+	  game.sozialHilfe();
 	});
 
   socket.on('buyhouse',function(checkedProperty){
@@ -116,7 +116,7 @@ io.sockets.on('connection', function(socket){
 			return;
 		}
 		else if (game.SOCKET_LIST[key] == socket){
-			buyHouse(game,checkedProperty);  
+			game.buyHouse(checkedProperty);  
 		}
 	});
   });
@@ -149,9 +149,9 @@ io.sockets.on('connection', function(socket){
     var s = game.square[checkedProperty];
 
     if (s.mortgage) {
-      unmortgage(game, checkedProperty);
+      game.unmortgage(checkedProperty);
     } else {
-      tf.mortgage(game, checkedProperty);        
+      game.mortgage(checkedProperty);        
     } 
   });
 
@@ -163,7 +163,7 @@ io.sockets.on('connection', function(socket){
 			return;
 		}
 	}
-    tf.sellHouse(game,checkedProperty);        
+    game.sellHouse(checkedProperty);        
   });
 
   socket.on('kreditaufnehmen',function(data){
@@ -254,7 +254,7 @@ io.sockets.on('connection', function(socket){
 
   socket.on('sendOffer', function() {
 	let game = socket2game[socket.id];
-	  tf.handleOffer(game);
+	  game.handleOffer();
   });
 
   socket.on('changeOwner', function(sq_idx, rcp_idx) {
@@ -297,22 +297,14 @@ io.sockets.on('connection', function(socket){
   socket.on('buyDerivate', function(initiator, recipient, derivate) {
 	let game = socket2game[socket.id];
 	var p = recipient == 0 ? game.meineBank : game.player[recipient];
-	if (p instanceof Bank) {
-		p.derivateBank += derivate;
-	} else {
-		p.derivate += derivate;
-	}
+	p.derivate += derivate;
 	game.player[initiator].derivate -= derivate;
   });
 
   socket.on('buyAnleihen', function(initiator, recipient, anleihen) {
 	let game = socket2game[socket.id];
 	var p = recipient == 0 ? game.meineBank : game.player[recipient];
-	if (p instanceof Bank) {
-		p.anleihenBank += anleihen;
-	} else {
-		p.anleihen += anleihen;
-	}
+	p.anleihen += anleihen;
 	game.player[initiator].anleihen -= anleihen;
   });
 
@@ -320,7 +312,7 @@ io.sockets.on('connection', function(socket){
 	let game = socket2game[socket.id];
 	game.highestbidder = highestbidder;
 	game.highestbid = highestbid;
-	tf.bid(game);
+	game.bid();
   });
 
   socket.on("auctionExit", function(currentbidder) {
@@ -335,7 +327,7 @@ io.sockets.on('connection', function(socket){
 
   socket.on("auctionHouse", function() {
 	let game = socket2game[socket.id];
-	  auctionHouse(game);
+	  game.auctionHouse();
 	});
 
   socket.on('disconnect',function(){
@@ -378,7 +370,7 @@ io.sockets.on('connection', function(socket){
 	let game = socket2game[socket.id];
 	Object.keys(game.SOCKET_LIST).forEach(function eachKey(key) {
 		if(game.SOCKET_LIST[key] == socket && key == game.turn){
-			tf.buy(game);
+			game.buy();
 		}
 	});
   });
@@ -402,7 +394,6 @@ var games = [];
 var game;
 
 var Player = require('./Player');
-var Bank = require('./Bank');
 var Trade = require('./Trade');
 
 
@@ -425,355 +416,8 @@ Array.prototype.randomize = function(length) {
 	}
 };
 
-function chanceAction(game, chanceIndex) {
-	var p = game.player[game.turn]; // This is needed for reference in action() method.
 
-	if (game.phase == 1)
-		chanceCards[chanceIndex].action(game);
-	else
-		chanceCards2[chanceIndex].action(game);
 
-	game.updateMoney();
-
-	if (!p.human) {
-		setTimeout(() => { game.next();}, 5000);
-	}
-}
-
-
-global.payeachplayer = function payeachplayer(game, amount, cause) {
-	var p = game.player[game.turn];
-	var total = 0;
-
-	amount = Math.floor(amount / (game.pcount - 1));
-
-	for (var i = 1; i <= game.pcount; i++) {
-		if (i != game.turn) {
-			game.player[i].money += amount;
-			total += amount;
-			creditor = p.money >= 0 ? i : creditor;
-
-			p.pay(amount, creditor);
-		}
-	}
-	if (cause == "Hauskauf")
-		{game.addAlert(p.name + " hat für " + total + " ein Haus gekauft.");}
-	else
-		{game.addAlert(p.name + " hat " + total + " durch " + cause + " verloren.");}
-}
-
-var tf = require('./transactionFunctions')
-
-global.payState = function payState(game, amount, reason="") {
-	var p = game.player[game.turn];
-
-	game.meinStaat.steuer += amount;
-
-	if (game.meinStaat.steuer < 0) {
-		if (game.phase = 1) {
-			game.phase = 2;
-			game.popupAll("Phase 2 beginnt.");
-		}
-		game.meineBank.geldMenge -= game.meinStaat.steuer;
-		game.meineBank.buyAnleihen(-game.meinStaat.steuer);
-		game.meinStaat.staatsSchuld += game.meinStaat.steuer;
-		game.meinStaat.steuer = 0;
-	}
-
-	p.pay(amount, 0);
-	if (amount < 0) {
-		game.addAlert(p.name + " hat " + (-amount) + reason + " vom Staat erhalten.");
-	} else {
-		game.addAlert(p.name + " hat " + amount + " an den Staat gezahlt.");
-	}
-}
-
-global.sozialHilfe = function sozialHilfe(game, key) {
-	var p = game.player[key];
-	var amount = p.money - p.sumKredit + p.verfuegbareHypothek;
-	payState(game, amount, " Sozialhilfe");
-}
-
-global.buyHouse = function buyHouse(game, index) {
-
-	var sq = game.square[index];
-	var p = game.player[sq.owner];
-
-  var houseSum = 0;
-
-  price = (sq.houseprice - game.discount) * (1 - game.percent / 100);
-
-  if (p.money < price) {
-    game.popup("<p>Du brauchst " + (price - game.player[sq.owner].money) + " mehr um ein Haus in der " + sq.name + " zu kaufen.</p>");
-    return false;
-  }
-
-  for (var i = 0; i < 12; i++) {
-      houseSum += game.square[i].house;
-  }
-
-  if (sq.house < 2 && houseSum >= 11) {
-	game.popup("<p>Alle 11 Häuser sind verkauft.</p>");
-      return false;
-  } 
-
-  if (game.phase == 1 && sq.house < 1) {
-    sq.house++;
-    game.addAlert(p.name + " hat ein Haus in der " + sq.name + " gekauft.");
-  } else if (game.phase == 2 && sq.house < 2) {
-	sq.house++;
-    game.addAlert(p.name + " hat ein Haus in der " + sq.name + " gekauft.");
-	payState(game, price - sq.houseprice);
-	if (!game.socketUndefined())
-		game.buyHouse2(false);
-	else {
-		return;
-	}
-  }  else {
-    return;
-  }
-
-  payeachplayer(game, sq.houseprice, "Hauskauf");
-
-  game.updateOwned();
-  game.updateMoney();
-	
-}
-
-global.auctionHouse = function auctionHouse(game) {
-	if (game.player[game.turn].human) {
-		game.chooseProperty();
-	} else {
-		// choose property at random
-		var properties = new Array();
-		for (var i in game.square) {
-			if (game.square[i].owner == turn) {
-				properties.push(i);
-			}
-		}
-		if (properties.length == 0) return;
-		properties.sort(function() { return 0.5 - Math.random();});
-		game.addPropertyToAuctionQueue(properties.pop());
-		game.auction();
-	}
-
-}
-
-global.unmortgage = function unmortgage(game, index) {
-	var sq = game.square[index];
-	var p = game.player[sq.owner];
-	var mortgagePrice = sq.price;
-
-	if (mortgagePrice > p.money || !sq.mortgage) {
-		return false;
-	}
-
-	p.pay(mortgagePrice, 0);
-	sq.mortgage = false;
-
-  	let value = "Hypothek aufnehmen für " + mortgagePrice;
-  	let title = "Hypothek auf " + sq.name + " für " + mortgagePrice + " aufnehmen.";
-
-  	if (p.human) game.changeButton("mortgagebutton", value, title);
-
-	game.addAlert(p.name + " hat die Hypothek für " + sq.name + " für " + unmortgagePrice + " zurückgezahlt.");
-	game.updateOwned();
-	return true;
-}
-
-global.land = function land(game) {
-
-	var p = game.player[game.turn];
-	var s = game.square[p.position];
-
-	if (p.human) {
-		game.show("#landed");
-		game.setHTML("landed", "Du bist auf " + s.name + " gelandet.");
-	}
-	
-	s.landcount++;
-	game.addAlert(p.name + " ist auf " + s.name + " gelandet.");
-
-	// Allow player to buy the property on which he landed.
-	if (s.price !== 0 && s.owner === 0) {
-		if (!p.human) {
-			if (p.AI.buyProperty(p.position)) {
-				tf.buy(game);
-			}
-		} else {
-			game.setHTML("landed", "<div>Du bist auf <a href='javascript:void(0);' onmouseover='showdeed(" + p.position + ");' onmouseout='hidedeed();' class='statscellcolor'>" + s.name + "</a> gelandet.<input type='button' onclick='buy();' value='Kaufe (" + s.price + ")' title='Kaufe " + s.name + " für " + s.houseprice + ".'/></div>");
-		}
-	}
-
-	// Collect rent
-	if (s.owner !== 0 && s.owner != game.turn) {
-		var rent = 0;
-
-		if (s.house === 1) {
-			rent = s.rent;
-		}
-		
-		game.addAlert(p.name + " hat " + rent + " Miete an " + game.player[s.owner].name + " gezahlt.");
-		p.pay(rent, s.owner);
-		game.player[s.owner].money += rent;
-
-    	if (p.human) game.setHTML("landed", "Du bist auf " + s.name + " gelandet. " + game.player[s.owner].name + " hat " + rent + " Miete kassiert.");
-	}
-
-	game.updateMoney();
-
-	chanceCommunityChest(game);
-}
-
-function chanceCommunityChest(game) {
-	var p = game.player[game.turn];
-
-	if (game.phase == 1) {
-		// Chance
-		if (p.position === 3 || p.position === 9) {
-			var chanceIndex = chanceCards.deck[game.chanceIndex];
-
-			game.popupAll("<i class=\"fa-solid fa-question\" style='font-size: xx-large; height: 1em; width: 1em; float: left; margin: 8px 8px 8px 0px;' ></i><div style='font-weight: bold; font-size: 16px; '>" + chanceCards[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards[chanceIndex].text + "</div>"); //TODO
-
-			chanceAction(game, chanceIndex);
-
-			game.chanceIndex++;
-
-			if (game.chanceIndex >= chanceCards.deck.length) {
-				game.chanceIndex = 0;
-			}
-		} else if (!p.human) {
-			if (!p.AI.onLand()) {
-				game.next();
-			}
-		}
-	} else {
-		// Chance
-		if (p.position === 3 || p.position === 9) {
-			if (game.chanceIndex >= chanceCards2.deck.length) {
-				game.chanceIndex = 0;
-			}
-
-			var chanceIndex = chanceCards2.deck[game.chanceIndex];
-
-			game.popupAll("<i class=\"fa-solid fa-question\" style='font-size: xx-large; height: 1em; width: 1em; float: left; margin: 8px 8px 8px 0px;' ></i><div style='font-weight: bold; font-size: 16px; '>" + chanceCards2[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards2[chanceIndex].text + "</div>");
-
-			chanceAction(game, chanceIndex);
-
-			game.chanceIndex++;
-
-			if (game.chanceIndex >= chanceCards2.deck.length) {
-				game.chanceIndex = 0;
-			}
-		} else if (!p.human) {
-			if (!p.AI.onLand()) {
-				game.next();
-			}
-		}
-	}
-}
-
-global.roll = function roll(game) {
-	var p = game.player[game.turn];
-
-	if (p == undefined) return;
-
-	if (p.human) {
-		game.sendRoll();
-		game.changeButton("nextbutton", "Spielzug beenden", "Spielzug beenden und zum/zur nächsten SpielerIn wechseln.");
-	}
-  
-	game.rollDice();
-	game.updateDice();
-	setTimeout(() => { move(game);}, 1000);
-
-}
-
-function move(game) {
-	var p = game.player[game.turn];
-	var die1 = game.getDie();
-
-	game.addAlert(p.name + " hat " + die1 + " gewürfelt.");
-
-	if (p.human) game.changeButton("nextbutton", "Spielzug beenden", "Spielzug beenden und zum/zur nächsten SpielerIn wechseln.");
-
-
-	p_old = p.position;
-	// Move player
-	p.position += die1;
-
-	// Pay interest as you pass GO
-	if (p_old < 6 && p.position >= 6) {
-		citytax(game);
-	}
-	if (p.position >= 12) {
-		p.position -= 12;
-		var kreditZinsen = Math.floor(p.sumKredit * game.zinssatz / 100);
-		game.meineBank.zinsenLotto += kreditZinsen
-		p.pay(kreditZinsen, 0);
-		if (p.money < 0) {
-			var dispoZinsen = Math.floor(-p.money * game.dispoZinssatz / 100);
-			game.meineBank.zinsenLotto += dispoZinsen
-			p.pay(dispoZinsen, 0);
-		}
-		
-		game.addAlert(p.name + " ist über Start gezogen und hat Zinsen auf Kredite gezahlt.");
-	}
-
-	game.updatePosition(p_old)
-	setTimeout(() => {land(game);}, 2000);
-}
-
-global.play = function play(game) {  
-
-	if (game.player[game.turn].human && game.player[game.turn].money < 0) {
-		game.popup("<p>Du hast dein Konto um " + (-game.player[game.turn].money) + " überzogen. Nimm einen Kredit auf, um Dispo-Zinsen zu vermeiden.</p>")
-	}
-
-	game.percent = 0;
-	game.discount = 0;
-	game.turn++;
-	if (game.turn > game.pcount) {
-		game.turn -= game.pcount;
-	}
-
-	if (game.socketUndefined() && game.player[game.turn].AI == null) return;
-	
-	var p = game.player[game.turn];
-	game.resetDice();
-	if (p.human) {
-		game.show("#nextbutton");
-		game.setHTML("pname", p.name);
-	}
-	game.addAlert(p.name + " ist an der Reihe.");
-
-	game.updateChart();
-
-	// Check for bankruptcy.
-	p.pay(0, p.creditor);
-
-	if (p.human) {
-		game.hide("#landed, #option, #manage, #audio");
-		game.show("#board, #control, #moneybar, #buy");
-
-		game.focusButton("nextbutton");
-		game.changeButton("nextbutton", "Würfeln", "Würfeln und Figur entsprechend vorrücken.");
-
-		game.hide("#die0");
-	}
-
-
-	for (var i in game.SOCKET_LIST) {
-		game.hide(".money-bar-arrow", i);
-		game.show("#p" + game.turn + "arrow", i);
-	}
-
-	if (!p.human) {
-		if (!p.AI.beforeTurn()) {
-			game.next();
-		}
-	}
-}
 
 function setup(isKapitalismus, playernumber, nieten) {
 	game.pcount = parseInt(playernumber);
@@ -868,7 +512,7 @@ function setup(isKapitalismus, playernumber, nieten) {
 	}
 
 	game.setup();
-	play(game);
+	game.play();
 }
 
 function loadWindow() {
@@ -910,35 +554,7 @@ const Card = require('./Card');
 var chanceCards = Card.chanceCards;
 var chanceCards2 = Card.chanceCards2;
 
-function citytax(game) {
-	game.addAlert(game.player[game.turn].name + " ist auf oder über das Feld Staat/Finanzamt gezogen und Steuern aufs Guthaben gezahlt.");
-	//TODO: ask to buy Vermögensgegenstände
-	var steuer = Math.floor(0.1 * game.player[game.turn].money);
-	game.player[game.turn].pay(steuer, 0);
-	game.meinStaat.steuer += steuer;
 
-	if (game.player[game.turn].color == "gold") {
-		for (var i = 0; i < game.pcount; i++) {
-			game.player[i+1].money += Math.floor(game.player[i+1].anleihen * (game.zinssatz / 100));
-			game.meinStaat.steuer -= Math.floor(game.player[i+1].anleihen * (game.zinssatz / 100));
-		}
-		game.meineBank.zinsenLotto += Math.floor(game.meineBank.anleihenBank * (game.zinssatz / 100));
-		game.meinStaat.zinsenLotto -= Math.floor(game.meineBank.anleihenBank * (game.zinssatz / 100));
-
-		game.addAlert(" Der Staat hat Zinsen auf alle Anleihen gezahlt.");
-	}
-
-	if (game.meinStaat.steuer < 0) {
-		if (game.phase = 1) {
-			game.phase = 2;
-			game.popupAll("Phase 2 beginnt.")
-		}
-		game.meineBank.geldMenge -= game.meinStaat.steuer;
-		game.meineBank.buyAnleihen(game.meinStaat.steuer);
-		game.meinStaat.staatsSchuld += game.meinStaat.steuer;
-		game.meinStaat.steuer = 0;
-	}
-}
 
 var AITest = require('./AI.js');
 const { kMaxLength } = require('node:buffer');const { generatePrimeSync } = require('node:crypto');
