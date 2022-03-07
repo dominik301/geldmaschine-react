@@ -68,7 +68,7 @@ function receiveBankguthaben(game) {
 		}
 		game.addAlert(p.name + " ist über Start gezogen und hat Zinsen auf Kredite gezahlt.");
 	}
-	updatePosition(game, p_old);
+	game.updatePosition(p_old);
 	land(game);
 }
 
@@ -173,7 +173,7 @@ chanceCards2[2] = new Card("Wasserrohrbruch","Zahle für die Reparatur 8.000 an 
 chanceCards2[3] = new Card("Studiengebühren","Deine Tochter macht ein Auslandssemester. Du unterstützt sie mit 15.000. Überweise an den Staat.", function(game) { 
 	payState(game,15000);});
 chanceCards2[4] = new Card("Investitionsbeihilfe","Der Staat übernimmt 10% deiner Baukosten, wenn du ein 2. Haus auf eins Deiner Grundstücke baust. Du darfst keine Miete dafür erheben. Steuerbegünstigter Leerstand um Geld in Umlauf zu bringen! Du kannst Kredit aufnehmen.", function(game) { 
-	game.percent=10; game.SOCKET_LIST[game.turn].emit('buyhouse2', true); updateOption(game);});
+	game.percent=10; game.buyHouse2(); game.updateOption();});
 chanceCards2[5] = new Card("Feuerschaden","Nach Hausbrand zahlt die Versicherung (Staat) 48.000. Du renovierst und überweist das Geld anteilig an alle.", function(game) { 
 	payState(game,-48000); payeachplayer(game, 48000, "Ereignisfeld");});
 chanceCards2[6] = new Card("Heizungsreparatur","Für die Reparatur bekommst du 10.000 von der Person rechts neben Dir.", function(game) { 
@@ -184,7 +184,7 @@ chanceCards2[7] = new Card("Steuerfahndung","Dir wurde Steuerhinterziehung nachg
 chanceCards2[8] = new Card("Feinstaubplaketten","Kaufe Plaketten für deinen Fahrzeugpark. Zahle 1.000 an den Staat.", function(game) { 
 	payState(game,1000);});
 chanceCards2[9] = new Card("Investitionsbeihilfe","Wenn Du jetzt baust, zahlt der Staat 20.000 dazu. Du darfst ein 2. Haus auf eins Deiner Grundstücke bauen, aber keine Miete dafür erheben. Steuerbegünstigter Leerstand um Geld in Umlauf zu bringen! Du kannst Kredit aufnehmen.", function(game) { 
-	game.discount=20000; game.SOCKET_LIST[game.turn].emit('buyhouse2', true); updateOption(game);});
+	game.discount=20000; game.buyHouse2(); game.updateOption();});
 chanceCards2[10] = new Card("Hackerangriff","Du hast die Bank gehackt und 80.000 erpresst. Die Bank schöpft das Geld durch Emission von Derivaten.", function(game) { 
 	receiveFromBank(game,80000,game.turn);});
 chanceCards2[11] = new Card("Einbauküche","Du kaufst für 24.000 eine Einbauküche. Überweise den Betrag anteilig an alle Mitspieler*innen", function(game) { 

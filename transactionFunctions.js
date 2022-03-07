@@ -26,7 +26,7 @@ exports.buy = function buy(game) {
 		game.updateOwned();
 		p.update();
 
-    	if (p.human) game.SOCKET_LIST[turn].emit('show', "#landed", false);
+    	if (p.human) game.hide("#landed");
 
 	} else {
 		game.popup("<p>" + p.name + ", du brauchst weitere " + (property.price - p.money) + " um " + property.name + " zu kaufen.</p>");
@@ -49,7 +49,7 @@ exports.mortgage = function mortgage(game, index) {
   var value = "Hypothek zurückzahlen für " + mortgagePrice;
   var title = "Hypothek auf " + sq.name + " zurückzahlen für " + mortgagePrice + ".";
 
-  	if (p.human) SOCKET_LIST[turn].emit('changeButton', "mortgagebutton", value, title);
+  	if (p.human) game.changeButton("mortgagebutton", value, title);
 
 	game.addAlert(p.name + " hat eine Hypothek auf " + sq.name + " für " + mortgagePrice + " aufgenommen.");
 	game.updateOwned();
@@ -109,7 +109,7 @@ exports.handleOffer = function handleOffer(game){
 			initiator.derivateBank -= derivate;
 			recipient.derivate += derivate;
 
-			addAlert(recipient.name + " hat Derivate im Wert von " + derivate + " von " + initiator.name + " erhalten.");
+			game.addAlert(recipient.name + " hat Derivate im Wert von " + derivate + " von " + initiator.name + " erhalten.");
 		} else if (derivate < 0) {
 			initiator.derivateBank -= derivate;
 			recipient.derivate += derivate;
@@ -220,11 +220,11 @@ exports.handleOffer = function handleOffer(game){
 			return;
 		} else {
 			game.tradeObj = result;
-			game.SOCKET_LIST[game.tradeObj.initiator.index].emit('receiveOffer', game.tradeObj);
+			game.receiveOffer(game.tradeObj.initiator.index);
 		}
 		return;
 	}
-    game.SOCKET_LIST[receiver].emit('receiveOffer', game.tradeObj);
+    game.receiveOffer(receiver);
 }
 
 exports.bid = function(game) {
@@ -244,7 +244,7 @@ exports.bid = function(game) {
 
 	}
 	if (game.player[game.currentbidder].human) {
-		game.SOCKET_LIST[game.currentbidder].emit("auction", game.auctionproperty, game.player, game.square, game.highestbidder, game.highestbid)
+		game.sendAuction();
 	} else {
 		game.player[game.currentbidder].AI.bid(game.auctionproperty, game.highestbid);
 	}

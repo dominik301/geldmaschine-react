@@ -1,39 +1,47 @@
-module.exports = function Game() {
-	this.SOCKET_LIST = {};
-	var die1;
-	var areDiceRolled = false;
+module.exports = class Game {
+	#die1;
+	#areDiceRolled;
+	#auctionQueue
+	constructor() {
+		this.SOCKET_LIST = {};
+		this.#areDiceRolled = false;
 
-	this.zinssatz = 5;
-	this.dispoZinssatz = 10;
+		this.zinssatz = 5;
+		this.dispoZinssatz = 10;
 
-	this.phase = 1;
+		this.phase = 1;
 
-	this.percent = 0;
-	this.discount = 0;
+		this.percent = 0;
+		this.discount = 0;
 
-	var auctionQueue = [];
-	this.highestbidder;
-	this.highestbid;
-	this.currentbidder = 1;
-	this.auctionproperty;
+		this.#auctionQueue = [];
+		this.highestbidder;
+		this.highestbid;
+		this.currentbidder = 1;
+		this.auctionproperty;
 
-	this.gameRunning = false;
-	this.timePassed = false;
+		this.gameRunning = false;
+		this.timePassed = false;
 
-	this.chanceIndex = 0;
+		this.chanceIndex = 0;
 
-	this.player = [];
-	this.pcount;
-	this.turn = 0;
-	var Bank = require('./Bank');
-	var Staat = require('./Staat');
-	this.meinStaat = new Staat();
-	this.meineBank = new Bank(this);
+		this.player = [];
+		this.pcount;
+		this.turn = 0;
+		var Bank = require('./Bank');
+		var Staat = require('./Staat');
+		this.meinStaat = new Staat();
+		this.meineBank = new Bank(this);
 
-	this.square = require('./Square.js').square;
+		this.square = require('./Square.js').square;
+	}
 
 	// Auction functions:
-	this.finalizeAuction = function() {
+	chooseProperty() {
+		this.SOCKET_LIST[this.turn].emit("chooseProperty", this.player, this.square);
+	}
+
+	finalizeAuction() {
 		var p = this.player[this.highestbidder];
 		var sq = this.square[this.auctionproperty];
 
@@ -52,16 +60,16 @@ module.exports = function Game() {
 		play();
 	};
 
-	this.addPropertyToAuctionQueue = function(propertyIndex) {
-		auctionQueue.push(propertyIndex);
+	addPropertyToAuctionQueue(propertyIndex) {
+		this.#auctionQueue.push(propertyIndex);
 	};
 
-	this.auction = function() {
-		if (auctionQueue.length === 0) {
+	auction() {
+		if (this.#auctionQueue.length === 0) {
 			return false;
 		}
 
-		var index = auctionQueue.shift();
+		var index = this.#auctionQueue.shift();
 
 		var s = this.square[index];
 
@@ -85,30 +93,36 @@ module.exports = function Game() {
 	};
 
 
-	this.rollDice = function() {
-		die1 = Math.floor(Math.random() * 6) + 1;
-		areDiceRolled = true;
+	rollDice() {
+		this.#die1 = Math.floor(Math.random() * 6) + 1;
+		this.#areDiceRolled = true;
 	};
 
-	this.resetDice = function() {
-		areDiceRolled = false;
+	resetDice() {
+		this.#areDiceRolled = false;
 	};
 
-	this.next = function() {
-		if (areDiceRolled) {
+	next() {
+		if (this.#areDiceRolled) {
 			play(this);
 		} else {
 			this.roll();
 		}
 	};
 
-	this.getDie = function() {
-		return die1;
+	getDie() {
+		return this.#die1;
 	};
+
+	updateDice() {
+		for(var i in this.SOCKET_LIST){
+			this.SOCKET_LIST[i].emit('updateDice', this.#die1);
+		}
+	}
 
 	// Credit functions:
 
-	this.kreditAufnehmen = function(amount, key=this.turn) {
+	kreditAufnehmen(amount, key=this.turn) {
 		var initiator = this.player[key];
 		initiator.update();
 
@@ -120,7 +134,7 @@ module.exports = function Game() {
 		initiator.kreditAufnehmen(amount);
 	}
 
-	this.kreditTilgen = function(amount,key=this.turn) {
+	kreditTilgen(amount,key=this.turn) {
     	var initiator = this.player[key];
 
 		if (amount > initiator.money) {
@@ -134,7 +148,7 @@ module.exports = function Game() {
 	// Bankrupcy functions:
 
 
-	this.eliminatePlayer = function(key=this.turn) {
+	eliminatePlayer(key=this.turn) {
 		var p = this.player[key];
 		if (p==undefined) return;
 
@@ -193,7 +207,7 @@ module.exports = function Game() {
 		}
 	};
 
-	function bankruptcyUnmortgage() {
+	#bankruptcyUnmortgage() {
 		var p = this.player[this.turn];
 
 		if (p.creditor === 0) {
@@ -233,11 +247,11 @@ module.exports = function Game() {
     	this.eliminatePlayer();
 	};
 
-	this.resign = function() {
-		bankruptcy();
+	resign = function() {
+		this.#bankruptcy();
 	};
 
-	function bankruptcy() {
+	#bankruptcy() {
 		var p = this.player[this.turn];
 		var pcredit = this.player[p.creditor];
 		var bankruptcyUnmortgageFee = 0;
@@ -284,29 +298,119 @@ module.exports = function Game() {
 			this.eliminatePlayer();
 		} else {
 			//addAlert(pcredit.name + " paid $" + bankruptcyUnmortgageFee + " interest on the mortgaged properties received from " + p.name + ".");
-			//popup("<p>" + pcredit.name + ", you must pay $" + bankruptcyUnmortgageFee + " interest on the mortgaged properties you received from " + p.name + ".</p>");
+			//this.popup("<p>" + pcredit.name + ", you must pay $" + bankruptcyUnmortgageFee + " interest on the mortgaged properties you received from " + p.name + ".</p>");
 			this.player[pcredit.index].pay(bankruptcyUnmortgageFee, 0); 
-     		bankruptcyUnmortgage();
+     		this.#bankruptcyUnmortgage();
 		}
 	};
 
-	this.popup = function(HTML, option, doMortgage, key=this.turn) {
-		popup(this, HTML, option, doMortgage, key)
+	popup(HTML, option, doMortgage, key=this.turn) {
+		if (!this.player[key].human) return;
+  		this.SOCKET_LIST[key].emit('popup', HTML, option, doMortgage);
 	}
 
-	this.updateOwned = function() {
-		updateOwned(this);
+	popupAll(HTML, option, doMortgage) {
+		for (var i in this.SOCKET_LIST) {
+			this.SOCKET_LIST[i].emit('popup', HTML, option, doMortgage);
+		}
 	}
 
-	this.updateMoney = function() {
-		updateMoney(this);
+	updateOwned() {
+		for(var i in this.SOCKET_LIST){
+			this.SOCKET_LIST[i].emit('updateOwned', this.player, this.square);
+		}
+		
+		this.updateOption();
 	}
 
-	this.addAlert = function(alertText) {
-		addAlert(this, alertText);
+	updateMoney() {
+		for(var i in this.SOCKET_LIST){
+			this.SOCKET_LIST[i].emit('updateMoney', this.player, this.turn, this.meineBank, this.meinStaat, this.pcount);
+		  }
 	}
 
-	this.roll = function() {
+	updateOption(key=this.turn) {
+		if (this.SOCKET_LIST[key] == undefined) return;
+		this.SOCKET_LIST[key].emit('updateOption', this.square);
+	}
+
+	addAlert(alertText) {
+		for(var i in this.SOCKET_LIST){
+			this.SOCKET_LIST[i].emit('addAlert', alertText);
+	  }
+	}	
+	
+	updatePosition(p_old) {
+		for (var i in this.SOCKET_LIST) {
+			this.SOCKET_LIST[i].emit("updatePosition", this.turn, p_old, this.player[this.turn]);
+		}
+	}
+
+	roll() {
 		roll(this);
+	}
+
+	buyHouse2(buy=true) {
+		this.SOCKET_LIST[this.turn].emit('buyhouse2', buy)
+	}
+
+	showStats(HTML, key) {
+		this.SOCKET_LIST[key].emit('showstats', HTML);
+	}
+
+	show(item, key=this.turn) {
+		this.SOCKET_LIST[key].emit('show', item, true);
+	}
+
+	hide(item, key=this.turn) {
+		this.SOCKET_LIST[key].emit('show', item, false);
+	}
+
+	changeButton(button, value, title, key=this.turn) {
+		this.SOCKET_LIST[key].emit('changeButton', button, value, title);
+	}
+
+	receiveOffer(key=this.turn) {
+		this.SOCKET_LIST[key].emit('receiveOffer', this.tradeObj);
+	}
+
+	sendAuction() {
+		this.SOCKET_LIST[this.currentbidder].emit("auction", this.auctionproperty, this.player, this.square, this.highestbidder, this.highestbid)
+	}
+
+	setup() {
+		for(var i in this.SOCKET_LIST){
+			this.show("#control, #board, #moneybar, #icon-bar", i);
+			this.hide("#setup, #nextbutton, #resignbutton, #creditbutton", i);
+			this.SOCKET_LIST[i].emit('displayFigures', this.player, this.pcount);
+			this.SOCKET_LIST[i].emit('updateSquare', this.square);
+		  } 
+	}
+
+	updateChart() {
+		for (var i in this.SOCKET_LIST) {
+			this.SOCKET_LIST[i].emit('updateChart');
+		}
+	}
+
+	sendRoll(key=this.turn) {
+		this.SOCKET_LIST[key].emit('roll');
+	}
+
+	setHTML(item, text, key=this.turn) {
+		this.SOCKET_LIST[key].emit('setHTML', item, text);
+	}
+
+	socketUndefined(key=this.turn) {
+		return this.SOCKET_LIST[key] == undefined
+	}
+
+	focusButton(button, key=this.turn) {
+		this.SOCKET_LIST[key].emit('focusbutton', button);
+	}
+
+	showdeed(property, key=this.turn) {
+		var sq = this.square[property];
+		this.SOCKET_LIST[key].emit('showdeed', sq);
 	}
 }

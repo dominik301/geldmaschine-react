@@ -60,5 +60,5 @@ module.exports = function showStats(game, key) {
 	}
 	HTML += "</tr></table><div id='titledeed'></div>";
 
-  	game.SOCKET_LIST[key].emit('showstats', HTML);
+  	game.showStats(HTML, key);
 }

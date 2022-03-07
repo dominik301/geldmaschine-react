@@ -201,7 +201,7 @@ io.sockets.on('connection', function(socket){
 
   socket.on('updateOption', function() {
 	let game = socket2game[socket.id];
-	  updateOption(game);
+	  game.updateOption();
 });
 
   socket.on('showstats', function() {
@@ -231,7 +231,7 @@ io.sockets.on('connection', function(socket){
 	let game = socket2game[socket.id];
 	Object.keys(game.SOCKET_LIST).forEach(function eachKey(key) {
 		if(game.SOCKET_LIST[key] == socket){
-			showdeed(game, property, key);
+			game.showdeed(property, key);
 		}
 	});
   })
@@ -425,45 +425,6 @@ Array.prototype.randomize = function(length) {
 	}
 };
 
-global.addAlert = function addAlert(game, alertText) {
-	for(var i in game.SOCKET_LIST){
-		game.SOCKET_LIST[i].emit('addAlert', alertText);
-  }
-}
-
-
-global.updatePosition = function updatePosition(game, p_old) {
-	for (var i in game.SOCKET_LIST) {
-		game.SOCKET_LIST[i].emit("updatePosition", game.turn, p_old, game.player[game.turn]);
-	}
-}
-
-global.updateMoney = function updateMoney(game) {
-  for(var i in game.SOCKET_LIST){
-    game.SOCKET_LIST[i].emit('updateMoney', game.player, game.turn, game.meineBank, game.meinStaat, game.pcount);
-  }
-}
-
-function updateDice(game) {
-	var die0 = game.getDie();
-  for(var i in game.SOCKET_LIST){
-    game.SOCKET_LIST[i].emit('updateDice', die0);
-  }
-}
-
-global.updateOwned = function updateOwned(game) {
-  for(var i in game.SOCKET_LIST){
-    game.SOCKET_LIST[i].emit('updateOwned', game.player, game.square);
-  }
-  
-  updateOption(game);
-}
-
-global.updateOption = function updateOption(game) {
-	if (game.SOCKET_LIST[game.turn] == undefined) return;
-	game.SOCKET_LIST[game.turn].emit('updateOption', game.square);
-}
-
 function chanceAction(game, chanceIndex) {
 	var p = game.player[game.turn]; // This is needed for reference in action() method.
 
@@ -472,7 +433,7 @@ function chanceAction(game, chanceIndex) {
 	else
 		chanceCards2[chanceIndex].action(game);
 
-	updateMoney(game);
+	game.updateMoney();
 
 	if (!p.human) {
 		setTimeout(() => { game.next();}, 5000);
@@ -511,9 +472,7 @@ global.payState = function payState(game, amount, reason="") {
 	if (game.meinStaat.steuer < 0) {
 		if (game.phase = 1) {
 			game.phase = 2;
-			for (var i in game.SOCKET_LIST) {
-				game.SOCKET_LIST[i].emit("popup", "Phase 2 beginnt.");
-			}
+			game.popupAll("Phase 2 beginnt.");
 		}
 		game.meineBank.geldMenge -= game.meinStaat.steuer;
 		game.meineBank.buyAnleihen(-game.meinStaat.steuer);
@@ -565,8 +524,8 @@ global.buyHouse = function buyHouse(game, index) {
 	sq.house++;
     game.addAlert(p.name + " hat ein Haus in der " + sq.name + " gekauft.");
 	payState(game, price - sq.houseprice);
-	if (game.SOCKET_LIST[game.turn])
-		game.SOCKET_LIST[game.turn].emit('buyhouse2', false);
+	if (!game.socketUndefined())
+		game.buyHouse2(false);
 	else {
 		return;
 	}
@@ -576,14 +535,14 @@ global.buyHouse = function buyHouse(game, index) {
 
   payeachplayer(game, sq.houseprice, "Hauskauf");
 
-  updateOwned(game);
-  updateMoney(game);
+  game.updateOwned();
+  game.updateMoney();
 	
 }
 
 global.auctionHouse = function auctionHouse(game) {
 	if (game.player[game.turn].human) {
-		game.SOCKET_LIST[game.turn].emit("chooseProperty", game.player, game.square)
+		game.chooseProperty();
 	} else {
 		// choose property at random
 		var properties = new Array();
@@ -598,11 +557,6 @@ global.auctionHouse = function auctionHouse(game) {
 		game.auction();
 	}
 
-}
-
-function showdeed(game, property, key) {
-	var sq = game.square[property];
-	game.SOCKET_LIST[key].emit('showdeed', sq);
 }
 
 global.unmortgage = function unmortgage(game, index) {
@@ -620,10 +574,10 @@ global.unmortgage = function unmortgage(game, index) {
   	let value = "Hypothek aufnehmen für " + mortgagePrice;
   	let title = "Hypothek auf " + sq.name + " für " + mortgagePrice + " aufnehmen.";
 
-  	if (p.human) game.SOCKET_LIST[game.turn].emit('changeButton', "mortgagebutton", value, title);
+  	if (p.human) game.changeButton("mortgagebutton", value, title);
 
 	game.addAlert(p.name + " hat die Hypothek für " + sq.name + " für " + unmortgagePrice + " zurückgezahlt.");
-	updateOwned(game);
+	game.updateOwned();
 	return true;
 }
 
@@ -633,8 +587,8 @@ global.land = function land(game) {
 	var s = game.square[p.position];
 
 	if (p.human) {
-		game.SOCKET_LIST[game.turn].emit('show', "#landed", true);
-		game.SOCKET_LIST[game.turn].emit('setHTML', "landed", "Du bist auf " + s.name + " gelandet.");
+		game.show("#landed");
+		game.setHTML("landed", "Du bist auf " + s.name + " gelandet.");
 	}
 	
 	s.landcount++;
@@ -647,7 +601,7 @@ global.land = function land(game) {
 				tf.buy(game);
 			}
 		} else {
-			game.SOCKET_LIST[game.turn].emit('setHTML', "landed", "<div>Du bist auf <a href='javascript:void(0);' onmouseover='showdeed(" + p.position + ");' onmouseout='hidedeed();' class='statscellcolor'>" + s.name + "</a> gelandet.<input type='button' onclick='buy();' value='Kaufe (" + s.price + ")' title='Kaufe " + s.name + " für " + s.houseprice + ".'/></div>");
+			game.setHTML("landed", "<div>Du bist auf <a href='javascript:void(0);' onmouseover='showdeed(" + p.position + ");' onmouseout='hidedeed();' class='statscellcolor'>" + s.name + "</a> gelandet.<input type='button' onclick='buy();' value='Kaufe (" + s.price + ")' title='Kaufe " + s.name + " für " + s.houseprice + ".'/></div>");
 		}
 	}
 
@@ -663,10 +617,10 @@ global.land = function land(game) {
 		p.pay(rent, s.owner);
 		game.player[s.owner].money += rent;
 
-    	if (p.human) game.SOCKET_LIST[game.turn].emit('setHTML', "landed", "Du bist auf " + s.name + " gelandet. " + game.player[s.owner].name + " hat " + rent + " Miete kassiert.");
+    	if (p.human) game.setHTML("landed", "Du bist auf " + s.name + " gelandet. " + game.player[s.owner].name + " hat " + rent + " Miete kassiert.");
 	}
 
-	updateMoney(game);
+	game.updateMoney();
 
 	chanceCommunityChest(game);
 }
@@ -679,7 +633,7 @@ function chanceCommunityChest(game) {
 		if (p.position === 3 || p.position === 9) {
 			var chanceIndex = chanceCards.deck[game.chanceIndex];
 
-			popupAll(game,"<i class=\"fa-solid fa-question\" style='font-size: xx-large; height: 1em; width: 1em; float: left; margin: 8px 8px 8px 0px;' ></i><div style='font-weight: bold; font-size: 16px; '>" + chanceCards[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards[chanceIndex].text + "</div>"); //TODO
+			game.popupAll("<i class=\"fa-solid fa-question\" style='font-size: xx-large; height: 1em; width: 1em; float: left; margin: 8px 8px 8px 0px;' ></i><div style='font-weight: bold; font-size: 16px; '>" + chanceCards[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards[chanceIndex].text + "</div>"); //TODO
 
 			chanceAction(game, chanceIndex);
 
@@ -702,7 +656,7 @@ function chanceCommunityChest(game) {
 
 			var chanceIndex = chanceCards2.deck[game.chanceIndex];
 
-			popupAll(game, "<i class=\"fa-solid fa-question\" style='font-size: xx-large; height: 1em; width: 1em; float: left; margin: 8px 8px 8px 0px;' ></i><div style='font-weight: bold; font-size: 16px; '>" + chanceCards2[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards2[chanceIndex].text + "</div>");
+			game.popupAll("<i class=\"fa-solid fa-question\" style='font-size: xx-large; height: 1em; width: 1em; float: left; margin: 8px 8px 8px 0px;' ></i><div style='font-weight: bold; font-size: 16px; '>" + chanceCards2[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards2[chanceIndex].text + "</div>");
 
 			chanceAction(game, chanceIndex);
 
@@ -725,12 +679,12 @@ global.roll = function roll(game) {
 	if (p == undefined) return;
 
 	if (p.human) {
-		game.SOCKET_LIST[game.turn].emit('roll');
-		game.SOCKET_LIST[game.turn].emit('changeButton', "nextbutton", "Spielzug beenden", "Spielzug beenden und zum/zur nächsten SpielerIn wechseln.");
+		game.sendRoll();
+		game.changeButton("nextbutton", "Spielzug beenden", "Spielzug beenden und zum/zur nächsten SpielerIn wechseln.");
 	}
   
 	game.rollDice();
-	updateDice(game);
+	game.updateDice();
 	setTimeout(() => { move(game);}, 1000);
 
 }
@@ -741,7 +695,7 @@ function move(game) {
 
 	game.addAlert(p.name + " hat " + die1 + " gewürfelt.");
 
-	if (p.human) game.SOCKET_LIST[game.turn].emit('changeButton', "nextbutton", "Spielzug beenden", "Spielzug beenden und zum/zur nächsten SpielerIn wechseln.");
+	if (p.human) game.changeButton("nextbutton", "Spielzug beenden", "Spielzug beenden und zum/zur nächsten SpielerIn wechseln.");
 
 
 	p_old = p.position;
@@ -766,7 +720,7 @@ function move(game) {
 		game.addAlert(p.name + " ist über Start gezogen und hat Zinsen auf Kredite gezahlt.");
 	}
 
-	updatePosition(game, p_old)
+	game.updatePosition(p_old)
 	setTimeout(() => {land(game);}, 2000);
 }
 
@@ -783,37 +737,35 @@ global.play = function play(game) {
 		game.turn -= game.pcount;
 	}
 
-	if (game.SOCKET_LIST[game.turn] == undefined && game.player[game.turn].AI == null) return;
+	if (game.socketUndefined() && game.player[game.turn].AI == null) return;
 	
 	var p = game.player[game.turn];
 	game.resetDice();
 	if (p.human) {
-		game.SOCKET_LIST[game.turn].emit('show', "#nextbutton", true);
-		game.SOCKET_LIST[game.turn].emit('setHTML', "pname", p.name);
+		game.show("#nextbutton");
+		game.setHTML("pname", p.name);
 	}
 	game.addAlert(p.name + " ist an der Reihe.");
 
-	for (var i in game.SOCKET_LIST) {
-		game.SOCKET_LIST[i].emit('updateChart');
-	}
+	game.updateChart();
 
 	// Check for bankruptcy.
 	p.pay(0, p.creditor);
 
 	if (p.human) {
-		game.SOCKET_LIST[game.turn].emit('show', "#landed, #option, #manage, #audio", false);
-		game.SOCKET_LIST[game.turn].emit('show', "#board, #control, #moneybar, #buy", true);
+		game.hide("#landed, #option, #manage, #audio");
+		game.show("#board, #control, #moneybar, #buy");
 
-		game.SOCKET_LIST[game.turn].emit('focusbutton', "nextbutton");
-		game.SOCKET_LIST[game.turn].emit('changeButton', "nextbutton", "Würfeln", "Würfeln und Figur entsprechend vorrücken.");
+		game.focusButton("nextbutton");
+		game.changeButton("nextbutton", "Würfeln", "Würfeln und Figur entsprechend vorrücken.");
 
-		game.SOCKET_LIST[game.turn].emit('show', "#die0", false);
+		game.hide("#die0");
 	}
 
 
 	for (var i in game.SOCKET_LIST) {
-		game.SOCKET_LIST[i].emit('show', ".money-bar-arrow", false);
-		game.SOCKET_LIST[i].emit('show', "#p" + game.turn + "arrow", true);
+		game.hide(".money-bar-arrow", i);
+		game.show("#p" + game.turn + "arrow", i);
 	}
 
 	if (!p.human) {
@@ -887,7 +839,7 @@ function setup(isKapitalismus, playernumber, nieten) {
 				property.owner = playerArray[i - 1];
 				game.addAlert(p.name + " hat " + property.name + " erhalten.");
 
-				//updateOwned();
+				//game.updateOwned();
 			}
 			p.update();
 		}	
@@ -915,24 +867,8 @@ function setup(isKapitalismus, playernumber, nieten) {
 		}
 	}
 
-  for(var i in game.SOCKET_LIST){
-    game.SOCKET_LIST[i].emit('show', "#control, #board, #moneybar, #icon-bar", true);
-    game.SOCKET_LIST[i].emit('show', "#setup, #nextbutton, #resignbutton, #creditbutton", false);
-	game.SOCKET_LIST[i].emit('displayFigures', game.player, game.pcount);
-	game.SOCKET_LIST[i].emit('updateSquare', game.square);
-  }  
+	game.setup();
 	play(game);
-}
-
-global.popup = function popup(game, HTML, option, doMortgage, key) {
-	if (!game.player[key].human) return;
-  	game.SOCKET_LIST[key].emit('popup', HTML, option, doMortgage);
-}
-
-function popupAll(game, HTML, option, doMortgage) {
-	for (var i in game.SOCKET_LIST) {
-		game.SOCKET_LIST[i].emit('popup', HTML, option, doMortgage);
-	}
 }
 
 function loadWindow() {
@@ -965,9 +901,9 @@ function loadWindow() {
 	chanceCards.deck.sort(function() {return Math.random() - 0.5;});
 	chanceCards2.deck.sort(function() {return Math.random() - 0.5;});
 
-  for(var i in SOCKET_LIST){
-    SOCKET_LIST[i].emit('setupsquares', game.square);
-  }
+	for(var i in SOCKET_LIST){
+		SOCKET_LIST[i].emit('setupsquares', game.square);
+	  }
 }
 
 const Card = require('./Card');
@@ -995,9 +931,7 @@ function citytax(game) {
 	if (game.meinStaat.steuer < 0) {
 		if (game.phase = 1) {
 			game.phase = 2;
-			for (var i in game.SOCKET_LIST) {
-				game.SOCKET_LIST[i].emit("popup", "Phase 2 beginnt.");
-			}
+			game.popupAll("Phase 2 beginnt.")
 		}
 		game.meineBank.geldMenge -= game.meinStaat.steuer;
 		game.meineBank.buyAnleihen(game.meinStaat.steuer);

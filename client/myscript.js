@@ -1961,7 +1961,6 @@ function showdeed(property) {
     socket.emit('showdeed', property)
 }
 
-var auctionQueue = [];
 var highestbidder;
 var highestbid;
 var currentbidder = 1;
