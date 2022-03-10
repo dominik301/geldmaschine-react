@@ -1,10 +1,11 @@
-const cacheName = 'geldmaschine-v1';
+const cacheName = 'geldmaschine-v2';
 const appShellFiles = [
   'client/',
   'client/myscript.js',
   'client/styles.css',
   'client/favicon.ico',
   'client/short-dice-roll.wav',
+  'client/dice-roll.mp3',
   'client/images/ereignisfeld.png',
   'client/images/hori-bar.png',
   'client/images/vert-bar.png',

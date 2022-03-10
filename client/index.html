@@ -4,13 +4,14 @@
 	<title>Geldmaschine</title>
 	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
 
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js"></script>
 	<script src="https://kit.fontawesome.com/3a8cad677a.js" crossorigin="anonymous"></script>
 	<script src="./client/myscript.js" defer></script>
 	<link rel="icon" type="image/x-icon" href="./client/favicon.ico">
 	<link rel="stylesheet" type="text/css" href="./client/styles.css" />
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/qtip2/3.0.3/basic/jquery.qtip.min.css" />
 	<link rel="manifest" href="./client/manifest.webmanifest" />
 </head>
 
@@ -143,7 +144,7 @@
 						<div>Guthaben: <span id="p1money">1500</span></div>
 						<div class="moneyopt" >Kredit: <span id="p1credit" class="player-credit">0</span></div>
 						<div class="moneyopt" >Dispokredit: <span id="p1dispocredit" class="player-credit">0</span></div>
-                        <div class="moneyopt" >verfügbare Kreditsumme: <span id="p1avcredit" class="player-avcredit">0</span></div>
+                        <div class="moneyopt" title="Summe aus Anleihen, Derivaten und Immobilien (inkl.Häusern.)">verfügbare Kreditsumme: <span id="p1avcredit" class="player-avcredit">0</span></div>
                         <div class="moneyopt" >Anleihen: <span id="p1anleihen" class="player-anleihen">0</span></div>
                         <div class="moneyopt" >Derivate: <span id="p1derivate" class="player-derivate">0</span></div>
 						<div>
@@ -488,6 +489,8 @@
 			</tr>
 		</table>
 	</div>
+
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/qtip2/3.0.3/basic/jquery.qtip.min.js"></script>
 
 </body>
 </html>

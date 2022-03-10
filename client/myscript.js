@@ -1222,7 +1222,7 @@ function updateOwned(player, _square) {
     } else if (firstproperty > -1) {
         document.getElementById("propertycheckbox" + firstproperty).checked = true;
     }
-    $(".property-cell-row").click(function() {
+    $(".property-cell-row").on('click', function() {
         var row = this;
 
         // Toggle check the current checkbox.
@@ -1889,7 +1889,7 @@ function setName() {
         // Cancel the default action, if needed
         event.preventDefault();
         // Trigger the button element with a click
-        document.getElementById("namebutton").click();
+        document.getElementById("namebutton").on('click', );
     }
     }); 
 
@@ -2070,7 +2070,7 @@ socket.on("chooseProperty", function(player, square) {
     } else if (firstproperty > -1) {
         document.getElementById("propertycheckbox" + firstproperty).checked = true;
     }
-    $(".property-cell-row").click(function() {
+    $(".property-cell-row").on('click', function() {
         var row = this;
 
         // Toggle check the current checkbox.
@@ -2300,7 +2300,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
   });  
 
   $(document).ready(function () {
-    $('#icon-bar a').click(function(e) {
+    $('#icon-bar a').on('click', function(e) {
 
         $('#icon-bar a.active').removeClass('active');
 
@@ -2308,7 +2308,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
     });
 
-    $('.max-button').click(function(e) {
+    $('.max-button').on('click', function(e) {
 
         var $parent = $(this).parent().parent();
         $parent.children(".moneyopt").show();
@@ -2318,7 +2318,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
     });
 
-    $('.min-button').click(function(e) {
+    $('.min-button').on('click', function(e) {
 
         var $parent = $(this).parent().parent();
         $parent.children(".moneyopt").hide();
@@ -2333,3 +2333,10 @@ var online;
   window.addEventListener("load", () => {
     online = navigator.onLine;
   });
+
+$('[title!=""]').qtip({
+    suppress: 'false',
+    show: {
+        event: 'click'
+    }
+});
