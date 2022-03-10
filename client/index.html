@@ -4,10 +4,15 @@
 	<title>Geldmaschine</title>
 	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
 
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js"></script>
+	<script src="https://kit.fontawesome.com/3a8cad677a.js" crossorigin="anonymous"></script>
+	<script src="./client/myscript.js" defer></script>
+	<link rel="icon" type="image/x-icon" href="./client/favicon.ico">
 	<link rel="stylesheet" type="text/css" href="./client/styles.css" />
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/qtip2/3.0.3/basic/jquery.qtip.min.css" />
+	<link rel="manifest" href="./client/manifest.webmanifest" />
 </head>
 
 <body>
@@ -15,7 +20,6 @@
 	<div id="popupwrap">
 		<div id="popup">
 			<div style="position: relative;">
-				<!-- <img id="popupclose" src="./client/images/close.png" title="Close" alt="x" onclick="hide('popupbackground'); hide('popupwrap');" /> -->
 				<div id="popuptext"></div>
 				<div id="popupdrag"></div>
 			</div>
@@ -26,9 +30,22 @@
 	<div id="statswrap">
 		<div id="stats">
 			<div style="position: relative;">
-				<img id="statsclose" src="./client/images/close.png" title="Close" alt="x" />
+				<span id="statsclose" title="Schließen"><i class="fa-solid fa-circle-xmark"></i></span>
 				<div id="statstext"></div>
 				<div id="statsdrag"></div>
+			</div>
+		</div>
+	</div>
+
+	<div id="graphwrap">
+		<div id="mgraph">
+			<div style="position: relative;">
+				<span id="graphclose" title="Schließen"><i class="fa-solid fa-circle-xmark"></i></span>
+				<div id="graphtext"><span>Spielverlauf</span></div>
+				<div id="graphdrag"></div>
+				<div id="graph">
+					<canvas id="myChart" width="183px" height="150px"></canvas>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -116,84 +133,108 @@
 			<td class="cell board-corner" id="cell0"></td>
 		</tr>
 	</table>
-
+	
 	<div id="moneybarwrap">
 		<div id="moneybar">
 			<table>
 				<tr id="moneybarrow1" class="money-bar-row">
-					<td class="moneybararrowcell"><img src="./client/images/arrow.png" id="p1arrow" class="money-bar-arrow" alt=">"/></td>
+					<td class="moneybararrowcell"><span><i id="p1arrow" class="money-bar-arrow fa-solid fa-arrow-right"></i></span></td>
 					<td id="p1moneybar" class="moneybarcell">
 						<div><span id="p1moneyname" >Player 1</span>:</div>
 						<div>Guthaben: <span id="p1money">1500</span></div>
-						<div>Kredit: <span id="p1credit" class="player-credit">0</span></div>
-						<div>Dispokredit: <span id="p1dispocredit" class="player-credit">0</span></div>
-                        <div>verfügbare Kreditsumme: <span id="p1avcredit" class="player-avcredit">0</span></div>
-                        <div>Anleihen: <span id="p1anleihen" class="player-anleihen">0</span></div>
-                        <div>Derivate: <span id="p1derivate" class="player-derivate">0</span></div>
+						<div class="moneyopt" >Kredit: <span id="p1credit" class="player-credit">0</span></div>
+						<div class="moneyopt" >Dispokredit: <span id="p1dispocredit" class="player-credit">0</span></div>
+                        <div class="moneyopt" title="Summe aus Anleihen, Derivaten und Immobilien (inkl.Häusern.)">verfügbare Kreditsumme: <span id="p1avcredit" class="player-avcredit">0</span></div>
+                        <div class="moneyopt" >Anleihen: <span id="p1anleihen" class="player-anleihen">0</span></div>
+                        <div class="moneyopt" >Derivate: <span id="p1derivate" class="player-derivate">0</span></div>
+						<div>
+							<button class="max-button" ><i class="fa-solid fa-maximize"></i></button>
+							<button class="min-button" style="display: none;" ><i class="fa-solid fa-minimize"></i></button>
+						</div>
 					</td>
 				</tr>
 				<tr id="moneybarrow2" class="money-bar-row">
-					<td class="moneybararrowcell"><img src="./client/images/arrow.png" id="p2arrow" class="money-bar-arrow" alt=">" /></td>
+					<td class="moneybararrowcell"><span><i id="p2arrow" class="money-bar-arrow fa-solid fa-arrow-right"></i></span></td>
 					<td id="p2moneybar" class="moneybarcell">
 						<div><span id="p2moneyname" >Player 2</span>:</div>
 						<div>Guthaben: <span id="p2money">1500</span></div>
-						<div>Kredit: <span id="p2credit" class="player-credit">1500</span></div>
-						<div>Dispokredit: <span id="p2dispocredit" class="player-credit">0</span></div>
-                        <div>verfügbare Kreditsumme: <span id="p2avcredit" class="player-avcredit">0</span></div>
-                        <div>Anleihen: <span id="p2anleihen" class="player-anleihen">0</span></div>
-                        <div>Derivate: <span id="p2derivate" class="player-derivate">0</span></div>
+						<div class="moneyopt" >Kredit: <span id="p2credit" class="player-credit">1500</span></div>
+						<div class="moneyopt" >Dispokredit: <span id="p2dispocredit" class="player-credit">0</span></div>
+                        <div class="moneyopt" >verfügbare Kreditsumme: <span id="p2avcredit" class="player-avcredit">0</span></div>
+                        <div class="moneyopt" >Anleihen: <span id="p2anleihen" class="player-anleihen">0</span></div>
+                        <div class="moneyopt" >Derivate: <span id="p2derivate" class="player-derivate">0</span></div>
+						<div>
+							<button class="max-button" ><i class="fa-solid fa-maximize"></i></button>
+							<button class="min-button" style="display: none;" ><i class="fa-solid fa-minimize"></i></button>
+						</div>
 					</td>
 				</tr>
 				<tr id="moneybarrow3" class="money-bar-row">
-					<td class="moneybararrowcell"><img src="./client/images/arrow.png" id="p3arrow" class="money-bar-arrow" alt=">" /></td>
+					<td class="moneybararrowcell"><span><i id="p3arrow" class="money-bar-arrow fa-solid fa-arrow-right"></i></span></td>
 					<td id="p3moneybar" class="moneybarcell">
 						<div><span id="p3moneyname" >Player 3</span>:</div>
 						<div>Guthaben: <span id="p3money">1500</span></div>
-						<div>Kredit: <span id="p3credit" class="player-credit">1500</span></div>
-						<div>Dispokredit: <span id="p3dispocredit" class="player-credit">0</span></div>
-                        <div>verfügbare Kreditsumme: <span id="p3avcredit" class="player-avcredit">0</span></div>
-                        <div>Anleihen: <span id="p3anleihen" class="player-anleihen">0</span></div>
-                        <div>Derivate: <span id="p3derivate" class="player-derivate">0</span></div>
+						<div class="moneyopt" >Kredit: <span id="p3credit" class="player-credit">1500</span></div>
+						<div class="moneyopt" >Dispokredit: <span id="p3dispocredit" class="player-credit">0</span></div>
+                        <div class="moneyopt" >verfügbare Kreditsumme: <span id="p3avcredit" class="player-avcredit">0</span></div>
+                        <div class="moneyopt" >Anleihen: <span id="p3anleihen" class="player-anleihen">0</span></div>
+                        <div class="moneyopt" >Derivate: <span id="p3derivate" class="player-derivate">0</span></div>
+						<div>
+							<button class="max-button" ><i class="fa-solid fa-maximize"></i></button>
+							<button class="min-button" style="display: none;" ><i class="fa-solid fa-minimize"></i></button>
+						</div>
 					</td>
 				</tr>
 				<tr id="moneybarrow4" class="money-bar-row">
-					<td class="moneybararrowcell"><img src="./client/images/arrow.png" id="p4arrow" class="money-bar-arrow" alt=">" /></td>
+					<td class="moneybararrowcell"><span><i id="p4arrow" class="money-bar-arrow fa-solid fa-arrow-right"></i></span></td>
 					<td id="p4moneybar" class="moneybarcell">
 						<div><span id="p4moneyname" >Player 4</span>:</div>
 						<div>Guthaben: <span id="p4money">1500</span></div>
-						<div>Kredit: <span id="p4credit" class="player-credit">1500</span></div>
-						<div>Dispokredit: <span id="p4dispocredit" class="player-credit">0</span></div>
-                        <div>verfügbare Kreditsumme: <span id="p4avcredit" class="player-avcredit">0</span></div>
-                        <div>Anleihen: <span id="p4anleihen" class="player-anleihen">0</span></div>
-                        <div>Derivate: <span id="p4derivate" class="player-derivate">0</span></div>
+						<div class="moneyopt" >Kredit: <span id="p4credit" class="player-credit">1500</span></div>
+						<div class="moneyopt" >Dispokredit: <span id="p4dispocredit" class="player-credit">0</span></div>
+                        <div class="moneyopt" >verfügbare Kreditsumme: <span id="p4avcredit" class="player-avcredit">0</span></div>
+                        <div class="moneyopt" >Anleihen: <span id="p4anleihen" class="player-anleihen">0</span></div>
+                        <div class="moneyopt" >Derivate: <span id="p4derivate" class="player-derivate">0</span></div>
+						<div>
+							<button class="max-button" ><i class="fa-solid fa-maximize"></i></button>
+							<button class="min-button" style="display: none;" ><i class="fa-solid fa-minimize"></i></button>
+						</div>
 					</td>
 				</tr>
 				<tr id="moneybarrow5" class="money-bar-row">
-					<td class="moneybararrowcell"><img src="./client/images/arrow.png" id="p5arrow" class="money-bar-arrow" alt=">" /></td>
+					<td class="moneybararrowcell"><span><i id="p5arrow" class="money-bar-arrow fa-solid fa-arrow-right"></i></span></td>
 					<td id="p5moneybar" class="moneybarcell">
 						<div><span id="p5moneyname" >Player 5</span>:</div>
 						<div>Guthaben: <span id="p5money">1500</span></div>
-						<div>Kredit: <span id="p5credit" class="player-credit">1500</span></div>
-						<div>Dispokredit: <span id="p5dispocredit" class="player-credit">0</span></div>
-                        <div>verfügbare Kreditsumme: <span id="p5avcredit" class="player-avcredit">0</span></div>
-                        <div>Anleihen: <span id="p5anleihen" class="player-anleihen">0</span></div>
-                        <div>Derivate: <span id="p5derivate" class="player-derivate">0</span></div>
+						<div class="moneyopt" >Kredit: <span id="p5credit" class="player-credit">1500</span></div>
+						<div class="moneyopt" >Dispokredit: <span id="p5dispocredit" class="player-credit">0</span></div>
+                        <div class="moneyopt" >verfügbare Kreditsumme: <span id="p5avcredit" class="player-avcredit">0</span></div>
+                        <div class="moneyopt" >Anleihen: <span id="p5anleihen" class="player-anleihen">0</span></div>
+                        <div class="moneyopt" >Derivate: <span id="p5derivate" class="player-derivate">0</span></div>
+						<div>
+							<button class="max-button" ><i class="fa-solid fa-maximize"></i></button>
+							<button class="min-button" style="display: none;" ><i class="fa-solid fa-minimize"></i></button>
+						</div>
 					</td>
 				</tr>
 				<tr id="moneybarrow6" class="money-bar-row">
-					<td class="moneybararrowcell"><img src="./client/images/arrow.png" id="p6arrow" class="money-bar-arrow" alt=">" /></td>
+					<td class="moneybararrowcell"><span><i id="p6arrow" class="money-bar-arrow fa-solid fa-arrow-right"></i></span></td>
 					<td id="p6moneybar" class="moneybarcell">
 						<div><span id="p6moneyname" >Player 6</span>:</div>
 						<div>Guthaben: <span id="p6money">1500</span></div>
-						<div>Kredit: <span id="p6credit" class="player-credit">1500</span></div>
-						<div>Dispokredit: <span id="p6dispocredit" class="player-credit">0</span></div>
-                        <div>verfügbare Kreditsumme: <span id="p6avcredit" class="player-avcredit">0</span></div>
-                        <div>Anleihen: <span id="p6anleihen" class="player-anleihen">0</span></div>
-                        <div>Derivate: <span id="p6derivate" class="player-derivate">0</span></div>
+						<div class="moneyopt" >Kredit: <span id="p6credit" class="player-credit">1500</span></div>
+						<div class="moneyopt" >Dispokredit: <span id="p6dispocredit" class="player-credit">0</span></div>
+                        <div class="moneyopt" >verfügbare Kreditsumme: <span id="p6avcredit" class="player-avcredit">0</span></div>
+                        <div class="moneyopt" >Anleihen: <span id="p6anleihen" class="player-anleihen">0</span></div>
+                        <div class="moneyopt" >Derivate: <span id="p6derivate" class="player-derivate">0</span></div>
+						<div>
+							<button class="max-button"><i class="fa-solid fa-maximize"></i></button>
+							<button class="min-button" style="display: none;" ><i class="fa-solid fa-minimize"></i></button>
+						</div>
 					</td>
 				</tr>
 				<tr id="moneybarrow7" class="money-bar-row">
-					<td class="moneybararrowcell"><img src="./client/images/arrow.png" id="p7arrow" class="money-bar-arrow" alt=">" /></td>
+					<td class="moneybararrowcell"></td>
 					<td id="p7moneybar" class="moneybarcell">
 						<div><span id="p7moneyname" >Bank</span>:</div>
 						<div>Geldmenge: <span id="p7money">1500</span></div>
@@ -203,137 +244,131 @@
 					</td>
 				</tr>
 				<tr id="moneybarrow8" class="money-bar-row">
-					<td class="moneybararrowcell"><img src="./client/images/arrow.png" id="p8arrow" class="money-bar-arrow" alt=">" /></td>
+					<td class="moneybararrowcell"></td>
 					<td id="p8moneybar" class="moneybarcell">
 						<div><span id="p8moneyname" >Staat</span>:</div>
 						<div>Staatsschuld: <span id="p8money" class="player-credit">1500</span></div>
 						<div>Steuer: <span id="p8credit">1500</span></div>
 					</td>
 				</tr>
-				<tr id="moneybarrowbutton">
-					<td class="moneybararrowcell">&nbsp;</td>
-					<td style="border: none;">
-						<input type="button" id="viewstats" value="Statistik einblenden" title="View a pop-up window that shows a list of each player's properties." />
-					</td>
-				</tr>
 			</table>
-            <div id="zinsen">
-                Zinssatz <input type="text" id="zinssatzInput" title="Zinssatz" maxlength="3" value="5" size="3"/> % <input type="button" value="Ändern" id="zinsbutton"/>
-            </div>
-			<tr class="money-bar-row">
-				<td class= "moneybarcell">
-					<canvas id="myChart" style="background-color:white; width:100%; max-width:700px; height:width; color:black"></canvas>
-				</td>
-			</tr>
 		</div>
 	</div>
 
 	<div id="setup">
-		<!--<div style="margin-bottom: 20px;">
-			Select number of players.
-			<select id="playernumber" title="Select the number of players for the game.">
-				<option>3</option>
-				<option selected="selected">4</option>
-				<option>5</option>
-				<option>6</option>
-			</select>
-		</div>-->
 
 		<div id="mytitle" > Spiel - Geldmaschine </div>
 
-		<!--<div id="verteilung" style="margin-bottom: 20px;">
-			Chancengleichheit oder Kapitalismus?
-			<select id="capitalism" title="Wähle zwischen Chancengleichheit und Kapitalismus.">
-				<option>Chancengleichheit</option>
-				<option selected="selected">Kapitalismus</option>
-			</select>
-		</div>-->
+		<table>
+			<tbody>
+			<tr id="setup-nieten">
+				<td><div id="nietenfield">
+					Anzahl Nieten
+				</div></td>
+				<td>
+					<select id="nieten" title="Wähle die Anzahl der Nieten.">
+						<option id="nieten0">0</option>
+						<option id="nieten1">1</option>
+						<option id="nieten2">2</option>
+						<option id="nieten4">4</option>
+						<option id="nieten7">7</option>
+						<option id="nieten8">8</option>
+						<option id="nieten10">10</option>
+					</select>
+				</td>
+			</tr>
+			<tr id="setup-spieler">
+				<td><div id="spielerfield">
+					Anzahl SpielerInnen
+				</div></td>
+				<td>
+					<select id="spieler" title="Wähle die Anzahl der Spieler.">
+						<option id="spieler3">3</option>
+						<option id="spieler4">4</option>
+						<option id="spieler5">5</option>
+						<option id="spieler6">6</option>
+					</select>
+				</td>
+			</tr>
+			<tr id="player1input" class="player-input">
+				<td><span>SpielerIn 1:</span></td>
+				<td>
+					<span id="player1name" ></span>
+				</td>
+			</tr>
+			<tr id="player2input" class="player-input">
+				<td><span>SpielerIn 2:</span></td>
+				<td>
+					<span id="player2name" ></span>
+				</td>
+			</tr>
+			<tr id="player3input" class="player-input">
+				<td><span>SpielerIn 3:</span></td>
+				<td>
+					<span id="player3name" ></span>
+				</td>
+			</tr>
+			<tr id="player4input" class="player-input">
+				<td><span>SpielerIn 4:</span></td>
+				<td>
+					<span id="player4name" ></span>
+				</td>
+			</tr>
+			<tr id="player5input" class="player-input">
+				<td><span>SpielerIn 5:</span></td>
+				<td>
+					<span id="player5name" ></span>
+				</td>
+			</tr>
+			<tr id="player6input" class="player-input">
+				<td><span>SpielerIn 6:</span></td>
+				<td>
+					<span id="player6name" ></span>
+				</td>
+			</tr><tr>
+				<td><div style="margin: 20px 0px;">
+					<input id="startbutton" type="button" value="Spiel beginnen" title="Starte das Spiel." />
+				</div></td>
+				<td>
+					<button class="add-button">App installieren</button>
+				</td>
+				</tr>
+			</tbody>
+		</table>
 
-		<div id="nietenfield" style="margin-bottom: 20px;">
-			Anzahl Nieten
-			<select id="nieten" title="Wähle die Anzahl der Nieten.">
-				<option id="nieten0">0</option>
-				<option id="nieten1">1</option>
-				<option id="nieten2">2</option>
-				<option id="nieten4">4</option>
-				<option id="nieten7">7</option>
-				<option id="nieten8">8</option>
-				<option id="nieten10">10</option>
-			</select>
+		<div id="donate">
+			<form action="https://www.paypal.com/donate" method="post" target="_blank">
+				<input type="hidden" name="hosted_button_id" value="KZ5T8R62UZ77C" />
+				<input type="image" src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Spenden mit dem PayPal-Button" />
+			</form>
 		</div>
 
-		<div id="spielerfield" style="margin-bottom: 20px;">
-			Anzahl SpielerInnen
-			<select id="spieler" title="Wähle die Anzahl der Spieler.">
-				<option id="spieler3">3</option>
-				<option id="spieler4">4</option>
-				<option id="spieler5">5</option>
-				<option id="spieler6">6</option>
-			</select>
+		<div id="credits">
+			  <ul>
+			<li><a href="https://falschgeldsystem.de/spiel/" target="_blank"><i class="fa-solid fa-info"></i> Anleitung</a></li>
+			<li><a href="mailto:dominik.huesener@rwth-aachen.de"><i class="fa-solid fa-comment"></i> Feedback</a></li>
+			<li><a href="./client/privacy.html" target="_blank"><i class="fa-solid fa-shield"></i> Datenschutz</a></li>
+		</ul>
 		</div>
+	</div>
 
-		<div id="player1input" class="player-input">
-			SpielerIn 1: <input type="text" id="player1name" title="SpielerIn Name" maxlength="16" value="SpielerIn 1" /> <input type="button" value="Name ändern" id="name1button"/>
-		</div>
+	<div id="icon-bar">
 
-		<div id="player2input" class="player-input">
-			SpielerIn 2: <input type="text" id="player2name" title="SpielerIn Name" maxlength="16" value="SpielerIn 2" /> <input type="button" value="Name ändern" id="name2button"/>
-		</div>
-
-		<div id="player3input" class="player-input">
-			SpielerIn 3: <input type="text" id="player3name" title="SpielerIn Name" maxlength="16" value="SpielerIn 3" /> <input type="button" value="Name ändern" id="name3button"/>
-		</div>
-
-		<div id="player4input" class="player-input">
-			SpielerIn 4: <input type="text" id="player4name" title="SpielerIn Name" maxlength="16" value="SpielerIn 4" /> <input type="button" value="Name ändern" id="name4button"/>
-		</div>
-
-		<div id="player5input" class="player-input">
-			SpielerIn 5: <input type="text" id="player5name" title="SpielerIn Name" maxlength="16" value="SpielerIn 5" /> <input type="button" value="Name ändern" id="name5button"/>
-		</div>
-
-		<div id="player6input" class="player-input">
-			SpielerIn 6: <input type="text" id="player6name" title="SpielerIn Name" maxlength="16" value="SpielerIn 6" /> <input type="button" value="Name ändern" id="name6button"/>
-		</div>
-
-		<div style="margin: 20px 0px;">
-			<input id="startbutton" type="button" value="Spiel beginnen" title="Starte das Spiel." />
-		</div>
-
-		<div id="noF5">Hinweis: Neuladen der Seite oder Aufrufen einer anderen Seite beendet das Spiel für dich ohne Warnung.</div>
-		<div id="credits"><a href="https://falschgeldsystem.de/spiel/" target="_blank">Spielidee: Samirah Kenawi</a><br><a href="mailto:dominik.huesener@rwth-aachen.de">Programmierung: Dominik Hüsener</a></div>
+		<a class="active" id="logicon" href="javascript:void(0)" onclick="openLog()" title="Den Spielverlauf anzeigen"><i class="fa-solid fa-align-justify"></i></a>
+		<a href="javascript:void(0)" onclick="openImmobilien()" title="Grundstücke anzeigen und Häuser kaufen"><i class="fa-solid fa-house"></i></a>
+		<a href="javascript:void(0)" onclick="showTradeMenu()" title="Grundstücke, Anleihen und Derivate mit Spielern und Bank tauschen"><i class="fa-solid fa-people-arrows-left-right"></i></a>
+		<a href="javascript:void(0)" onclick="showCreditMenu()" title="Kredit aufnehmen oder tilgen"><i class="fa-solid fa-money-bill-1"></i></a>
+		<a href="javascript:void(0)" onclick="showStats()" title="Statistik anzeigen"><i class="fa-solid fa-info"></i></a>
+		<a href="javascript:void(0)" onclick="showGraph()" title="Verlauf von Geldmenge und Zinsen anzeigen"><i class="fa-solid fa-chart-line"></i></a>
+		<a id="zinsen" href="javascript:void(0)" onclick="setZinssatz()"><i class="fa-solid fa-percent"></i></a>
+		<!--<a href="javascript:void(0)" onclick="openAudioMenu()" title="Erklärungen anhören"><i class="fa-solid fa-headphones"></i></a>-->
+			
 	</div>
 
 	<div id="control">
 		<table>
 			<tr>
 				<td style="text-align: left; vertical-align: top; border: none;">
-					<div id="menu">
-						<table id="menutable" cellspacing="0">
-							<tr>
-								<td class="menu-item" id="buy-menu-item">
-
-									<a href="javascript:void(0);" title="Den Spielverlauf anzeigen">Log</a>
-								</td>
-								<td class="menu-item" id="manage-menu-item">
-
-									<a href="javascript:void(0);" title="Grundstücke anzeigen und Häuser kaufen">Immobilien</a>
-								</td>
-								<td class="menu-item" id="trade-menu-item">
-
-									<a href="javascript:void(0);" title="Grundstücke, Anleihen und Derivate mit Spielern und Bank tauschen.">Handel</a>
-								</td>
-								<td class="menu-item" id="credit-menu-item">
-
-									<a href="javascript:void(0);" title="Kredit aufnehmen oder tilgen.">Kredit</a>
-								</td>
-								<td class="menu-item" id="audio-menu-item">
-
-									<a href="javascript:void(0);" title="Erklärungen anhören.">Audio</a>
-								</td>
-							</tr>
-						</table>
-					</div>
 
 					<div id="buy">
 						<div id="alert"></div>
@@ -360,8 +395,8 @@
 				</td>
 				<td style="vertical-align: top; border: none;">
 					<div id="quickstats" >
-							<div><span id="pname" >Player 1</span>:</div>
-							<div><span id="pmoney">$1500</span></div>
+						<div><span id="pname" >Player 1</span>:</div>
+						<div><span id="pmoney">$1500</span></div>
 					</div>
 					<div>
 						<div id="die0" title="Die" class="die die-no-img"></div>
@@ -392,26 +427,26 @@
 			</tr>
 			<tr>
 				<td class="trade-cell">
-					Geld: &nbsp;<input id="trade-leftp-money" value="0" title="Wie viel Geld möchtest du tauschen?" />
+					Geld: &nbsp;<input id="trade-leftp-money" value="0" type="number" title="Wie viel Geld möchtest du tauschen?" />
 				</td>
 				<td class="trade-cell">
-					Geld: &nbsp;<input id="trade-rightp-money" value="0" title="Wie viel Geld möchtest du tauschen?" />
-				</td>
-			</tr>
-            <tr>
-				<td class="trade-cell">
-					Derivate: &nbsp;<input id="trade-leftp-derivate" value="0" title="Wie viele Derivate möchtest du tauschen?" />
-				</td>
-				<td class="trade-cell">
-					<span id="description-derivate" >Derivate:</span> &nbsp;<input id="trade-rightp-derivate" value="0" title="Wie viele Derivate möchtest du tauschen?" />
+					Geld: &nbsp;<input id="trade-rightp-money" value="0" type="number" title="Wie viel Geld möchtest du tauschen?" />
 				</td>
 			</tr>
             <tr>
 				<td class="trade-cell">
-					Anleihen: &nbsp;<input id="trade-leftp-anleihen" value="0" title="Wie viele Anleihen möchtest du tauschen?" />
+					Derivate: &nbsp;<input id="trade-leftp-derivate" value="0" type="number" title="Wie viele Derivate möchtest du tauschen?" />
 				</td>
 				<td class="trade-cell">
-					Anleihen: &nbsp;<input id="trade-rightp-anleihen" value="0" title="Wie viele Anleihen möchtest du tauschen?" />
+					<span id="description-derivate" >Derivate:</span> &nbsp;<input id="trade-rightp-derivate" value="0" type="number" title="Wie viele Derivate möchtest du tauschen?" />
+				</td>
+			</tr>
+            <tr>
+				<td class="trade-cell">
+					Anleihen: &nbsp;<input id="trade-leftp-anleihen" value="0" type="number" title="Wie viele Anleihen möchtest du tauschen?" />
+				</td>
+				<td class="trade-cell">
+					Anleihen: &nbsp;<input id="trade-rightp-anleihen" value="0" type="number" title="Wie viele Anleihen möchtest du tauschen?" />
 				</td>
 			</tr>
 			<tr>
@@ -442,7 +477,7 @@
 			</tr>
 			<tr>
 				<td class="credit-cell">
-					$&nbsp;<input id="credit-leftp-money" value="0" title="Gewünschte Höhe des Kredits eingeben." />
+					$&nbsp;<input id="credit-leftp-money" value="0" type="number" title="Gewünschte Höhe des Kredits eingeben." />
 				</td>
 			</tr>
 			<tr>
@@ -455,7 +490,7 @@
 		</table>
 	</div>
 
-    <script src="./client/myscript.js"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/qtip2/3.0.3/basic/jquery.qtip.min.js"></script>
 
 </body>
 </html>

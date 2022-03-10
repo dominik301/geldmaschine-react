@@ -1,26 +1,32 @@
-var socket = io();
-var typing = false;
+window.addEventListener('beforeunload', function (e) {
+    // Cancel the event
+    e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
+    e.stopImmediatePropagation();
+    // Chrome requires returnValue to be set
+    e.returnValue = '';
+  });
+
+const socket = io();
 
 var playerId;
 var pcount;
 
-var start = document.getElementById('startbutton');
+const start = document.getElementById('startbutton');
 
 start.onclick = function(e){
     //prevent the form from refreshing the page
     e.preventDefault();
 
     socket.emit("windowload");
-    
-    var isKapitalismus = true; //document.getElementById('capitalism').value == "Kapitalismus";
+
     var nieten = document.getElementById("nieten").value;
     var pNo = document.getElementById("spieler").value;
-    socket.emit('setup', isKapitalismus, pNo, nieten);
+    socket.emit('setup', true, pNo, nieten);
 }
 
-var kreditaufnehmen = document.getElementById('kreditaufnehmenbutton');
-var kredittilgen = document.getElementById('kredittilgenbutton');
-var kredit = document.getElementById('credit-leftp-money');
+const kreditaufnehmen = document.getElementById('kreditaufnehmenbutton');
+const kredittilgen = document.getElementById('kredittilgenbutton');
+const kredit = document.getElementById('credit-leftp-money');
 
 kreditaufnehmen.onclick = function(e){
     //prevent the form from refreshing the page
@@ -34,11 +40,15 @@ kreditaufnehmen.onclick = function(e){
 
     var money = kredit.value;
 
-    if (!confirm(document.getElementById("player" + playerId + "name").value + ", möchtest Du wirklich einen Kredit aufnehmen?")) {
+    if (!confirm(document.getElementById("player" + playerId + "name").innerHTML + ", möchtest Du wirklich einen Kredit aufnehmen?")) {
         return false;
     }
     
-    socket.emit('kreditaufnehmen', money);
+    if (online)
+        socket.emit('kreditaufnehmen', money);
+    else
+        game.kreditAufnehmen(parseInt(money), playerId);
+
     kredit.value = "0";
 }
 
@@ -52,11 +62,14 @@ kredittilgen.onclick = function(e){
         return false;
     }
 
-    if (!confirm(document.getElementById("player" + playerId + "name").value + ", möchtest Du wirklich deinen Kredit tilgen?")) {
+    if (!confirm(document.getElementById("player" + playerId + "name").innerHTML + ", möchtest Du wirklich deinen Kredit tilgen?")) {
         return false;
     }
-    
-    socket.emit('kredittilgen', kredit.value);
+    if (online)
+        socket.emit('kredittilgen', kredit.value);
+    else
+        game.kreditTilgen(parseInt(kredit.value), playerId);
+        
     kredit.value = "0";
 }
 
@@ -64,11 +77,14 @@ function cancelkredit() {
     $("#board").show();
     $("#control").show();
     $("#credit").hide();
+
+    $('#icon-bar a.active').removeClass('active');
+    $("#logicon").addClass('active');
 }
 
-var next = document.getElementById('nextbutton');
-var resign = document.getElementById('resignbutton');
-var creditB = document.getElementById('creditbutton');
+const next = document.getElementById('nextbutton');
+const resign = document.getElementById('resignbutton');
+const creditB = document.getElementById('creditbutton');
 var round = 0;
 
 next.onclick = function(e){
@@ -80,12 +96,17 @@ next.onclick = function(e){
     if (next.value == "Spielzug beenden") {
         $("#nextbutton").hide();
         allow2houses = false;
-        xValues.push(round);
-        geldMengen.push(meineBank.geldMenge)
-        bankZinsen.push(meineBank.zinsenLotto)
-        round++;
-        myChart.update();
     }
+}
+
+socket.on('updateChart', updateChart);
+
+function updateChart() {
+    xValues.push(round);
+    geldMengen.push(meineBank.geldMenge)
+    bankZinsen.push(meineBank.zinsenLotto)
+    round++;
+    myChart.update();
 }
 
 function buy() {
@@ -97,7 +118,6 @@ resign.onclick = function(e){
     e.preventDefault();
 
     socket.emit('sozialhilfe');
-    //popup("<p>Möchtest du wirklich aufgeben?</p>", doResign, "Ja/Nein");
 }
 
 creditB.onclick = function(e){
@@ -110,26 +130,22 @@ function doResign() {
     socket.emit('resign');
 }
 
-var buyhouse = document.getElementById('buyhousebutton');
-var mortgage = document.getElementById('mortgagebutton');
-var sellhouse = document.getElementById('sellhousebutton');
+const buyhouse = document.getElementById('buyhousebutton');
+const mortgage = document.getElementById('mortgagebutton');
+const sellhouse = document.getElementById('sellhousebutton');
 
 buyhouse.onclick = function(e){
     //prevent the form from refreshing the page
-    e.preventDefault();
-
-    var checkedProperty = getCheckedProperty();            
+    e.preventDefault();          
     
-    socket.emit('buyhouse', checkedProperty);
+    socket.emit('buyhouse', getCheckedProperty());
 }
 
 mortgage.onclick = function(e){
     //prevent the form from refreshing the page
     e.preventDefault();
 
-    var checkedProperty = getCheckedProperty();
-
-    socket.emit('mortgage', checkedProperty);           
+    socket.emit('mortgage', getCheckedProperty());           
     
 }
 
@@ -363,8 +379,8 @@ function finishProposeTrade() {
     var reversedAssets = [];
 
     if (recipient.index == 0) {
-        recipient.anleihen = recipient.anleihenBank
-        recipient.derivate = recipient.derivateBank
+        recipient.anleihen = recipient.anleihen
+        recipient.derivate = recipient.derivate
     }
 
     if (money > 0 && money > initiator.money) {
@@ -397,23 +413,13 @@ function finishProposeTrade() {
         return false;
     }
 
-    var isAPropertySelected = 0;
-
-    // Ensure that some properties are selected.
     for (var i = 0; i < 12; i++) {
         reversedTradeProperty[i] = -tradeObj.property[i];
-        isAPropertySelected |= tradeObj.property[i];
     }
 
     for (i = 0; i < assets.length; i++) {
         reversedAssets[i] = -assets[i];
     }
-
-    /*if (isAPropertySelected === 0) {
-        popup("<p>One or more properties must be selected in order to trade.</p>");
-
-        return false;
-    }*/
 
     if (!confirm(initiator.name + ", bist du sicher, dass du dieses Angebot an " + recipient.name + " machen willst?")) {
         return false;
@@ -447,6 +453,9 @@ function cancelTrade() {
     $("#control").show();
     $("#trade").hide();
     $("#credit").hide();
+
+    $('#icon-bar a.active').removeClass('active');
+    $("#logicon").addClass('active');
 };
 function acceptTrade() {
     if (isNaN(document.getElementById("trade-leftp-money").value)) {
@@ -495,18 +504,10 @@ function finishAcceptTrade(showAlerts) {
         return false;
     }*/
 
-    var isAPropertySelected = 0;
-
     // Ensure that some properties are selected.
     for (var i = 0; i < 12; i++) {
         isAPropertySelected |= tradeObj.property[i];
     }
-
-    /*if (isAPropertySelected === 0) {
-        popup("<p>One or more properties must be selected in order to trade.</p>");
-
-        return false;
-    }*/
 
     if (showAlerts && !confirm(initiator.name + ", bist du sicher, dass du diesen Tausch mit " + recipient.name + " machen willst?")) {
         return false;
@@ -743,7 +744,7 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "assetcellcolor";
-        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/5/53/Segeln_2.svg' title='Yacht' class='asset' />";
+        currentTableCell.innerHTML = '<i class="fa-solid fa-sailboat"></i>';
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "propertycellname";
@@ -762,7 +763,7 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "assetcellcolor";
-        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/5/53/Segeln_2.svg' title='Yacht' class='asset' />";
+        currentTableCell.innerHTML = '<i class="fa-solid fa-sailboat"></i>';
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "propertycellname";
@@ -782,7 +783,7 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "assetcellcolor";
-        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/b/b2/CH-Zusatztafel-Leichte_Motorwagen.svg' title='Auto' class='asset' />";
+        currentTableCell.innerHTML = '<i class="fa-solid fa-car"></i>';
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "propertycellname";
@@ -801,7 +802,7 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "assetcellcolor";
-        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/b/b2/CH-Zusatztafel-Leichte_Motorwagen.svg' title='Auto' class='asset' />";
+        currentTableCell.innerHTML = '<i class="fa-solid fa-car"></i>';
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "propertycellname";
@@ -821,7 +822,7 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "assetcellcolor";
-        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/0/06/Motorrad_aus_Zusatzzeichen_1046-12.svg' title='Motorrad' class='asset' />";
+        currentTableCell.innerHTML = '<i class="fa-solid fa-motorcycle"></i>';
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "propertycellname";
@@ -840,7 +841,7 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
 
         currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "assetcellcolor";
-        currentTableCell.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/0/06/Motorrad_aus_Zusatzzeichen_1046-12.svg' title='Motorrad' class='asset' />";
+        currentTableCell.innerHTML = '<i class="fa-solid fa-motorcycle"></i>';
 
         /*currentTableCell = currentTableRow.appendChild(document.createElement("td"));
         currentTableCell.className = "propertycellcolor";
@@ -919,21 +920,18 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
 };
 
 socket.on('setPlayerId',function(data){
-            
-    playerId = data;
+    setPlayerId(data);    
+});
 
-    $("#name" + playerId + "button").on("click", function() {
-        var name = document.getElementById("player" + playerId + "name").value;
-        socket.emit('setName', name);
-    });
+function setPlayerId(id) {
+    playerId = id;
 
     if (playerId != 1) {
         $("#zinsen").hide();
-        $("#verteilung").hide();
+        $("#setup-nieten, #setup-spieler").hide();
         $("#startbutton").hide();
     }
-            
-});
+}
 
 socket.on('playerno',function(pnumber){
     pcount = pnumber;
@@ -941,12 +939,7 @@ socket.on('playerno',function(pnumber){
 });
 
 socket.on('addAlert', function(alertText) {
-    $alert = $("#alert");
-
-    $(document.createElement("div")).text(alertText).appendTo($alert);
-
-    // Animate scrolling down alert element.
-    $alert.stop().animate({"scrollTop": $alert.prop("scrollHeight")}, 1000);
+    addAlert(alertText);
 })
 
 function addAlert(alertText) {
@@ -959,6 +952,10 @@ function addAlert(alertText) {
 }
 
 socket.on('eliminatePlayer', function(HTML, action) {
+    showEliminatePlayer(HTML, action);
+});
+
+function showEliminatePlayer(HTML, action) {
     document.getElementById("popuptext").innerHTML = HTML;
     document.getElementById("popup").style.width = "300px";
     document.getElementById("popup").style.top = "0px";
@@ -987,20 +984,27 @@ socket.on('eliminatePlayer', function(HTML, action) {
     $("#popupbackground").fadeIn(400, function() {
         $("#popupwrap").show();
     });
-});
+}
 
 function eliminatePlayer() {
     socket.emit('eliminate');
 }
 
 socket.on('playerNames', function(names) {
-    for (var i in names) {
-        document.getElementById("player" + i + "name").value = names[i];
-        console.log(i, names[i])
-    }
+    setPlayernames(names);
 });
 
+function setPlayernames(names) {
+    for (var i in names) {
+        document.getElementById("player" + i + "name").innerHTML = names[i];
+    }
+}
+
 socket.on('updateMoney', function(_player, turn, _meineBank, meinStaat, _pcount) {
+    updateMoney(_player,turn,_meineBank,meinStaat,_pcount)
+});
+
+function updateMoney(_player, turn, _meineBank, meinStaat, _pcount) {
     player = _player;
     meineBank = _meineBank;
     var p = player[turn];
@@ -1026,14 +1030,12 @@ socket.on('updateMoney', function(_player, turn, _meineBank, meinStaat, _pcount)
     //var bank = player[0];
 
     $("#moneybarrow7").show();
-    document.getElementById("p7moneybar").style.border = "2px solid " + "black";
     document.getElementById("p7money").innerHTML = meineBank.geldMenge;
     document.getElementById("p7credit").innerHTML = meineBank.zinsenLotto;
-    document.getElementById("p7anleihen").innerHTML = meineBank.anleihenBank;
-    document.getElementById("p7derivate").innerHTML = meineBank.derivateBank;
+    document.getElementById("p7anleihen").innerHTML = meineBank.anleihen;
+    document.getElementById("p7derivate").innerHTML = meineBank.derivate;
 
     $("#moneybarrow8").show();
-    document.getElementById("p8moneybar").style.border = "2px solid " + "black";
     document.getElementById("p8money").innerHTML = meinStaat.staatsSchuld;
     document.getElementById("p8credit").innerHTML = meinStaat.steuer;
 
@@ -1056,10 +1058,21 @@ socket.on('updateMoney', function(_player, turn, _meineBank, meinStaat, _pcount)
             $("#nextbutton").show();
         }
     }
-});
+}
 
 socket.on('updateDice', function(die0){
+    playDiceSound(die0);
+});
 
+function playDiceSound(die0) {
+    var snd = new Audio("client/short-dice-roll.wav"); // buffers automatically when created
+    snd.play();
+
+    setTimeout(() => { updateDice(die0);}, 500);
+}
+
+function updateDice(die0) {
+    
     $("#die0").show();
 
     if (document.images) {
@@ -1069,22 +1082,29 @@ socket.on('updateDice', function(die0){
 
         element0.title = "Die (" + die0 + " spots)";
 
-        if (element0.firstChild) {
-            element0 = element0.firstChild;
-        } else {
-            element0 = element0.appendChild(document.createElement("img"));
+        const numbers = {
+            1:"one",
+            2:"two",
+            3:"three",
+            4:"four",
+            5:"five",
+            6:"six"
         }
+        let HTML = "<i class=\"fa-solid fa-dice-" + numbers[die0] + "\"></i>"
+        element0.innerHTML = HTML;
 
-        element0.src = "./client/images/Die_" + die0 + ".png";
-        element0.alt = die0;
     } else {
         document.getElementById("die0").textContent = die0;
 
         document.getElementById("die0").title = "Die";
     }
+}
+
+socket.on('updateOwned', function(player, _square) {
+    updateOwned(player, _square);
 });
 
-socket.on('updateOwned', function(player, square) {
+function updateOwned(player, _square) {
     var checkedproperty = getCheckedProperty();
     var p = player[playerId];
     $("#option").show();
@@ -1095,11 +1115,13 @@ socket.on('updateOwned', function(player, square) {
 
     var mortgagetext = "",
     housetext = "";
-    var sq;
+    var sq, _sq;
 
     for (var i = 0; i < 12; i++) {
-        sq = square[i];
+        sq = _square[i];
+        _sq = square[i]
         if (sq.groupNumber && sq.owner === 0) {
+            //TODO: fadeOut
             $("#cell" + i + "owner").hide();
             $("#cell" + i + "house").hide();
             $("#cell" + i + "house2").hide();
@@ -1109,14 +1131,43 @@ socket.on('updateOwned', function(player, square) {
             currentCellOwner.style.display = "block";
             currentCellOwner.style.backgroundColor = player[sq.owner].color;
             currentCellOwner.title = player[sq.owner].name;
-
+            if (sq.owner != _sq.owner) {
+                currentCellOwner.animate([
+                    // keyframes
+                    { opacity: 0 },
+                    { opacity: 1 }
+                  ], {
+                    // timing options
+                    duration: 1000
+                  });
+            }
             if (sq.house) {
                 var currentCellHouse = document.getElementById("cell" + i + "house");
                 currentCellHouse.style.display = "block";
+                if (_sq.house == 0) {
+                    currentCellHouse.animate([
+                        // keyframes
+                        { opacity: 0 },
+                        { opacity: 1 }
+                      ], {
+                        // timing options
+                        duration: 1000
+                      });
+                }
 
                 if (sq.house == 2) {
                     var currentCellHouse2 = document.getElementById("cell" + i + "house2");
                     currentCellHouse2.style.display = "block";
+                    if (_sq.house == 0) {
+                        currentCellHouse2.animate([
+                            // keyframes
+                            { opacity: 0 },
+                            { opacity: 1 }
+                          ], {
+                            // timing options
+                            duration: 1000
+                          });
+                    }
                 }
             }     
             else {
@@ -1128,7 +1179,7 @@ socket.on('updateOwned', function(player, square) {
     }
 
     for (var i = 0; i < 12; i++) {
-        sq = square[i];
+        sq = _square[i];
         if (sq.owner == playerId) {
 
             mortgagetext = "";
@@ -1139,7 +1190,7 @@ socket.on('updateOwned', function(player, square) {
             housetext = "";
             if (sq.house >= 1 && sq.house <= 2) {
                 for (var x = 1; x <= sq.house; x++) {
-                    housetext += "<img src='./client/images/house.png' alt='' title='Haus' class='house' />";
+                    housetext += "<i class=\"fa-solid fa-house\" title='Haus' class='house' ></i>";
                 }
             } 
 
@@ -1153,6 +1204,8 @@ socket.on('updateOwned', function(player, square) {
             HTML += "' onmouseover='showdeed(" + i + ");' onmouseout='hidedeed();'></td><td class='propertycellname' " + mortgagetext + ">" + sq.name + housetext + "</td></tr>";
         }
     }
+
+    square = _square;
 
     if (HTML === "") {
         HTML = p.name + ", du besitzt keine Grundstücke.";
@@ -1169,7 +1222,7 @@ socket.on('updateOwned', function(player, square) {
     } else if (firstproperty > -1) {
         document.getElementById("propertycheckbox" + firstproperty).checked = true;
     }
-    $(".property-cell-row").click(function() {
+    $(".property-cell-row").on('click', function() {
         var row = this;
 
         // Toggle check the current checkbox.
@@ -1186,9 +1239,13 @@ socket.on('updateOwned', function(player, square) {
 
         socket.emit('updateOption');
     });
-});
+}
 
 socket.on('updateOption', function(square){
+    updateOption(square);
+});
+
+function updateOption(square) {
     var checkedproperty = getCheckedProperty();
     var sq = square[checkedproperty];
 
@@ -1211,7 +1268,7 @@ socket.on('updateOption', function(square){
     document.getElementById("mortgagebutton").disabled = false;
 
     if (sq.mortgage) {
-        document.getElementById("mortgagebutton").value = "Hypothek zurückzahlen ($" + sq.price + ")";
+        document.getElementById("mortgagebutton").value = "Hypothek zurückzahlen";
         document.getElementById("mortgagebutton").title = "Hypothek auf " + sq.name + " für " + sq.price + " zurückzahlen.";
         $("#buyhousebutton").hide();
         $("#sellhousebutton").hide();
@@ -1230,7 +1287,7 @@ socket.on('updateOption', function(square){
 
     if (sq.house == 0) {
         $("#sellhousebutton").hide();
-        buyhousebutton.value = "Haus kaufen (" + sq.houseprice + ")";
+        buyhousebutton.value = "Haus kaufen";
         buyhousebutton.title = "Kaufe ein Haus für " + sq.houseprice;
     }
     
@@ -1239,17 +1296,17 @@ socket.on('updateOption', function(square){
         if (!allow2houses || sq.house == 2) {
             $("#buyhousebutton").hide();
         } else {
-            buyhousebutton.value = "Haus kaufen (" + sq.houseprice + ")";
+            buyhousebutton.value = "Haus kaufen";
             buyhousebutton.title = "Kaufe ein Haus für " + sq.houseprice;
         }
-        sellhousebutton.value = "Haus verkaufen (" + (sq.houseprice) + ")";
+        sellhousebutton.value = "Haus verkaufen";
         sellhousebutton.title = "Verkaufe eine Haus für " + (sq.houseprice);
 
         $("#mortgagebutton").show();
         document.getElementById("mortgagebutton").disabled = false;
 
         if (sq.mortgage) {
-            document.getElementById("mortgagebutton").value = "Hypothek zurückzahlen ($" + sq.price + ")";
+            document.getElementById("mortgagebutton").value = "Hypothek zurückzahlen";
             document.getElementById("mortgagebutton").title = "Hypothek auf " + sq.name + " für " + sq.price + " zurückzahlen.";
             $("#buyhousebutton").hide();
             $("#sellhousebutton").hide();
@@ -1261,10 +1318,14 @@ socket.on('updateOption', function(square){
         }
     }
     
-});
+}
 
 
 socket.on('showdeed', function(sq) {
+    showdeed2(sq);
+});
+
+function showdeed2(sq) {
     $("#deed").show();
 
     $("#deed-normal").hide();
@@ -1285,37 +1346,61 @@ socket.on('showdeed', function(sq) {
         //document.getElementById("deed-mortgage").textContent = (sq.price);
         document.getElementById("deed-houseprice").textContent = sq.houseprice;
     }
-});
+}
 
 socket.on('showstats', function(HTML) {
+    displayStats(HTML);
+});
+
+function displayStats(HTML) {
     document.getElementById("statstext").innerHTML = HTML;
     // Show using animation.
     $("#statsbackground").fadeIn(400, function() {
         $("#statswrap").show();
     });
-});
+}
+
+function showGraph() {
+    $("#statsbackground").fadeIn(400, function() {
+        $("#graphwrap").show();
+    });
+}
 
 socket.on('changeButton', function(button, value, title){
+    changeButton(button, value, title)
+});
+
+function changeButton(button,value, title) {
     document.getElementById(button).value = value;
     document.getElementById(button).title = title;
-});
+}
 
 socket.on('focusbutton', function(button) {
-    document.getElementById(button).focus();
+    focusButton(button);
 });
 
-socket.on('roll', function() {
+function focusButton(button) {
+    document.getElementById(button).focus();
+}
+
+socket.on('roll', roll);
+
+function roll() {
     $("#option").hide();
     $("#buy").show();
     $("#manage").hide();
     $("#audio").hide();
 
     document.getElementById("nextbutton").focus();
-});
+}
 
 socket.on('setHTML', function(element, text) {
-    document.getElementById(element).innerHTML = text;
+    setHTML(element, text);
 });
+
+function setHTML(element, text) {
+    document.getElementById(element).innerHTML = text;
+}
 
 socket.on('show', function(element, isShow) {
     if (isShow) {
@@ -1326,6 +1411,8 @@ socket.on('show', function(element, isShow) {
     
 });
 
+function show(element) {$(element).show();}
+function hide(element) {$(element).hide();}
 
 
 var pcount;
@@ -1337,10 +1424,7 @@ function playernumber_onchange() {
 
     for (var i = 1; i <= pcount; i++) {
         $("#player" + i + "input").show();
-        $("#name" + i + "button").hide();
-        if (i != playerId) document.getElementById("player" + i + "name").disabled = true;
     }
-    $("#name" + playerId + "button").show();
     switch(pcount) {
         case 6:
             $("#spieler5").hide();
@@ -1433,7 +1517,7 @@ window.onload = function() {
     capitalism_onchange();
 
     $("#noscript").hide();
-    $("#setup, #noF5").show();
+    $("#setup").show();
     $("credit").hide();
 
     // Create event handlers for hovering and draging.
@@ -1451,8 +1535,8 @@ window.onload = function() {
 
 
         if (object.classList.contains("propertycellcolor") || object.classList.contains("statscellcolor")) {
-            if (e.clientY + 20 > window.innerHeight - 279) {
-                document.getElementById("deed").style.top = (window.innerHeight - 279) + "px";
+            if (e.clientY + 20 > window.innerHeight - 404) {
+                document.getElementById("deed").style.top = (window.innerHeight - 404) + "px";
             } else {
                 document.getElementById("deed").style.top = (e.clientY + 20) + "px";
             }
@@ -1494,6 +1578,24 @@ window.onload = function() {
         drag = true;
     };
 
+    document.getElementById("graphdrag").onmousedown = function(e) {
+        dragObj = document.getElementById("mgraph");
+        dragObj.style.position = "relative";
+
+        dragTop = parseInt(dragObj.style.top, 10) || 0;
+        dragLeft = parseInt(dragObj.style.left, 10) || 0;
+
+        if (window.event) {
+            dragX = window.event.clientX;
+            dragY = window.event.clientY;
+        } else if (e) {
+            dragX = e.clientX;
+            dragY = e.clientY;
+        }
+
+        drag = true;
+    };
+
     document.getElementById("popupdrag").onmousedown = function(e) {
         dragObj = document.getElementById("popup");
         dragObj.style.position = "relative";
@@ -1513,44 +1615,45 @@ window.onload = function() {
     };
 
     
-    $("#viewstats").on("click", showStats);
-    $("#statsclose, #statsbackground").on("click", function() {
-        $("#statswrap").hide();
+    $("#graphclose, #statsclose, #statsbackground").on("click", function() {
+        $("#statswrap, #graphwrap").hide();
         $("#statsbackground").fadeOut(400);
+
+        $('#icon-bar a.active').removeClass('active');
+        $("#logicon").addClass('active');
     });
 
-    $("#buy-menu-item").click(function() {
-        $("#buy").show();
-        $("#manage").hide();
-        $("#audio").hide();
-
-        // Scroll alerts to bottom.
-        $("#alert").scrollTop($("#alert").prop("scrollHeight"));
-    });
-
-    $("#audio-menu-item").click(function() {
-        $("#audio").show();
-        $("#buy").hide()
-        $("#manage").hide();
-    });
-
-
-    $("#manage-menu-item").click(function() {
-        $("#manage").show();
-        $("#buy").hide();
-        $("#audio").hide();
-    });
-
-
-    $("#trade-menu-item").on("click", showTradeMenu);
-
-    $("#credit-menu-item").on("click", showCreditMenu);
-
-    $("#zinsbutton").on("click", function() {
-        socket.emit("zinssatz", parseInt(document.getElementById("zinssatzInput").value))
-    });
+    setName();
 
 };
+
+
+function openImmobilien() {
+    $("#manage").show();
+    $("#buy").hide();
+    $("#audio").hide();
+}
+
+function openLog() {
+    $("#buy").show();
+    $("#manage").hide();
+    $("#audio").hide();
+    cancelkredit();
+    cancelTrade();
+
+    // Scroll alerts to bottom.
+    $("#alert").scrollTop($("#alert").prop("scrollHeight"));
+}
+
+function openAudioMenu() {
+    $("#audio").show();
+    $("#buy").hide()
+    $("#manage").hide();
+}
+
+function changeZinssatz() {
+    socket.emit("zinssatz", parseInt(document.getElementById("zinssatzInput").value))
+}
 
 socket.on('setupsquares', function(square) {
     setupSquares(square);
@@ -1625,11 +1728,6 @@ function setupSquares(square) {
         document.getElementById("enlarge" + i + "name").textContent = s.name;
         document.getElementById("enlarge" + i + "price").textContent = s.pricetext;
     }
-
-
-    // Add images to enlarges.
-    document.getElementById("enlarge0token").innerHTML += '<img src="./client/images/arrow_icon.png" height="40" width="136" alt="" />';
-    document.getElementById("enlarge6token").innerHTML += '<img src="./client/images/tax_icon.png" height="60" width="70" alt="" style="position: relative; top: -20px;" />';
 }
 
 function showCreditMenu() {
@@ -1675,69 +1773,192 @@ function showStats() {
 }
 
 socket.on('popup', function(HTML, option, mortgage=false) {
+    rcvPopupReq(HTML, option, mortgage);
+})
+
+function rcvPopupReq(HTML, option, mortgage=false) {
     if (mortgage) {
         popup(HTML, doMortgage, option);
     } else {
         popup(HTML, option);
     }
-})
+}
 
 function doMortgage() {
     socket.emit("doMortgage", getCheckedProperty());
 }
 
-socket.on('updatePosition', function(square, turn, player){
+socket.on('updatePosition', function(turn, p_old, p){
+    preUpdatePosition(turn, p_old, p);
+});
+
+function preUpdatePosition(turn, p_old, p) {
     // Reset borders
     for (var i = 0; i < 12; i++) {
         document.getElementById("cell" + i).style.border = "1px solid black";
-        document.getElementById("cell" + i + "positionholder").innerHTML = "";
-
     }
 
-    var sq, left, top;
+    //handle old position
+    
+    var elem = document.getElementById("player" + turn + "figure");
+    elem.animate([
+        // keyframes
+        { opacity: 1 },
+        { opacity: 0 }
+      ], {
+        // timing options
+        duration: 1000
+      });
+      
+    setTimeout(() => {updatePosition(turn, p_old, p);},1000);
+}
 
-    for (var x = 0; x < 12; x++) {
-        sq = square[x];
-        left = 0;
-        top = 0;
+function updatePosition(turn, p_old, p) {
+    document.getElementById("player" + turn + "figure").remove();
+    const myOldPosition = document.getElementById("cell" + p_old + "positionholder");
+    
+    NodeList.prototype.forEach = Array.prototype.forEach
+    var children = myOldPosition.childNodes;
+    var left = 0;
+    var top = 0;
+    children.forEach(function(item){
+        item.style.left = left + "px";
+        item.style.top = top + "px";
+        if (left == 120) {
+            left = 0;
+            top = 24;
+        } else
+            left += 24;
+    });
 
-        for (var y = turn; y <= pcount; y++) {
+    //handle new position
+    const myNewPosition = document.getElementById("cell" + p.position + "positionholder");
+    myNewPosition.innerHTML += "<div id='player" + turn + "figure' class='cell-position' title='" + p.name + "' style='background-color: " + p.color + "; animation-name:changeOpacity; animation-duration: 2s'></div>";
 
-            if (player[y].position == x) {
-
-                document.getElementById("cell" + x + "positionholder").innerHTML += "<div class='cell-position' title='" + player[y].name + "' style='background-color: " + player[y].color + "; left: " + left + "px; top: " + top + "px;'></div>";
-                if (left == 120) {
-                    left = 0;
-                    top = 24;
-                } else
-                    left += 24;
-            }
-        }
-
-        for (var y = 1; y < turn; y++) {
-
-            if (player[y].position == x) {
-                document.getElementById("cell" + x + "positionholder").innerHTML += "<div class='cell-position' title='" + player[y].name + "' style='background-color: " + player[y].color + "; left: " + left + "px; top: " + top + "px;'></div>";
-                if (left == 120) {
-                    left = 0;
-                    top = 24;
-                } else
-                    left += 24;
-            }
-        }
-    }
-
-    var p = player[turn];
+    NodeList.prototype.forEach = Array.prototype.forEach
+    children = myNewPosition.childNodes;
+    left = 0;
+    top = 0;
+    children.forEach(function(item){
+        item.style.left = left + "px";
+        item.style.top = top + "px";
+        if (left == 120) {
+            left = 0;
+            top = 24;
+        } else
+            left += 24;
+    });
 
     document.getElementById("cell" + p.position).style.border = "1px solid " + p.color;	
 
+}
+
+socket.on('displayFigures', function(player, pcount){
+    const zeroPosition = document.getElementById("cell" + 0 + "positionholder");
+
+    for (var i=1; i<=pcount; i++) {
+        zeroPosition.innerHTML += "<div id='player" + i + "figure' class='cell-position' title='" + player[i].name + "' style='background-color: " + player[i].color + ";'></div>";
+    }
+    var children = zeroPosition.childNodes;
+    left = 0;
+    top = 0;
+    children.forEach(function(item){
+        item.style.left = left + "px";
+        item.style.top = top + "px";
+        if (left == 120) {
+            left = 0;
+            top = 24;
+        } else
+            left += 24;
+    });
 });
 
-function popup(HTML, action, option) {
+function setName() {
+    setPopuptext("<p>Gib deinen Namen ein</p>");
+
+    let popupText = "<div><input type=\"text\" id=\"playername\" title=\"SpielerIn Name\" maxlength=\"16\" /> <input type=\"button\" value=\"OK\" id=\"namebutton\"/></div>";
+    document.getElementById("popuptext").innerHTML += popupText;
+
+    // Get the input field
+    const input = document.getElementById("playername");
+
+    // Execute a function when the user releases a key on the keyboard
+    input.addEventListener("keyup", function(event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.key === 'Enter') {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        document.getElementById("namebutton").on('click', );
+    }
+    }); 
+
+    $("#namebutton").on("click", function() {
+        $("#popupwrap").hide();
+        $("#popupbackground").fadeOut(400);
+
+        let name = document.getElementById("playername").value;
+        socket.emit('setName', name);
+
+    });
+
+    // Show using animation.
+    $("#popupbackground").fadeIn(400, function() {
+        $("#popupwrap").show();
+    });
+}
+
+function setZinssatz() {
+    setPopuptext("<p>Zinssatz ändern</p>");
+
+    let popupText = "<div><input type=\"number\" id=\"zinssatzInput\" title=\"Zinssatz\" maxlength=\"3\" value=\"5\" size=\"3\"/> % <input type=\"button\" value=\"Ändern\" id=\"zinsbutton\"/> <input type=\"button\" value=\"Schließen\" id=\"closezinsbutton\"/></div>";
+    document.getElementById("popuptext").innerHTML += popupText;
+
+    // Get the input field
+    const input = document.getElementById("zinssatzInput");
+
+    // Execute a function when the user releases a key on the keyboard
+    input.addEventListener("keyup", function(event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.key === 'Enter') {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        document.getElementById("zinsbutton").click();
+    }
+    }); 
+
+    $("#zinsbutton").on("click", function() {
+        $("#popupwrap").hide();
+        $("#popupbackground").fadeOut(400);
+
+        socket.emit("zinssatz", parseInt(document.getElementById("zinssatzInput").value))
+
+    });
+
+    $("#closezinsbutton, #popupbackground").on("click", function() {
+        $("#popupwrap").hide();
+        $("#popupbackground").fadeOut(400);
+
+        $('#icon-bar a.active').removeClass('active');
+        $("#logicon").addClass('active');
+    });
+
+    // Show using animation.
+    $("#popupbackground").fadeIn(400, function() {
+        $("#popupwrap").show();
+    });
+}
+
+function setPopuptext(HTML) {
     document.getElementById("popuptext").innerHTML = HTML;
     document.getElementById("popup").style.width = "300px";
     document.getElementById("popup").style.top = "0px";
     document.getElementById("popup").style.left = "0px";
+}
+
+function popup(HTML, action, option) {
+    setPopuptext(HTML);
 
     if (!option && typeof action === "string") {
         option = action;
@@ -1787,17 +2008,6 @@ function showdeed(property) {
     socket.emit('showdeed', property)
 }
 
-function menuitem_onmouseover(element) {
-    element.className = "menuitem menuitem_hover";
-    return;
-}
-
-function menuitem_onmouseout(element) {
-    element.className = "menuitem";
-    return;
-}
-
-var auctionQueue = [];
 var highestbidder;
 var highestbid;
 var currentbidder = 1;
@@ -1826,7 +2036,7 @@ socket.on("chooseProperty", function(player, square) {
             housetext = "";
             if (sq.house >= 1 && sq.house <= 2) {
                 for (var x = 1; x <= sq.house; x++) {
-                    housetext += "<img src='./client/images/house.png' alt='' title='Haus' class='house' />";
+                    housetext += "<i class=\"fa-solid fa-house\" title='Haus' class='house' ></i>";
                 }
             } 
 
@@ -1860,7 +2070,7 @@ socket.on("chooseProperty", function(player, square) {
     } else if (firstproperty > -1) {
         document.getElementById("propertycheckbox" + firstproperty).checked = true;
     }
-    $(".property-cell-row").click(function() {
+    $(".property-cell-row").on('click', function() {
         var row = this;
 
         // Toggle check the current checkbox.
@@ -1889,6 +2099,10 @@ function finalizeAuction() {
 };
 
 socket.on("auction", function(_auctionproperty, _player, _square, _highestbidder, _highestbid) {
+    rcvAuction(_auctionproperty, _player, _square, _highestbidder, _highestbid)
+});
+
+function rcvAuction(_auctionproperty, _player, _square, _highestbidder, _highestbid) {
     player = _player;
     auctionproperty = _auctionproperty;
     highestbidder = _highestbidder;
@@ -1947,7 +2161,7 @@ socket.on("auction", function(_auctionproperty, _player, _square, _highestbidder
             this.value = "";
         }
     };
-});
+}
 
 //player
 function auctionPass() {
@@ -2012,14 +2226,117 @@ var myChart = new Chart("myChart", {
         backgroundColor: "rgba(255,0,0,1.0)",
         borderColor: "rgba(255,0,0,0.1)",
         data: geldMengen,
-        label: "Geldmenge"
+        label: "Geldmenge",
+        yAxisID: 'y',
     },
     {
         backgroundColor: "rgba(0,0,255,1.0)",
         borderColor: "rgba(0,0,255,0.1)",
         data: bankZinsen,
-        label: "Zinsen"
-        }]
+        label: "Zinsen",
+        yAxisID: 'y1',
+    }]
   },
-  options:{}
+  options:{
+    responsive: true,
+    interaction: {
+        mode: 'index',
+        intersect: false,
+    },
+    plugins: {},
+    stacked: false,
+    scales: {
+        y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+        },
+        y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+
+            grid: {
+                drawOnChartArea: false,
+            }
+        },
+    },
+  }
+});
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker
+      .register('./sw.js')
+      .then(() => { console.log('Service Worker Registered'); });
+  }  
+
+let deferredPrompt;
+const addBtn = document.querySelector('.add-button');
+addBtn.style.display = 'none';
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent Chrome 67 and earlier from automatically showing the prompt
+    e.preventDefault();
+    // Stash the event so it can be triggered later.
+    deferredPrompt = e;
+    // Update UI to notify the user they can add to home screen
+    addBtn.style.display = 'block';
+  
+    addBtn.addEventListener('click', (e) => {
+      // hide our user interface that shows our A2HS button
+      addBtn.style.display = 'none';
+      // Show the prompt
+      deferredPrompt.prompt();
+      // Wait for the user to respond to the prompt
+      deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the A2HS prompt');
+          } else {
+            console.log('User dismissed the A2HS prompt');
+          }
+          deferredPrompt = null;
+        });
+    });
+  });  
+
+  $(document).ready(function () {
+    $('#icon-bar a').on('click', function(e) {
+
+        $('#icon-bar a.active').removeClass('active');
+
+        $(this).addClass('active');
+        e.preventDefault();
+    });
+
+    $('.max-button').on('click', function(e) {
+
+        var $parent = $(this).parent().parent();
+        $parent.children(".moneyopt").show();
+        $(this).parent().children(".min-button").show();
+        $(this).hide();
+
+        e.preventDefault();
+    });
+
+    $('.min-button').on('click', function(e) {
+
+        var $parent = $(this).parent().parent();
+        $parent.children(".moneyopt").hide();
+        $(this).parent().children(".max-button").show();
+        $(this).hide();
+
+        e.preventDefault();
+    });
+});
+
+var online;
+  window.addEventListener("load", () => {
+    online = navigator.onLine;
+  });
+
+$('[title!=""]').qtip({
+    suppress: 'false',
+    show: {
+        event: 'click'
+    }
 });
