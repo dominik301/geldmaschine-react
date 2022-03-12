@@ -558,4 +558,4 @@ var chanceCards2 = Card.chanceCards2;
 
 
 var AITest = require('./AI.js');
-const { kMaxLength } = require('node:buffer');const { generatePrimeSync } = require('node:crypto');
+//const { kMaxLength } = require('node:buffer');const { generatePrimeSync } = require('node:crypto');
