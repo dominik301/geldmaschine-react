@@ -18,6 +18,7 @@ app.get('/',function(req, res) {
 app.use('/client',express.static(__dirname + '/client'));
 app.use('/.well-known',express.static(__dirname + '/.well-known'));
 app.use('/sw.js',express.static(__dirname + '/sw.js'));
+app.use('/sitemap.xml',express.static(__dirname + '/sitemap.xml'));
 
 console.log("Server started.");
 
