@@ -20,6 +20,7 @@ select {
   margin-right: 3em;
   margin-top: 1em;
   margin-bottom: 1em;
+  font-size:small;
 }
 
 #setup-scrollable {
@@ -894,6 +895,10 @@ td {
 	button, input {
 		padding: 0.6em 0.8em; /* Some padding */
 	}
+
+	#description {
+		font-size: medium;
+	}
 }
 
 @media screen and (min-height: 770px) {
@@ -906,6 +911,10 @@ td {
 
 	#cell6price {
 		font-size: small;
+	}
+
+	#description {
+		font-size:large;
 	}
 }
 
