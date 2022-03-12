@@ -261,97 +261,109 @@
 	<div id="setup">
 
 		<div id="mytitle" > Spiel - Geldmaschine </div>
-
-		<table>
-			<tbody>
-			<tr id="setup-nieten">
-				<td><div id="nietenfield">
-					Anzahl Nieten
-				</div></td>
-				<td>
-					<select id="nieten" title="Wähle die Anzahl der Nieten.">
-						<option id="nieten0">0</option>
-						<option id="nieten1">1</option>
-						<option id="nieten2">2</option>
-						<option id="nieten4">4</option>
-						<option id="nieten7">7</option>
-						<option id="nieten8">8</option>
-						<option id="nieten10">10</option>
-					</select>
-				</td>
-			</tr>
-			<tr id="setup-spieler">
-				<td><div id="spielerfield">
-					Anzahl SpielerInnen
-				</div></td>
-				<td>
-					<select id="spieler" title="Wähle die Anzahl der Spieler.">
-						<option id="spieler3">3</option>
-						<option id="spieler4">4</option>
-						<option id="spieler5">5</option>
-						<option id="spieler6">6</option>
-					</select>
-				</td>
-			</tr>
-			<tr id="player1input" class="player-input">
-				<td><span>SpielerIn 1:</span></td>
-				<td>
-					<span id="player1name" ></span>
-				</td>
-			</tr>
-			<tr id="player2input" class="player-input">
-				<td><span>SpielerIn 2:</span></td>
-				<td>
-					<span id="player2name" ></span>
-				</td>
-			</tr>
-			<tr id="player3input" class="player-input">
-				<td><span>SpielerIn 3:</span></td>
-				<td>
-					<span id="player3name" ></span>
-				</td>
-			</tr>
-			<tr id="player4input" class="player-input">
-				<td><span>SpielerIn 4:</span></td>
-				<td>
-					<span id="player4name" ></span>
-				</td>
-			</tr>
-			<tr id="player5input" class="player-input">
-				<td><span>SpielerIn 5:</span></td>
-				<td>
-					<span id="player5name" ></span>
-				</td>
-			</tr>
-			<tr id="player6input" class="player-input">
-				<td><span>SpielerIn 6:</span></td>
-				<td>
-					<span id="player6name" ></span>
-				</td>
-			</tr><tr>
-				<td><div style="margin: 20px 0px;">
-					<input id="startbutton" type="button" value="Spiel beginnen" title="Starte das Spiel." />
-				</div></td>
-				<td>
-					<button class="add-button">App installieren</button>
-				</td>
+    
+		<div id="setup-scrollable">
+			<table>
+				<tbody>
+				<tr id="setup-nieten">
+					<td><div id="nietenfield">
+						Anzahl Nieten
+					</div></td>
+					<td>
+						<select id="nieten" title="Wähle die Anzahl der Nieten.">
+							<option id="nieten0">0</option>
+							<option id="nieten1">1</option>
+							<option id="nieten2">2</option>
+							<option id="nieten4">4</option>
+							<option id="nieten7">7</option>
+							<option id="nieten8">8</option>
+							<option id="nieten10">10</option>
+						</select>
+					</td>
 				</tr>
-			</tbody>
-		</table>
+				<tr id="setup-spieler">
+					<td><div id="spielerfield">
+						Anzahl SpielerInnen
+					</div></td>
+					<td>
+						<select id="spieler" title="Wähle die Anzahl der Spieler.">
+							<option id="spieler3">3</option>
+							<option id="spieler4">4</option>
+							<option id="spieler5">5</option>
+							<option id="spieler6">6</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="player1input" class="player-input">
+					<td><span>SpielerIn 1:</span></td>
+					<td>
+						<span id="player1name" ></span>
+					</td>
+				</tr>
+				<tr id="player2input" class="player-input">
+					<td><span>SpielerIn 2:</span></td>
+					<td>
+						<span id="player2name" ></span>
+					</td>
+				</tr>
+				<tr id="player3input" class="player-input">
+					<td><span>SpielerIn 3:</span></td>
+					<td>
+						<span id="player3name" ></span>
+					</td>
+				</tr>
+				<tr id="player4input" class="player-input">
+					<td><span>SpielerIn 4:</span></td>
+					<td>
+						<span id="player4name" ></span>
+					</td>
+				</tr>
+				<tr id="player5input" class="player-input">
+					<td><span>SpielerIn 5:</span></td>
+					<td>
+						<span id="player5name" ></span>
+					</td>
+				</tr>
+				<tr id="player6input" class="player-input">
+					<td><span>SpielerIn 6:</span></td>
+					<td>
+						<span id="player6name" ></span>
+					</td>
+				</tr><tr>
+					<td><div style="margin: 20px 0px;">
+						<input id="startbutton" type="button" value="Spiel beginnen" title="Starte das Spiel." />
+					</div></td>
+					<td>
+						<button class="add-button">App installieren</button>
+					</td>
+					</tr>
+				</tbody>
+			</table>
 
-		<div id="donate">
-			<form action="https://www.paypal.com/donate" method="post" target="_blank">
-				<input type="hidden" name="hosted_button_id" value="KZ5T8R62UZ77C" />
-				<input type="image" src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Spenden mit dem PayPal-Button" />
-			</form>
-		</div>
+			<!--<div id="donate">
+				<form action="https://www.paypal.com/donate" method="post" target="_blank" id="paypal">
+					<input type="hidden" name="hosted_button_id" value="KZ5T8R62UZ77C" />
+					<input type="image" src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Spenden mit dem PayPal-Button" />
+				</form>
+			</div>-->
+		
+			<div id="description">
+				<span>Das Spiel „Geldmaschine“ hat Samirah Kenawi entwickelt, damit Interessierte sich auf spielerische Weise Wissen über das Funktionieren unseres Geldsystems aneignen können.<br><br>
+					Zu den zwei Varianten der Ereigniskarten (Phase 1 und Phase 2) haben viele die richtige Idee: Phase 2 beginnt mit der Marktsättigung, wenn keine (ausreichende) privaten Investitionen mehr stattfinden. Der Staat versucht durch seine Wirtschafts- und Geldpolitik darauf zu reagieren.<br><br>
+					Natürlich ist das spielerische Modell stark vereinfacht. Es macht jedoch erfahrbar, wie durch Kreditaufnahme für Investitionen Geld in Umlauf kommt und wie die Geldversorgung ins Stocken gerät, wenn diese private Kreditaufnahme sinkt. Auch lässt es – wenn lange genug gespielt wird –, erkennen, wie Wertpapierhandel zu einem notwendigen Bestandteil der Ökonomie wird und welche Dynamik er entwickelt.<br><br>
+					Inzwischen hat Dominik Hüsener eine online-Version des Spiels erarbeitet. Sie ist noch relativ einfach gehalten. Allerdings erfolgen alle Buchungen automatisch und sehr viel schneller als mittels der Tabellen für die Brettspielversion. Um online spielen zu können, muss das Spiel von mindestens 3 Personen zeitnah geöffnet werden. Sinnvoll ist es, wenn alle Mitspielenden nebenbei einem virtuellen Raum beitreten, wobei die Kameras ausgeschaltet werden können. Dann können alle während des Spielens jederzeit miteinander reden.<br><br>
+					Wissen ist Macht. Um das heutige krisenbehaftete System überwinden zu können, müssen wir es verstehen lernen. Dazu will das Spiel einen Beitrag leisten.
+				</span>
+			</div>
+    	</div>
 
 		<div id="credits">
-			  <ul>
-			<li><a href="https://falschgeldsystem.de/spiel/" target="_blank"><i class="fa-solid fa-info"></i> Anleitung</a></li>
-			<li><a href="mailto:dominik.huesener@rwth-aachen.de"><i class="fa-solid fa-comment"></i> Feedback</a></li>
-			<li><a href="./client/privacy.html" target="_blank"><i class="fa-solid fa-shield"></i> Datenschutz</a></li>
-		</ul>
+			<ul>
+				<li><a href="https://falschgeldsystem.de/spiel/" target="_blank"><i class="fa-solid fa-info"></i> Anleitung</a></li>
+				<li><a href="mailto:dominik.huesener@rwth-aachen.de"><i class="fa-solid fa-comment"></i> Feedback</a></li>
+				<li><a href="./client/privacy.html" target="_blank"><i class="fa-solid fa-shield"></i> Datenschutz</a></li>
+				<li><a href="https://www.paypal.com/donate/?hosted_button_id=KZ5T8R62UZ77C" target="_blank"><i class="fa-solid fa-circle-dollar-to-slot"></i> Spenden</a></li>
+			</ul>
 		</div>
 	</div>
 
