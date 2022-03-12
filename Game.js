@@ -206,7 +206,7 @@ module.exports = class Game {
 		}
 	};
 
-	#bankruptcyUnmortgage() {
+	bankruptcyUnmortgage() {
 		var p = this.player[this.turn];
 
 		if (p.creditor === 0) {
@@ -247,10 +247,10 @@ module.exports = class Game {
 	};
 
 	resign = function() {
-		this.#bankruptcy();
+		this.bankruptcy();
 	};
 
-	#bankruptcy() {
+	bankruptcy() {
 		var p = this.player[this.turn];
 		var pcredit = this.player[p.creditor];
 		var bankruptcyUnmortgageFee = 0;
@@ -299,7 +299,7 @@ module.exports = class Game {
 			//addAlert(pcredit.name + " paid $" + bankruptcyUnmortgageFee + " interest on the mortgaged properties received from " + p.name + ".");
 			//this.popup("<p>" + pcredit.name + ", you must pay $" + bankruptcyUnmortgageFee + " interest on the mortgaged properties you received from " + p.name + ".</p>");
 			this.player[pcredit.index].pay(bankruptcyUnmortgageFee, 0); 
-     		this.#bankruptcyUnmortgage();
+     		this.bankruptcyUnmortgage();
 		}
 	};
 
@@ -744,10 +744,10 @@ module.exports = class Game {
 
 		this.updateMoney();
 
-		this.#chanceCommunityChest();
+		this.chanceCommunityChest();
 	}
 
-	#chanceCommunityChest() {
+	chanceCommunityChest() {
 		var p = this.player[this.turn];
 
 		if (this.phase == 1) {
@@ -757,7 +757,7 @@ module.exports = class Game {
 
 				this.popupAll("<i class=\"fa-solid fa-question\" style='font-size: xx-large; height: 1em; width: 1em; float: left; margin: 8px 8px 8px 0px;' ></i><div style='font-weight: bold; font-size: 16px; '>" + chanceCards[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards[chanceIndex].text + "</div>"); //TODO
 
-				this.#chanceAction(chanceIndex);
+				this.chanceAction(chanceIndex);
 
 				this.chanceIndex++;
 
@@ -780,7 +780,7 @@ module.exports = class Game {
 
 				this.popupAll("<i class=\"fa-solid fa-question\" style='font-size: xx-large; height: 1em; width: 1em; float: left; margin: 8px 8px 8px 0px;' ></i><div style='font-weight: bold; font-size: 16px; '>" + chanceCards2[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards2[chanceIndex].text + "</div>");
 
-				this.#chanceAction(chanceIndex);
+				this.chanceAction(chanceIndex);
 
 				this.chanceIndex++;
 
@@ -807,11 +807,11 @@ module.exports = class Game {
 	
 		this.rollDice();
 		this.updateDice();
-		setTimeout(() => { this.#move();}, 1000);
+		setTimeout(() => { this.move();}, 1000);
 
 	}
 
-	#move() {
+	move() {
 		var p = this.player[this.turn];
 		var die1 = this.getDie();
 
@@ -826,7 +826,7 @@ module.exports = class Game {
 
 		// Pay interest as you pass GO
 		if (p_old < 6 && p.position >= 6) {
-			this.#citytax();
+			this.citytax();
 		}
 		if (p.position >= 12) {
 			p.position -= 12;
@@ -897,7 +897,7 @@ module.exports = class Game {
 		}
 	}
 
-	#citytax() {
+	citytax() {
 		this.addAlert(this.player[this.turn].name + " ist auf oder über das Feld Staat/Finanzamt gezogen und Steuern aufs Guthaben gezahlt.");
 		//TODO: ask to buy Vermögensgegenstände
 		var steuer = Math.floor(0.1 * this.player[this.turn].money);
@@ -927,7 +927,7 @@ module.exports = class Game {
 		}
 	}
 
-	#chanceAction(chanceIndex) {
+	chanceAction(chanceIndex) {
 		var p = this.player[this.turn]; // This is needed for reference in action() method.
 	
 		if (this.phase == 1)
