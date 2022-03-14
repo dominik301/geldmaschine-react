@@ -1,6 +1,8 @@
 var express = require('express');
+var compression = require('compression');
 //const { title } = require('node:process');
 var app = express();
+app.use(compression());
 
 /*const fs = require('fs');
  

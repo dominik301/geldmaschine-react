@@ -1,6 +1,6 @@
 body {
 	/*background: #FFFFFF;*/
-	background-image: url("https://www.publicdomainpictures.net/pictures/210000/velka/natural-wood-grain-background-14903911355WD.jpg");
+	background-image: url("wood-bright.webp");
 	/*background: brown;*/
 	background-size: cover;
 	margin: 0px;
@@ -1065,7 +1065,7 @@ td {
 
 @media (prefers-color-scheme: dark) {
 	body {
-		background-image: url("https://www.publicdomainpictures.net/pictures/70000/velka/wood-texture-1385971419t2h.jpg");
+		background-image: url("wood-dark.webp");
 		background-color: black;
 		color: white;
 	}
