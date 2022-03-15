@@ -1,4 +1,4 @@
-const cacheName = 'geldmaschine-v2';
+const cacheName = 'geldmaschine-v3';
 const appShellFiles = [
   'client/',
   'client/myscript.js',
