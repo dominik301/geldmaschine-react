@@ -12,7 +12,8 @@
 	<script defer type="text/javascript" src="https://cdn.jsdelivr.net/qtip2/3.0.3/basic/jquery.qtip.min.js" integrity="sha384-TPScrMyn/md54F3igk3Ft1QAMV1ynAp+swO4CxHrDu65zbRWRinbXhFSduK4e1Ce" crossorigin="anonymous"></script>
 	<script src="./client/myscript.min.js" defer></script>
 	<link rel="icon" type="image/x-icon" href="./client/favicon.ico">
-	<link rel="stylesheet" type="text/css" href="./client/styles.min.css" />
+	<link rel="preload" href="./client/styles.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+	<noscript><link rel="stylesheet" href="./client/styles.min.css"></noscript>
 	<link rel="preload" href="https://cdn.jsdelivr.net/qtip2/3.0.3/basic/jquery.qtip.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 	<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/qtip2/3.0.3/basic/jquery.qtip.min.css"></noscript>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/fontawesome.min.css" integrity="sha512-8Vtie9oRR62i7vkmVUISvuwOeipGv8Jd+Sur/ORKDD5JiLgTGeBSkI3ISOhc730VGvA5VVQPwKIKlmi+zMZ71w==" crossorigin="anonymous" />
