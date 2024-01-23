@@ -1,53 +1,3 @@
-body {
-	/*background: #FFFFFF;*/
-	background-image: url("https://www.publicdomainpictures.net/pictures/210000/velka/natural-wood-grain-background-14903911355WD.jpg");
-	/*background: brown;*/
-	background-size: cover;
-	margin: 0px;
-	font-family: arial, sans-serif;
-	font-size:large;
-}
-
-button,
-input,
-select {
-	font-size:large;
-}
-
-button, input {
-	background-color: #c8e6c9; /* Blue background */
-	border: none; /* Remove borders */
-	/*padding: 0.6em 0.8em; /* Some padding */
-	cursor: pointer; /* Mouse pointer on hover */
-}
-
-select {
-	background-color: #c8e6c9; /* Blue background */
-	border: none; /* Remove borders */
-	cursor: pointer; /* Mouse pointer on hover */
-}
-
-button:hover, input:hover, select:hover {
-	background-color: #81c784;
-}
-
-
-td {
-	border: 1px solid black;
-	text-align: center;
-}
-
-#mytitle {
-	font-size: xx-large;
-	text-align: center;
-	margin-bottom: 1em;
-}
-
-#setup {
-	display: none;
-	margin-top: 1em;
-}
-
 #moneybar {
 	float: right;
 	border: 0px solid black;
@@ -84,10 +34,6 @@ td {
 #refresh {
 	display: none;
 	margin: 15px;
-}
-
-#noscript {
-	margin-left: 10px;
 }
 
 #board {
@@ -219,10 +165,6 @@ td {
 	font-weight: bold;
 }
 
-#trade-leftp-name option {
-	font-weight: normal;
-}
-
 #trade-rightp-name {
 	font-weight: bold;
 }
@@ -230,16 +172,6 @@ td {
 #trade-rightp-name option {
 	font-weight: normal;
 }
-/*
-#trade-leftp-money {
-	width: 90%;
-}
-
-#trade-rightp-money {
-	width: 90%;
-}*/
-
-/* begin*/
 #credit {
 	border: 2px solid black;
 	position: absolute;
@@ -258,13 +190,10 @@ td {
 	font-weight: bold;
 }
 
-#credit-leftp-name option {
-	font-weight: normal;
-}
 
 #credit-leftp-money {
 	width: 90%;
-}/*end*/
+}
 
 #deedcolor {
 	background: white;
@@ -512,7 +441,6 @@ td {
 	color: red;
 }
 
-/*begin: TODO*/
 .cell {
 	position: relative;
 	top: 0;
@@ -590,30 +518,6 @@ td {
 	z-index: 15;
 }
 
-.enlarge-color {
-	background: white;
-	width: 100%;
-	height: 40px;
-}
-
-.enlarge-name {
-	font-weight: bold;
-	font-size: 20px;
-	background-color: white;
-	height: 45px;
-}
-
-.enlarge-price {
-	background-color: white;
-	vertical-align: bottom;
-	height: 25px;
-}
-
-.enlarge-token {
-	height: 45px;
-	width: 150px;
-}
-
 .moneybarcell {
 	width: 183px;
 	min-width: 83px;
@@ -669,14 +573,6 @@ td {
 	cursor: default;
 	text-align: left;
 	vertical-align: middle;
-}
-
-.propertycelldeed {
-	width: 18px;
-	height: 20px;
-	border: 1px solid grey;
-	cursor: pointer;
-	display: none;
 }
 
 .statscellcolor {
@@ -779,7 +675,7 @@ td {
 
 .cell-house:before,
 .cell-house2:before{
-	font-family: "FontAwesome";
+	font-family: "Font Awesome 6 Free";
 	content: "\f015";
 }
 .cell-house {
@@ -841,12 +737,6 @@ td {
 
 }
 
-#credits {
-	width: 100%;
-	position: absolute;
-	bottom: 0;
-}
-
 #cell6price {
 	margin-top: -4em;
 	font-size: x-small;
@@ -877,10 +767,6 @@ td {
 	#manage input {
 		font-size: large
 	}
-
-	button, input {
-		padding: 0.6em 0.8em; /* Some padding */
-	}
 }
 
 @media screen and (min-height: 770px) {
@@ -900,10 +786,6 @@ td {
 	
 	.board-center {
 		width: 240px;
-	}
-	
-	input {
-		font-size: small;
 	}
 
 	#control {
@@ -979,40 +861,6 @@ td {
 	}
 }
 
-#setup ul {
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-	overflow: hidden;
-	background-color: #333;
-  }
-  
-#setup li {
-	float: left;
-  }
-  
-#setup li a {
-	display: block;
-	color: white;
-	text-align: center;
-	padding: 14px 16px;
-	text-decoration: none;
-  }
-  
-#setup li a:hover {
-	background-color: #111;
-  }
-
-#setup table {
-	border-collapse: collapse;
-	border-style: hidden;
-	margin: 0 auto;
-	}
-
-#setup table td {
-	border: none;
-	padding: 0.5em 0;
-}
 
 #icon-bar {
 	width: 4em;
@@ -1042,21 +890,6 @@ td {
 }
 
 @media (prefers-color-scheme: dark) {
-	body {
-		background-image: url("https://www.publicdomainpictures.net/pictures/70000/velka/wood-texture-1385971419t2h.jpg");
-		background-color: black;
-		color: white;
-	}
-
-	button, input, select {
-		background-color: #1b5e20; /* Blue background */
-		color: white; /* White text */
-	}
-
-	button:hover, input:hover, select:hover {
-		background-color: #388e3c;
-	}
-
 	#board {
 		border-color: white;
 		background-color: #111;
@@ -1093,12 +926,6 @@ td {
 	#deed {
 		color: black;
 	}
-}
-
-#donate {text-align: center;}
-
-#donate input {
-	background-color: transparent;
 }
 
 @keyframes changeOpacity {

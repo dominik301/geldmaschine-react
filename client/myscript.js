@@ -1,28 +1,3 @@
-window.addEventListener('beforeunload', function (e) {
-    // Cancel the event
-    e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
-    e.stopImmediatePropagation();
-    // Chrome requires returnValue to be set
-    e.returnValue = '';
-  });
-
-const socket = io();
-
-var playerId;
-var pcount;
-
-const start = document.getElementById('startbutton');
-
-start.onclick = function(e){
-    //prevent the form from refreshing the page
-    e.preventDefault();
-
-    socket.emit("windowload");
-
-    var nieten = document.getElementById("nieten").value;
-    var pNo = document.getElementById("spieler").value;
-    socket.emit('setup', true, pNo, nieten);
-}
 
 const kreditaufnehmen = document.getElementById('kreditaufnehmenbutton');
 const kredittilgen = document.getElementById('kredittilgenbutton');
@@ -44,10 +19,7 @@ kreditaufnehmen.onclick = function(e){
         return false;
     }
     
-    if (online)
-        socket.emit('kreditaufnehmen', money);
-    else
-        game.kreditAufnehmen(parseInt(money), playerId);
+    socket.emit('kreditaufnehmen', money);
 
     kredit.value = "0";
 }
@@ -65,10 +37,7 @@ kredittilgen.onclick = function(e){
     if (!confirm(document.getElementById("player" + playerId + "name").innerHTML + ", möchtest Du wirklich deinen Kredit tilgen?")) {
         return false;
     }
-    if (online)
-        socket.emit('kredittilgen', kredit.value);
-    else
-        game.kreditTilgen(parseInt(kredit.value), playerId);
+    socket.emit('kredittilgen', kredit.value);
         
     kredit.value = "0";
 }
@@ -919,25 +888,6 @@ function resetTrade(initiator, recipient, allowRecipientToBeChanged) {
     
 };
 
-socket.on('setPlayerId',function(data){
-    setPlayerId(data);    
-});
-
-function setPlayerId(id) {
-    playerId = id;
-
-    if (playerId != 1) {
-        $("#zinsen").hide();
-        $("#setup-nieten, #setup-spieler").hide();
-        $("#startbutton").hide();
-    }
-}
-
-socket.on('playerno',function(pnumber){
-    pcount = pnumber;
-    playernumber_onchange();
-});
-
 socket.on('addAlert', function(alertText) {
     addAlert(alertText);
 })
@@ -988,16 +938,6 @@ function showEliminatePlayer(HTML, action) {
 
 function eliminatePlayer() {
     socket.emit('eliminate');
-}
-
-socket.on('playerNames', function(names) {
-    setPlayernames(names);
-});
-
-function setPlayernames(names) {
-    for (var i in names) {
-        document.getElementById("player" + i + "name").innerHTML = names[i];
-    }
 }
 
 socket.on('updateMoney', function(_player, turn, _meineBank, meinStaat, _pcount) {
@@ -1415,88 +1355,6 @@ function show(element) {$(element).show();}
 function hide(element) {$(element).hide();}
 
 
-var pcount;
-
-function playernumber_onchange() {
-    //pcount = parseInt(document.getElementById("playernumber").value, 10);
-
-    $(".player-input").hide();
-
-    for (var i = 1; i <= pcount; i++) {
-        $("#player" + i + "input").show();
-    }
-    switch(pcount) {
-        case 6:
-            $("#spieler5").hide();
-            document.getElementById("spieler5").selected = true;
-        case 5:
-            $("#spieler4").hide();
-            document.getElementById("spieler4").selected = true;
-        case 4:
-            $("#spieler3").hide();
-            document.getElementById("spieler3").selected = true;
-    }
-    capitalism_onchange()
-
-    if (playerId == 1 && pcount < 7) {
-        $("#startbutton").show();
-    } else {
-        $("#startbutton").hide();
-    }
-}
-
-function capitalism_onchange() {
-    /*if (document.getElementById("capitalism").value != "Kapitalismus") {
-        $("#nietenfield").hide()
-        return;
-    }*/
-
-    $("#nietenfield").show()
-    $("#spielerfield").show()
-    
-    //pcount = parseInt(document.getElementById("playernumber").value, 10);
-
-    $("#nieten0").hide();
-    $("#nieten1").hide();
-    $("#nieten2").hide();
-    $("#nieten4").hide();
-    $("#nieten7").hide();
-    $("#nieten8").hide();
-    $("#nieten10").hide();
-
-    var anzahlSpieler = document.getElementById("spieler").value;
-    switch (parseInt(anzahlSpieler)) {
-        case 3:
-            $("#nieten0").show();
-            document.getElementById("nieten0").selected = true;
-            $("#nieten2").show();
-            $("#nieten4").show();
-            break;
-        case 4:
-            $("#nieten1").show();
-            document.getElementById("nieten1").selected = true;
-            $("#nieten4").show();
-            $("#nieten7").show();
-            break;
-        case 5:
-            $("#nieten0").show();
-            document.getElementById("nieten0").selected = true;
-            $("#nieten4").show();
-            $("#nieten8").show();
-            break;
-        case 6:
-            $("#nieten2").show();
-            document.getElementById("nieten2").selected = true;
-            $("#nieten7").show();
-            break;
-        /*case 6:
-            $("#nieten4").show();
-            document.getElementById("nieten4").selected = true;
-            $("#nieten10").show();
-            break;*/
-    }
-}
-
 function getCheckedProperty() {
     for (var i = 0; i < 12; i++) {
         if (document.getElementById("propertycheckbox" + i) && document.getElementById("propertycheckbox" + i).checked) {
@@ -1508,58 +1366,6 @@ function getCheckedProperty() {
 
 window.onload = function() {
 
-    //$("#playernumber").on("change", playernumber_onchange);
-    playernumber_onchange();
-
-    $("#spieler").on("change", capitalism_onchange);
-
-    //$("#capitalism").on("change", capitalism_onchange);
-    capitalism_onchange();
-
-    $("#noscript").hide();
-    $("#setup").show();
-    $("credit").hide();
-
-    // Create event handlers for hovering and draging.
-
-    var drag, dragX, dragY, dragObj, dragTop, dragLeft;
-
-    $("body").on("mousemove", function(e) {
-        var object;
-
-        if (e.target) {
-            object = e.target;
-        } else if (window.event && window.event.srcElement) {
-            object = window.event.srcElement;
-        }
-
-
-        if (object.classList.contains("propertycellcolor") || object.classList.contains("statscellcolor")) {
-            if (e.clientY + 20 > window.innerHeight - 404) {
-                document.getElementById("deed").style.top = (window.innerHeight - 404) + "px";
-            } else {
-                document.getElementById("deed").style.top = (e.clientY + 20) + "px";
-            }
-            document.getElementById("deed").style.left = (e.clientX + 10) + "px";
-
-
-        } else if (drag) {
-            if (e) {
-                dragObj.style.left = (dragLeft + e.clientX - dragX) + "px";
-                dragObj.style.top = (dragTop + e.clientY - dragY) + "px";
-
-            } else if (window.event) {
-                dragObj.style.left = (dragLeft + window.event.clientX - dragX) + "px";
-                dragObj.style.top = (dragTop + window.event.clientY - dragY) + "px";
-            }
-        }
-    });
-
-
-    $("body").on("mouseup", function() {
-
-        drag = false;
-    });
     document.getElementById("statsdrag").onmousedown = function(e) {
         dragObj = document.getElementById("stats");
         dragObj.style.position = "relative";
@@ -1614,7 +1420,7 @@ window.onload = function() {
         drag = true;
     };
 
-    
+
     $("#graphclose, #statsclose, #statsbackground").on("click", function() {
         $("#statswrap, #graphwrap").hide();
         $("#statsbackground").fadeOut(400);
@@ -2264,41 +2070,6 @@ var myChart = new Chart("myChart", {
   }
 });
 
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker
-      .register('./sw.js')
-      .then(() => { console.log('Service Worker Registered'); });
-  }  
-
-let deferredPrompt;
-const addBtn = document.querySelector('.add-button');
-addBtn.style.display = 'none';
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent Chrome 67 and earlier from automatically showing the prompt
-    e.preventDefault();
-    // Stash the event so it can be triggered later.
-    deferredPrompt = e;
-    // Update UI to notify the user they can add to home screen
-    addBtn.style.display = 'block';
-  
-    addBtn.addEventListener('click', (e) => {
-      // hide our user interface that shows our A2HS button
-      addBtn.style.display = 'none';
-      // Show the prompt
-      deferredPrompt.prompt();
-      // Wait for the user to respond to the prompt
-      deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('User accepted the A2HS prompt');
-          } else {
-            console.log('User dismissed the A2HS prompt');
-          }
-          deferredPrompt = null;
-        });
-    });
-  });  
-
   $(document).ready(function () {
     $('#icon-bar a').on('click', function(e) {
 
@@ -2329,10 +2100,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     });
 });
 
-var online;
-  window.addEventListener("load", () => {
-    online = navigator.onLine;
-  });
 
 $('[title!=""]').qtip({
     suppress: 'false',

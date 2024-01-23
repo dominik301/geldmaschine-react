@@ -1,21 +1,175 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
-	<title>Geldmaschine</title>
-	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+	<meta charset="utf-8" />
+	<title>Geldmaschine - spielerisch unser Geldsystem verstehen</title>
+	<meta name="description" content="Das Spiel „Geldmaschine“ hat Samirah Kenawi entwickelt, damit Interessierte sich auf spielerische Weise Wissen über das Funktionieren unseres Geldsystems aneignen können." />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js"></script>
-	<script src="https://kit.fontawesome.com/3a8cad677a.js" crossorigin="anonymous"></script>
-	<script src="./client/myscript.js" defer></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha384-rY/jv8mMhqDabXSo+UCggqKtdmBfd3qC2/KvyTDNQ6PcUJXaxK1tMepoQda4g5vB" crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.min.js"></script>
+	<script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" integrity="sha384-7NrRHqlWUj2hJl3a/dZj/a1GxuQc56mJ3aYsEnydBYrY1jR+RSt6SBvK3sHfj+mJ" crossorigin="anonymous"></script>
+	<script defer type="text/javascript" src="https://cdn.jsdelivr.net/qtip2/3.0.3/basic/jquery.qtip.min.js" integrity="sha384-TPScrMyn/md54F3igk3Ft1QAMV1ynAp+swO4CxHrDu65zbRWRinbXhFSduK4e1Ce" crossorigin="anonymous"></script>
+	<script src="./client/myscript.min.js" defer></script>
 	<link rel="icon" type="image/x-icon" href="./client/favicon.ico">
-	<link rel="stylesheet" type="text/css" href="./client/styles.css" />
-	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/qtip2/3.0.3/basic/jquery.qtip.min.css" />
+	<link rel="preload" href="./client/styles.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+	<noscript><link rel="stylesheet" href="./client/styles.min.css"></noscript>
+	<link rel="preload" href="https://cdn.jsdelivr.net/qtip2/3.0.3/basic/jquery.qtip.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+	<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/qtip2/3.0.3/basic/jquery.qtip.min.css"></noscript>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/fontawesome.min.css" integrity="sha512-8Vtie9oRR62i7vkmVUISvuwOeipGv8Jd+Sur/ORKDD5JiLgTGeBSkI3ISOhc730VGvA5VVQPwKIKlmi+zMZ71w==" crossorigin="anonymous" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/solid.min.css" integrity="sha512-6/gTF62BJ06BajySRzTm7i8N2ZZ6StspU9uVWDdoBiuuNu5rs1a8VwiJ7skCz2BcvhpipLKfFerXkuzs+npeKA==" crossorigin="anonymous" />
 	<link rel="manifest" href="./client/manifest.webmanifest" />
+	<link rel="apple-touch-icon" sizes="120x120" href="./client/apple-touch-icon-120x120-precomposed.png" />
+	<link rel="apple-touch-icon" sizes="152x152" href="./client/apple-touch-icon-152x152-precomposed.png" />
+
+	<style type="text/css">
+		body {
+			/*background: #FFFFFF;*/
+			background-image: url("client/wood-bright.webp");
+			/*background: brown;*/
+			background-size: cover;
+			margin: 0px;
+			font-family: arial, sans-serif;
+			font-size:large;
+			height: 100%
+		}
+
+		button,
+		input,
+		select {
+			font-size:large;
+		}
+
+		#description {
+			margin-left: 3em;
+			margin-right: 3em;
+			margin-top: 1em;
+			margin-bottom: 1em;
+			font-size:small;
+		}
+
+		#setup-scrollable {
+			overflow-y: scroll;
+			height: calc(100vh - 7em);
+		}
+
+		button, input {
+			background-color: #c8e6c9; /* Blue background */
+			border: none; /* Remove borders */
+			/*padding: 0.6em 0.8em; /* Some padding */
+			cursor: pointer; /* Mouse pointer on hover */
+		}
+
+		select {
+			background-color: #c8e6c9; /* Blue background */
+			border: none; /* Remove borders */
+			cursor: pointer; /* Mouse pointer on hover */
+		}
+
+		button:hover, input:hover, select:hover {
+			background-color: #81c784;
+		}
+
+		td {
+			border: 1px solid black;
+			text-align: center;
+		}
+
+		#mytitle {
+			font-size: xx-large;
+			text-align: center;
+			margin-bottom: 1em;
+		}
+
+		#setup {
+			display: block;
+			margin-top: 1em;
+		}
+
+		#credits {
+			width: 100%;
+			position: absolute;
+			bottom: 0;
+		}
+
+		@media screen and (min-height: 600px) {
+
+			button, input {
+				padding: 0.6em 0.8em; /* Some padding */
+			}
+
+			#description {
+				font-size: medium;
+			}
+		}
+
+		@media screen and (min-height: 770px) {
+			#description {
+				font-size:large;
+			}
+		}
+
+		@media screen and (max-height: 450px) {
+			input {
+				font-size: small;
+			}
+		}
+
+		#setup ul {
+			list-style-type: none;
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+			background-color: #333;
+		}
+		
+		#setup li {
+			float: left;
+		}
+		
+		#setup li a {
+			display: block;
+			color: white;
+			text-align: center;
+			padding: 14px 16px;
+			text-decoration: none;
+		}
+		
+		#setup li a:hover {
+			background-color: #111;
+		}
+
+		#setup table {
+			border-collapse: collapse;
+			border-style: hidden;
+			margin: 0 auto;
+		}
+
+		#setup table td {
+			border: none;
+			padding: 0.5em 0;
+		}
+
+		@media (prefers-color-scheme: dark) {
+			body {
+				background-image: url("client/wood-dark.webp");
+				background-color: black;
+				color: white;
+			}
+
+			button, input, select {
+				background-color: #1b5e20; /* Blue background */
+				color: white; /* White text */
+			}
+
+			button:hover, input:hover, select:hover {
+				background-color: #388e3c;
+			}
+		}
+	</style>
 </head>
 
-<body>
+<body onload="showSetup();">
 	<div id="popupbackground"></div>
 	<div id="popupwrap">
 		<div id="popup">
@@ -50,15 +204,9 @@
 		</div>
 	</div>
 
-	<p id="noscript">
-		Hinweis: Die Seite funktioniert nur mit JavaScript.
-	</p>
-
 	<div id="refresh">
 		Lade die Seite neu, um ein neues Spiel zu beginnen.
 	</div>
-
-	<!-- <div id="enlarge"></div> -->
 
 	<div id="deed">
 		<div id="deed-normal" style="display: none;">
@@ -258,97 +406,102 @@
 	<div id="setup">
 
 		<div id="mytitle" > Spiel - Geldmaschine </div>
-
-		<table>
-			<tbody>
-			<tr id="setup-nieten">
-				<td><div id="nietenfield">
-					Anzahl Nieten
-				</div></td>
-				<td>
-					<select id="nieten" title="Wähle die Anzahl der Nieten.">
-						<option id="nieten0">0</option>
-						<option id="nieten1">1</option>
-						<option id="nieten2">2</option>
-						<option id="nieten4">4</option>
-						<option id="nieten7">7</option>
-						<option id="nieten8">8</option>
-						<option id="nieten10">10</option>
-					</select>
-				</td>
-			</tr>
-			<tr id="setup-spieler">
-				<td><div id="spielerfield">
-					Anzahl SpielerInnen
-				</div></td>
-				<td>
-					<select id="spieler" title="Wähle die Anzahl der Spieler.">
-						<option id="spieler3">3</option>
-						<option id="spieler4">4</option>
-						<option id="spieler5">5</option>
-						<option id="spieler6">6</option>
-					</select>
-				</td>
-			</tr>
-			<tr id="player1input" class="player-input">
-				<td><span>SpielerIn 1:</span></td>
-				<td>
-					<span id="player1name" ></span>
-				</td>
-			</tr>
-			<tr id="player2input" class="player-input">
-				<td><span>SpielerIn 2:</span></td>
-				<td>
-					<span id="player2name" ></span>
-				</td>
-			</tr>
-			<tr id="player3input" class="player-input">
-				<td><span>SpielerIn 3:</span></td>
-				<td>
-					<span id="player3name" ></span>
-				</td>
-			</tr>
-			<tr id="player4input" class="player-input">
-				<td><span>SpielerIn 4:</span></td>
-				<td>
-					<span id="player4name" ></span>
-				</td>
-			</tr>
-			<tr id="player5input" class="player-input">
-				<td><span>SpielerIn 5:</span></td>
-				<td>
-					<span id="player5name" ></span>
-				</td>
-			</tr>
-			<tr id="player6input" class="player-input">
-				<td><span>SpielerIn 6:</span></td>
-				<td>
-					<span id="player6name" ></span>
-				</td>
-			</tr><tr>
-				<td><div style="margin: 20px 0px;">
-					<input id="startbutton" type="button" value="Spiel beginnen" title="Starte das Spiel." />
-				</div></td>
-				<td>
-					<button class="add-button">App installieren</button>
-				</td>
+    
+		<div id="setup-scrollable">
+			<table>
+				<tbody>
+				<tr id="setup-nieten">
+					<td><div id="nietenfield">
+						Anzahl Nieten
+					</div></td>
+					<td>
+						<select id="nieten" title="Wähle die Anzahl der Nieten.">
+							<option id="nieten0">0</option>
+							<option id="nieten1">1</option>
+							<option id="nieten2">2</option>
+							<option id="nieten4">4</option>
+							<option id="nieten7">7</option>
+							<option id="nieten8">8</option>
+							<option id="nieten10">10</option>
+						</select>
+					</td>
 				</tr>
-			</tbody>
-		</table>
+				<tr id="setup-spieler">
+					<td><div id="spielerfield">
+						Anzahl SpielerInnen
+					</div></td>
+					<td>
+						<select id="spieler" title="Wähle die Anzahl der Spieler.">
+							<option id="spieler3">3</option>
+							<option id="spieler4">4</option>
+							<option id="spieler5">5</option>
+							<option id="spieler6">6</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="player1input" class="player-input">
+					<td><span>SpielerIn 1:</span></td>
+					<td>
+						<span id="player1name" ></span>
+					</td>
+				</tr>
+				<tr id="player2input" class="player-input">
+					<td><span>SpielerIn 2:</span></td>
+					<td>
+						<span id="player2name" ></span>
+					</td>
+				</tr>
+				<tr id="player3input" class="player-input">
+					<td><span>SpielerIn 3:</span></td>
+					<td>
+						<span id="player3name" ></span>
+					</td>
+				</tr>
+				<tr id="player4input" class="player-input">
+					<td><span>SpielerIn 4:</span></td>
+					<td>
+						<span id="player4name" ></span>
+					</td>
+				</tr>
+				<tr id="player5input" class="player-input">
+					<td><span>SpielerIn 5:</span></td>
+					<td>
+						<span id="player5name" ></span>
+					</td>
+				</tr>
+				<tr id="player6input" class="player-input">
+					<td><span>SpielerIn 6:</span></td>
+					<td>
+						<span id="player6name" ></span>
+					</td>
+				</tr><tr>
+					<td><div style="margin: 20px 0px;">
+						<input id="startbutton" type="button" value="Spiel beginnen" title="Starte das Spiel." />
+					</div></td>
+					<td>
+						<button class="add-button">App installieren</button>
+					</td>
+					</tr>
+				</tbody>
+			</table>
 
-		<div id="donate">
-			<form action="https://www.paypal.com/donate" method="post" target="_blank">
-				<input type="hidden" name="hosted_button_id" value="KZ5T8R62UZ77C" />
-				<input type="image" src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Spenden mit dem PayPal-Button" />
-			</form>
-		</div>
+			<div id="description">
+				<span>Das Spiel „Geldmaschine“ hat Samirah Kenawi entwickelt, damit Interessierte sich auf spielerische Weise Wissen über das Funktionieren unseres Geldsystems aneignen können.<br><br>
+					Zu den zwei Varianten der Ereigniskarten (Phase 1 und Phase 2) haben viele die richtige Idee: Phase 2 beginnt mit der Marktsättigung, wenn keine (ausreichende) privaten Investitionen mehr stattfinden. Der Staat versucht durch seine Wirtschafts- und Geldpolitik darauf zu reagieren.<br><br>
+					Natürlich ist das spielerische Modell stark vereinfacht. Es macht jedoch erfahrbar, wie durch Kreditaufnahme für Investitionen Geld in Umlauf kommt und wie die Geldversorgung ins Stocken gerät, wenn diese private Kreditaufnahme sinkt. Auch lässt es – wenn lange genug gespielt wird –, erkennen, wie Wertpapierhandel zu einem notwendigen Bestandteil der Ökonomie wird und welche Dynamik er entwickelt.<br><br>
+					Inzwischen hat Dominik Hüsener eine online-Version des Spiels erarbeitet. Sie ist noch relativ einfach gehalten. Allerdings erfolgen alle Buchungen automatisch und sehr viel schneller als mittels der Tabellen für die Brettspielversion. Um online spielen zu können, muss das Spiel von mindestens 3 Personen zeitnah geöffnet werden. Sinnvoll ist es, wenn alle Mitspielenden nebenbei einem virtuellen Raum beitreten, wobei die Kameras ausgeschaltet werden können. Dann können alle während des Spielens jederzeit miteinander reden.<br><br>
+					Wissen ist Macht. Um das heutige krisenbehaftete System überwinden zu können, müssen wir es verstehen lernen. Dazu will das Spiel einen Beitrag leisten.
+				</span>
+			</div>
+    	</div>
 
 		<div id="credits">
-			  <ul>
-			<li><a href="https://falschgeldsystem.de/spiel/" target="_blank"><i class="fa-solid fa-info"></i> Anleitung</a></li>
-			<li><a href="mailto:dominik.huesener@rwth-aachen.de"><i class="fa-solid fa-comment"></i> Feedback</a></li>
-			<li><a href="./client/privacy.html" target="_blank"><i class="fa-solid fa-shield"></i> Datenschutz</a></li>
-		</ul>
+			<ul>
+				<li><a href="https://falschgeldsystem.de/spiel/" target="_blank"><i class="fa-solid fa-info"></i> Anleitung</a></li>
+				<li><a href="mailto:dominik.huesener@rwth-aachen.de"><i class="fa-solid fa-comment"></i> Feedback</a></li>
+				<li><a href="./client/privacy.html" target="_blank"><i class="fa-solid fa-shield"></i> Datenschutz</a></li>
+				<!--<li><a href="https://www.paypal.com/donate/?hosted_button_id=KZ5T8R62UZ77C" target="_blank"><i class="fa-solid fa-circle-dollar-to-slot"></i> Spenden</a></li>-->
+			</ul>
 		</div>
 	</div>
 
@@ -490,7 +643,219 @@
 		</table>
 	</div>
 
-	<script type="text/javascript" src="https://cdn.jsdelivr.net/qtip2/3.0.3/basic/jquery.qtip.min.js"></script>
+	<script>
+		window.addEventListener('beforeunload', function (e) {
+			// Cancel the event
+			e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
+			e.stopImmediatePropagation();
+			// Chrome requires returnValue to be set
+			e.returnValue = '';
+		});
 
+		const socket = io();
+
+		var playerId;
+		var pcount;
+
+		const start = document.getElementById('startbutton');
+
+		start.onclick = function(e){
+			//prevent the form from refreshing the page
+			e.preventDefault();
+
+			socket.emit("windowload");
+
+			var nieten = document.getElementById("nieten").value;
+			var pNo = document.getElementById("spieler").value;
+			socket.emit('setup', true, pNo, nieten);
+		}
+
+		socket.on('setPlayerId',function(data){
+			setPlayerId(data);    
+		});
+
+		function setPlayerId(id) {
+			playerId = id;
+
+			if (playerId != 1) {
+				$("#zinsen").hide();
+				$("#setup-nieten, #setup-spieler").hide();
+				$("#startbutton").hide();
+			}
+		}
+
+		socket.on('playerno',function(pnumber){
+			pcount = pnumber;
+			playernumber_onchange();
+		});
+
+		socket.on('playerNames', function(names) {
+			setPlayernames(names);
+		});
+
+		function setPlayernames(names) {
+			for (var i in names) {
+				document.getElementById("player" + i + "name").innerHTML = names[i];
+			}
+		}
+
+		var pcount;
+
+		function playernumber_onchange() {
+
+			$(".player-input").hide();
+
+			for (var i = 1; i <= pcount; i++) {
+				$("#player" + i + "input").show();
+			}
+			switch(pcount) {
+				case 6:
+					$("#spieler5").hide();
+					document.getElementById("spieler5").selected = true;
+				case 5:
+					$("#spieler4").hide();
+					document.getElementById("spieler4").selected = true;
+				case 4:
+					$("#spieler3").hide();
+					document.getElementById("spieler3").selected = true;
+			}
+			capitalism_onchange()
+
+			if (playerId == 1 && pcount < 7) {
+				$("#startbutton").show();
+			} else {
+				$("#startbutton").hide();
+			}
+		}
+
+		function capitalism_onchange() {
+
+			$("#nietenfield").show()
+			$("#spielerfield").show()
+
+			$("#nieten0").hide();
+			$("#nieten1").hide();
+			$("#nieten2").hide();
+			$("#nieten4").hide();
+			$("#nieten7").hide();
+			$("#nieten8").hide();
+			$("#nieten10").hide();
+
+			var anzahlSpieler = document.getElementById("spieler").value;
+			switch (parseInt(anzahlSpieler)) {
+				case 3:
+					$("#nieten0").show();
+					document.getElementById("nieten0").selected = true;
+					$("#nieten2").show();
+					$("#nieten4").show();
+					break;
+				case 4:
+					$("#nieten1").show();
+					document.getElementById("nieten1").selected = true;
+					$("#nieten4").show();
+					$("#nieten7").show();
+					break;
+				case 5:
+					$("#nieten0").show();
+					document.getElementById("nieten0").selected = true;
+					$("#nieten4").show();
+					$("#nieten8").show();
+					break;
+				case 6:
+					$("#nieten2").show();
+					document.getElementById("nieten2").selected = true;
+					$("#nieten7").show();
+					break;
+			}
+		}
+
+		function showSetup() {
+
+			playernumber_onchange();
+
+			$("#spieler").on("change", capitalism_onchange);
+
+			capitalism_onchange();
+
+			$("#setup").show();
+
+			// Create event handlers for hovering and draging.
+
+			var drag, dragX, dragY, dragObj, dragTop, dragLeft;
+
+			$("body").on("mousemove", function(e) {
+				var object;
+
+				if (e.target) {
+					object = e.target;
+				} else if (window.event && window.event.srcElement) {
+					object = window.event.srcElement;
+				}
+
+
+				if (object.classList.contains("propertycellcolor") || object.classList.contains("statscellcolor")) {
+					if (e.clientY + 20 > window.innerHeight - 404) {
+						document.getElementById("deed").style.top = (window.innerHeight - 404) + "px";
+					} else {
+						document.getElementById("deed").style.top = (e.clientY + 20) + "px";
+					}
+					document.getElementById("deed").style.left = (e.clientX + 10) + "px";
+
+
+				} else if (drag) {
+					if (e) {
+						dragObj.style.left = (dragLeft + e.clientX - dragX) + "px";
+						dragObj.style.top = (dragTop + e.clientY - dragY) + "px";
+
+					} else if (window.event) {
+						dragObj.style.left = (dragLeft + window.event.clientX - dragX) + "px";
+						dragObj.style.top = (dragTop + window.event.clientY - dragY) + "px";
+					}
+				}
+			});
+
+
+			$("body").on("mouseup", function() {
+
+				drag = false;
+			});
+
+		};
+
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker
+			.register('./sw.js')
+			.then(() => { console.log('Service Worker Registered'); });
+		}  
+
+		let deferredPrompt;
+		const addBtn = document.querySelector('.add-button');
+		addBtn.style.display = 'none';
+
+		window.addEventListener('beforeinstallprompt', (e) => {
+			// Prevent Chrome 67 and earlier from automatically showing the prompt
+			e.preventDefault();
+			// Stash the event so it can be triggered later.
+			deferredPrompt = e;
+			// Update UI to notify the user they can add to home screen
+			addBtn.style.display = 'block';
+
+			addBtn.addEventListener('click', (e) => {
+			// hide our user interface that shows our A2HS button
+			addBtn.style.display = 'none';
+			// Show the prompt
+			deferredPrompt.prompt();
+			// Wait for the user to respond to the prompt
+			deferredPrompt.userChoice.then((choiceResult) => {
+				if (choiceResult.outcome === 'accepted') {
+					console.log('User accepted the A2HS prompt');
+				} else {
+					console.log('User dismissed the A2HS prompt');
+				}
+				deferredPrompt = null;
+				});
+			});
+		});  
+	</script>
 </body>
 </html>
