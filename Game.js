@@ -126,7 +126,7 @@ module.exports = class Game {
 		initiator.update();
 
 		if (initiator.sumKredit + amount > initiator.verfuegbareHypothek) {
-			this.popup("<p>" + initiator.name + ", deine verfügbare Hypothek ist geringer als " + amount + ".</p>", key=key);
+			this.popup(initiator.name + ", deine verfügbare Hypothek ist geringer als " + amount + ".", key=key);
 			return false;
 		}
 
@@ -137,7 +137,7 @@ module.exports = class Game {
     	var initiator = this.player[key];
 
 		if (amount > initiator.money) {
-			this.popup("<p>" + initiator.name + ", du hast keine " + amount + ".</p>", key=key);
+			this.popup("" + initiator.name + ", du hast keine " + amount + ".", key=key);
 			return false;
 		}
 
@@ -199,7 +199,7 @@ module.exports = class Game {
 			this.SOCKET_LIST[this.turn].emit('show', '#control, #board', false);
 			this.SOCKET_LIST[this.turn].emit('show', '#refresh', true);
 
-			this.popup("<p>Glückwunsch, " + this.player[1].name + ", du hast das Spiel gewonnen.</p><div>");
+			this.popup("Glückwunsch, " + this.player[1].name + ", du hast das Spiel gewonnen.");
 
 		} else if (isPlayerTurn){
 			this.play();
@@ -349,22 +349,6 @@ module.exports = class Game {
 		this.SOCKET_LIST[this.turn].emit('buyhouse2', buy)
 	}
 
-	showStats(HTML, key) {
-		this.SOCKET_LIST[key].emit('showstats', HTML);
-	}
-
-	show(item, key=this.turn) {
-		this.SOCKET_LIST[key].emit('show', item, true);
-	}
-
-	hide(item, key=this.turn) {
-		this.SOCKET_LIST[key].emit('show', item, false);
-	}
-
-	changeButton(button, value, title, key=this.turn) {
-		this.SOCKET_LIST[key].emit('changeButton', button, value, title);
-	}
-
 	receiveOffer(key=this.turn) {
 		this.SOCKET_LIST[key].emit('receiveOffer', this.tradeObj);
 	}
@@ -458,7 +442,7 @@ module.exports = class Game {
 			if (p.human) this.hide("#landed");
 	
 		} else {
-			this.popup("<p>" + p.name + ", du brauchst weitere " + (property.price - p.money) + " um " + property.name + " zu kaufen.</p>");
+			this.popup(p.name + ", du brauchst weitere " + (property.price - p.money) + " um " + property.name + " zu kaufen.");
 		}
 	}
 	
@@ -501,7 +485,7 @@ module.exports = class Game {
 			recipient = this.player[this.tradeObj.recipient.index];
 	
 			if (this.tradeObj.assets.length > 0) {
-				this.popup("<p>Es können keine Fahrzeuge oder Yachten an die Bank verkauft werdem.</p>", key=receiver);
+				this.popup("Es können keine Fahrzeuge oder Yachten an die Bank verkauft werdem.", key=receiver);
 				return;
 			}
 			
@@ -747,6 +731,12 @@ module.exports = class Game {
 		this.chanceCommunityChest();
 	}
 
+	showEreignis(text, title) {
+		for (var i in this.SOCKET_LIST) {
+			this.SOCKET_LIST[i].emit('showEreignis', text, title);
+		}
+	}
+
 	chanceCommunityChest() {
 		var p = this.player[this.turn];
 
@@ -755,7 +745,7 @@ module.exports = class Game {
 			if (p.position === 3 || p.position === 9) {
 				var chanceIndex = chanceCards.deck[this.chanceIndex];
 
-				this.popupAll("<i class=\"fa-solid fa-question\" style='font-size: xx-large; height: 1em; width: 1em; float: left; margin: 8px 8px 8px 0px;' ></i><div style='font-weight: bold; font-size: 16px; '>" + chanceCards[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards[chanceIndex].text + "</div>"); //TODO
+				this.showEreignis(chanceCards[chanceIndex].text, chanceCards[chanceIndex].title);
 
 				this.chanceAction(chanceIndex);
 
@@ -778,7 +768,7 @@ module.exports = class Game {
 
 				var chanceIndex = chanceCards2.deck[this.chanceIndex];
 
-				this.popupAll("<i class=\"fa-solid fa-question\" style='font-size: xx-large; height: 1em; width: 1em; float: left; margin: 8px 8px 8px 0px;' ></i><div style='font-weight: bold; font-size: 16px; '>" + chanceCards2[chanceIndex].title + "</div><div style='text-align: justify;'>" + chanceCards2[chanceIndex].text + "</div>");
+				this.showEreignis(chanceCards2[chanceIndex].text, chanceCards2[chanceIndex].title);
 
 				this.chanceAction(chanceIndex);
 
@@ -849,7 +839,7 @@ module.exports = class Game {
 	play() {  
 
 		if (this.player[this.turn].human && this.player[this.turn].money < 0) {
-			this.popup("<p>Du hast dein Konto um " + (-this.player[this.turn].money) + " überzogen. Nimm einen Kredit auf, um Dispo-Zinsen zu vermeiden.</p>")
+			this.popup("Du hast dein Konto um " + (-this.player[this.turn].money) + " überzogen. Nimm einen Kredit auf, um Dispo-Zinsen zu vermeiden.")
 		}
 
 		this.percent = 0;
@@ -1004,7 +994,7 @@ module.exports = class Game {
 	  var price = (sq.houseprice - this.discount) * (1 - this.percent / 100);
 	
 	  if (p.money < price) {
-		this.popup("<p>Du brauchst " + (price - this.player[sq.owner].money) + " mehr um ein Haus in der " + sq.name + " zu kaufen.</p>");
+		this.popup("Du brauchst " + (price - this.player[sq.owner].money) + " mehr um ein Haus in der " + sq.name + " zu kaufen.");
 		return false;
 	  }
 	
@@ -1013,7 +1003,7 @@ module.exports = class Game {
 	  }
 	
 	  if (sq.house < 2 && houseSum >= 11) {
-		this.popup("<p>Alle 11 Häuser sind verkauft.</p>");
+		this.popup("Alle 11 Häuser sind verkauft.");
 		  return false;
 	  } 
 	

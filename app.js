@@ -137,13 +137,13 @@ io.sockets.on('connection', function(socket){
 
     if (s.mortgage) {
         if (game.player[s.owner].money < s.houseprice) {
-            game.popup("<p>Du brauchst " + (s.price - game.player[s.owner].money) + " mehr um die Hypothek für " + s.name + " zurückzuzahlen.</p>");
+            game.popup("Du brauchst " + (s.price - game.player[s.owner].money) + " mehr um die Hypothek für " + s.name + " zurückzuzahlen.");
 
         } else {
-            game.popup("<p>" + game.player[s.owner].name + ", möchtest du wirklich die Hypothek für " + s.name + " für " + s.price + " zurückzahlen?</p>", "Ja/Nein", true);
+            game.popup(game.player[s.owner].name + ", möchtest du wirklich die Hypothek für " + s.name + " für " + s.price + " zurückzahlen?", "Ja/Nein", true);
         }
     } else {
-        game.popup("<p>" + game.player[s.owner].name + ", mächstest du wirkliche eine Hypothek für " + s.name + " für " + s.price + " aufnehmen?</p>", "Ja/Nein", true);
+        game.popup(game.player[s.owner].name + ", mächstest du wirkliche eine Hypothek für " + s.name + " für " + s.price + " aufnehmen?", "Ja/Nein", true);
     } 
   });
 
