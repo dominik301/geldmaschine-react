@@ -1,6 +1,9 @@
 import React from 'react';
+import { useGameContext } from './GameContext';
 
-const Deed = (square) => {
+const Deed = (squareId) => {
+  const { gameState } = useGameContext();
+  const square = gameState.squares[squareId];
 
     return (
     <div id="deed">

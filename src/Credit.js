@@ -1,10 +1,17 @@
 import React from 'react';
+import { useGameContext } from './GameContext';
+import { SocketContext } from './SocketContext';
 
-const kredit = document.getElementById('credit-leftp-money');
+const Credit = () => {
+  const { socket } = useContext(SocketContext);
+  const { updateGameState } = useGameContext();
 
-kreditaufnehmenHandler = function(e){
-    //prevent the form from refreshing the page
-    e.preventDefault();
+  const cancelkredit = () => {
+    updateGameState({currentView: "board"});
+  };
+
+  kreditaufnehmenHandler = function(){
+    const kredit = document.getElementById('credit-leftp-money');
 
     if (isNaN(document.getElementById("credit-leftp-money").value)) {
         document.getElementById("credit-leftp-money").value = "Bitte eine Zahl eingeben.";
@@ -17,15 +24,13 @@ kreditaufnehmenHandler = function(e){
     if (!confirm(document.getElementById("player" + playerId + "name").innerHTML + ", möchtest Du wirklich einen Kredit aufnehmen?")) {
         return false;
     }
-    
-    socket.emit('kreditaufnehmen', money);
+    if (socket) socket.emit('kreditaufnehmen', money);
 
     kredit.value = "0";
-}
+  }
 
-kredittilgenHandler = function(e){
-    //prevent the form from refreshing the page
-    e.preventDefault();
+  kredittilgenHandler = function(){
+    const kredit = document.getElementById('credit-leftp-money');
 
     if (isNaN(document.getElementById("credit-leftp-money").value)) {
         document.getElementById("credit-leftp-money").value = "Bitte eine Zahl eingeben.";
@@ -36,18 +41,10 @@ kredittilgenHandler = function(e){
     if (!confirm(document.getElementById("player" + playerId + "name").innerHTML + ", möchtest Du wirklich deinen Kredit tilgen?")) {
         return false;
     }
-    socket.emit('kredittilgen', kredit.value);
+    if (socket) socket.emit('kredittilgen', kredit.value);
         
     kredit.value = "0";
-}
-
-const Credit = ({changeView}) => {
-  const cancelkredit = () => {
-    changeView("board");
-
-    //$('#icon-bar a.active').removeClass('active');
-    //$("#logicon").addClass('active');
-  };
+  }
 
     return (
     <div id="credit">
@@ -64,8 +61,8 @@ const Credit = ({changeView}) => {
         </tr>
         <tr>
           <td colspan="2" className="credit-cell">
-            <input type="button" id="kreditaufnehmenbutton" value="Kredit aufnehmen" title="Kredit aufnehmen." onChange={kreditaufnehmenHandler()} />
-            <input type="button" id="kredittilgenbutton" value="Kredit tilgen" title="Kredit tilgen." onClick={kredittilgenHandler()} />
+            <input type="button" id="kreditaufnehmenbutton" value="Kredit aufnehmen" title="Kredit aufnehmen." onChange={kreditaufnehmenHandler} />
+            <input type="button" id="kredittilgenbutton" value="Kredit tilgen" title="Kredit tilgen." onClick={kredittilgenHandler} />
             <input type="button" id="kreditcancelbutton" value="Schließen" onClick={cancelkredit} title="Fenster schließen." />
           </td>
         </tr>

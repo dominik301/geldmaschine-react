@@ -1,5 +1,5 @@
 import './App.css';
-import Board from './Board.js';
+import Board, {EnlargeWrap} from './Board.js';
 import MoneyBar from './Moneybar.js';
 import Setup from './Setup.js';
 //import Trade from './Trade.js';
@@ -13,46 +13,16 @@ import Stats from './Stats.js';
 import { useContext, useState, useEffect } from 'react';
 import socketIOClient from "socket.io-client";
 import { SocketContext } from './SocketContext';
+import { GameProvider, useGameContext } from './GameContext';
 
 const ENDPOINT = "http://localhost:3000";
 
 const Game = () => {
   const socket = useContext(SocketContext);
-  const players = [
-    { name: 'Player 1', color: 'yellow', position: 0, money: 0, sumKredit: 0, verfuegbareHypothek: 0, anleihen: 0, derivate: 0 },
-    { name: 'Player 2', color: 'red', position: 0, money: 0, sumKredit: 0, verfuegbareHypothek: 0, anleihen: 0, derivate: 0 },
-    // Add more players as needed
-  ];
-  const squares = [
-    {color: "yellow", name: "Start/Bank", pricetext: "Wer auf oder über dieses Feld zieht, zahlt Zinsen für alle offenen Kredite.", groupNumber: 0, owner: 0, house: 0},
-    {color: "rgb(255, 252, 92)", name: "Kiesweg 1", pricetext: "Miete:12.000", groupNumber: 1, owner: 0, house: 0},
-    {color: "rgb(255, 252, 92)", name: "Kiesweg 2", pricetext: "Miete:14.000", groupNumber: 1, owner: 0, house: 0},
-    {color: "transparent", name: "Ereignisfeld", pricetext: "", groupNumber: 0, owner: 0, house: 0},
-    {color: "rgb(119, 248, 140)", name: "Alleenring 1", pricetext: "Miete:22.000", groupNumber: 1, owner: 0, house: 0},
-    {color: "rgb(119, 248, 140)", name: "Alleenring 2", pricetext: "Miete:24.000", groupNumber: 1, owner: 0, house: 0},
-    {color: "yellow", name: "Staat/Finanzamt", pricetext: "Wer auf oder über dieses Feld zieht, zahlt 10% Steuern aufs aktuelle Guthaben. Zieht Gelb auf oder über dieses Feld zahlt der Staat Zinsen auf alle Anleihen.", groupNumber: 0, owner: 0, house: 0},
-    {color: "red", name: "Ziegelstraße 1", pricetext: "Miete:16.000", groupNumber: 1, owner: 0, house: 0},
-    {color: "red", name: "Ziegelstraße 2", pricetext: "Miete:16.000", groupNumber: 1, owner: 0, house: 0},
-    {color: "transparent", name: "Ereignisfeld", pricetext: "", groupNumber: 0, owner: 0, house: 0},
-    {color: "rgb(92, 195, 255)", name: "Nasse Gasse 1", pricetext: "Miete:18.000", groupNumber: 1, owner: 0, house: 0},
-    {color: "rgb(92, 195, 255)", name: "Nasse Gasse 2", pricetext: "Miete:18.000", groupNumber: 1, owner: 0, house: 0},
-  ]
-  const [playerId, setPlayerId] = useState(1);
-
-  const bank = { geldMenge: 0, zinsenLotto: 0, anleihen: 0, derivate: 0 };
-  const staat = { staatsSchuld: 0, steuer: 0 };
-  
-  const [currentView, setCurrentView] = useState('board');
-  const [tab, setTab] = useState(0);
+  const { gameState, updateGameState } = useGameContext();
 
   const [ereignisText, setEreignisText] = useState('');
   const [ereignisTitle, setEreignisTitle] = useState('');
-
-  var square = {};
-
-  const [die0, setDie0] = useState(0);
-
-  var turn = 1;
 
   var round = 1;
 
@@ -60,39 +30,18 @@ const Game = () => {
   var geldMengen = [];
   var bankZinsen = []
 
-  const changeView = (view) => {
-    setCurrentView(view);
-  }
-
   const setName = () => {
     const name = prompt("Gib deinen Namen ein", "SpielerIn");
     if (socket) {
       socket.emit('setName', name);
     }
-    if (confirm("Dominik, möchtest du wirklich die Hypothek für Schlossallee für $2000 zurückzahlen?"))
-      {
-        console.log("confirmed");
-      }
-  }
-
-  const displayStats = (HTML) => {
-    changeView('stats');
-    document.getElementById("statstext").innerHTML = HTML;
   }
 
   const updateChart = () => {
     xValues.push(round);
-    geldMengen.push(bank.geldMenge)
-    bankZinsen.push(bank.zinsenLotto)
+    geldMengen.push(gameState.bank.geldMenge)
+    bankZinsen.push(gameState.bank.zinsenLotto)
     round++;
-  }
-
-  const showdeed = (i) => {
-    //TODO
-  }
-
-  const hidedeed = () => {
-    //TODO
   }
 
   useEffect(() => {
@@ -102,10 +51,11 @@ const Game = () => {
     if (!socket) return;
 
     socket.on('setPlayerId',function(id){
-      setPlayerId(id);
+      updateGameState({playerId: id});
     });
     
     socket.on('playerno',function(pcount){
+      let players = gameState.players;
       if (players.length < pcount) {
         for (var i = players.length; i < pcount; i++) {
           players.push({ name: 'Player ' + (i + 1), money: 0, credit: 0, dispocredit: 0, availablecredit: 0, anleihen: 0, derivate: 0 });
@@ -114,53 +64,18 @@ const Game = () => {
       else if (players.length > pcount) {
         players.splice(pcount);
       }
+      updateGameState({players: players});
     });
 
     socket.on('playerNames', function(names) {
+      let players = gameState.players;
       for (var i=0; i<players.length; i++) {
         players[i].name = names[i];
       }
-    });
-
-    socket.on('showdeed', function(sq) {
-      square = sq;
-      changeView('deed');
-    });
-
-    socket.on('updateDice', function(die){
-      var snd = new Audio("short-dice-roll.wav"); // buffers automatically when created
-      snd.play();
-    
-      setTimeout(() => { setDie0(die);}, 500);
-    });
-
-    socket.on('showstats', function(HTML) {
-        displayStats(HTML);
+      updateGameState({players: players});
     });
 
     socket.on('updateChart', updateChart);
-
-    socket.on('popup', function(HTML, option, mortgage=false) {
-      if (!option && typeof action === "string") {
-          option = action;
-      }
-
-      option = option ? option.toLowerCase() : "";
-
-      if (typeof action !== "function") {
-          action = null;
-      }
-
-      if (option === "ja/nein") {
-        if (confirm(HTML)) {
-          action();
-        }
-    // Ok
-    } else if (option !== "blank") {
-        alert(HTML);
-        action();
-    }
-    })
 
     socket.on('showEreignis', function(text, title) {
       //TODO
@@ -173,17 +88,21 @@ const Game = () => {
     
   }, []);
 
-  if (currentView === 'setup') {
-    return <Setup players={players} playerId={playerId} />;
+  if (gameState.currentView === 'setup') {
+    return <Setup />;
   }
   return (
     <div>
 
-    {currentView === 'stats' && (
-      <Stats players={players} squares={squares} showdeed={showdeed} hidedeed={hidedeed} />
+    { gameState.showCommunityChest && (
+    <Ereignisfeld text={ereignisText} title={ereignisTitle}/>
     )}
 
-    { currentView === 'chart' && (
+    { gameState.currentView === 'stats' && (
+      <Stats />
+    )}
+
+    { gameState.currentView === 'chart' && (
       <Chart />)
     }
 
@@ -191,27 +110,28 @@ const Game = () => {
       Lade die Seite neu, um ein neues Spiel zu beginnen.
     </div>
 
+    { gameState.showPropertyCard > 0 && (
+      <Deed squareId={gameState.showPropertyCard} />
+    )}
+    <Board />
+    <EnlargeWrap />
+    <MoneyBar />
+
+    <NavigationBar />
+    <Control />
+
     {
-      /*
-      <Deed square={square}/>
-      
-      { false && currentView === 'trade' && (
+      /*      
+      { gameState.currentView === 'trade' && (
       <Trade />
       //TODO
       )}
 
-      { currentView === 'credit' && (
-      <Credit changeView={changeView}/>
+      { gameState.currentView === 'credit' && (
+      <Credit />
       )}
       */
     }
-    <Ereignisfeld text={ereignisText} title={ereignisTitle}/>
-
-    <NavigationBar setTab={setTab} changeView={changeView} playerId={playerId}/>
-    <Board squares={squares} player={players}/>
-    <MoneyBar players={players} bank={bank} staat={staat}/>
-    <Control player={players[playerId]} die0={die0} square={squares} turn={turn} 
-    playerId={playerId} changeView={changeView} tab={tab} showdeed={showdeed} hidedeed={hidedeed}/>
 
   </div>
   );
@@ -275,19 +195,6 @@ function App() {
 
     const newSocket = socketIOClient(ENDPOINT); // replace ENDPOINT with your server's endpoint
     setSocket(newSocket);
-
-    newSocket.on('setHTML', function(element, text) {
-      document.getElementById(element).innerHTML = text;
-    });
-
-    newSocket.on('focusbutton', function(button) {
-      document.getElementById(button).focus();
-  });
-  
-    newSocket.on('changeButton', function(button, value, title){
-      document.getElementById(button).value = value;
-      document.getElementById(button).title = title;
-  });
 
     /*
     document.getElementById("statsdrag").onmousedown = function(e) {
@@ -357,13 +264,11 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <SocketContext.Provider value={socket}>
-          <Game />
-        </SocketContext.Provider>
-      </header>
-    </div>
+    <SocketContext.Provider value={socket}>
+      <GameProvider >
+        <Game />
+      </GameProvider>
+    </SocketContext.Provider>
   );
 }
 
@@ -380,11 +285,6 @@ function showdeed(property) {
 }
 
 
-var allow2houses = false;
-
-socket.on('buyhouse2', function(isAllowed) {
-    allow2houses = isAllowed;
-});
 
 var square;
 socket.on('updateSquare', function(msquare) {
@@ -424,4 +324,7 @@ $('[title!=""]').qtip({
         event: 'click'
     }
 });
+
+
+  
 */

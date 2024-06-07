@@ -1,8 +1,18 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark , faHouse, faMotorcycle, faSailboat, faCar } from '@fortawesome/free-solid-svg-icons';
+import { useGameContext } from './GameContext';
 
-const Stats = ({players, squares, showdeed, hidedeed}) => {
+const Stats = () => {
+  const { gameState, updateGameState } = useGameContext();
+
+  const showdeed = (index) => {
+    updateGameState({showPropertyCard: index});
+  }
+
+  const hidedeed = () => {
+    updateGameState({showPropertyCard: 0});
+  }
 
     return (
     <div>
@@ -15,11 +25,11 @@ const Stats = ({players, squares, showdeed, hidedeed}) => {
             <table align="center">
                 <tbody>
                   <tr>
-                  {players.map((player, index) => (
+                  {gameState.players.map((player, index) => (
                     <td key={index} className='statscell' id={`statscell${index + 1}`} style={{border: `2px solid ${player.color}`}} >
                       <div className='statsplayername'> {player.name} </div>
                         <table><tbody>
-                        {squares.map((sq, i) => (
+                        {gameState.squares.map((sq, i) => (
                           sq.owner === index + 1 && (
                             <tr key={i} >
                               <td className='statscellcolor' style={{background: sq.color}} onMouseOver={() => showdeed(i)} onMouseOut={hidedeed} ></td>

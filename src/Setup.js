@@ -2,18 +2,17 @@ import React, {useContext, useEffect, useState} from 'react';
 import { SocketContext } from './SocketContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComment, faInfo, faShield } from '@fortawesome/free-solid-svg-icons';
+import { useGameContext } from './GameContext';
 
-const Setup = ({players}, playerId) => {
+const Setup = () => {
     const socket = useContext(SocketContext);
     const [nieten, setNieten] = useState([]);
-    //const nieten = [0, 1, 2, 4, 7, 8, 10];
+    const { gameState } = useGameContext();
     const spieler = [3, 4, 5, 6];
-
-    var pcount;
 
     const playernumber_onchange = () => {
 
-        if (playerId !== 1) {
+        if (gameState.playerId !== 1) {
             return;
         }
         let newNieten = [];
@@ -33,8 +32,6 @@ const Setup = ({players}, playerId) => {
             break;
         }
         setNieten(newNieten);
-
-        pcount = players.length;
     }
     
     const startClicked = function(e){
@@ -63,7 +60,7 @@ const Setup = ({players}, playerId) => {
         <div id="setup-scrollable">
             <table>
             <tbody>
-                {playerId === 1 && (
+                {gameState.playerId === 1 && (
                     <tr id="setup-nieten">
                         <td><div id="nietenfield">
                         Anzahl Nieten
@@ -77,7 +74,7 @@ const Setup = ({players}, playerId) => {
                         </td>
                     </tr>
                 )}
-                {playerId === 1 && (
+                {gameState.playerId === 1 && (
                     <tr id="setup-spieler">
                         <td><div id="spielerfield">
                         Anzahl SpielerInnen
@@ -92,7 +89,7 @@ const Setup = ({players}, playerId) => {
                     </tr>
                 )}
             
-            {players.map((player, index) => (
+            {gameState.players.map((player, index) => (
                 <tr key={index} id={`player${index + 1}input`} className="player-input">
                 <td><span>SpielerIn {index + 1}:</span></td>
                 <td>
@@ -101,7 +98,7 @@ const Setup = ({players}, playerId) => {
                 </tr>
             ))}
             <tr>
-            {playerId === 1 && pcount < 7 && (
+            {gameState.playerId === 1 && gameState.players.length < 7 && (
                 <td><div style={{margin: "20px 0px;"}}>
                 <input id="startbutton" type="button" value="Spiel beginnen" title="Starte das Spiel." onClick={startClicked()} />
                 </div></td>
