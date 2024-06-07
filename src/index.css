@@ -174,7 +174,6 @@ td {
 	position: absolute;
 	left: 10vw;
 	border: 2px solid black;
-	display: none;
 	width: 630px;
 	margin: 1em auto;
 	background-color: white;
@@ -199,7 +198,6 @@ td {
 	border: 2px solid black;
 	position: absolute;
 	left: 33%;
-	display: none;
 	width: 315px;
 	margin: 15px auto;
 	background-color: white;
@@ -303,7 +301,6 @@ td {
 }
 
 #deed {
-	display: none;
 	position: fixed;
 	border: 2px solid black;
 	width: 235px;

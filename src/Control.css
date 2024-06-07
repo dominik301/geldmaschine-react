@@ -44,7 +44,6 @@
 #manage {
 	width: 28vw;
 	border: 1px solid gray;
-	display: none;
 }
 
 #manage input {
@@ -54,7 +53,6 @@
 #option {
 	border-bottom: 1px solid gray;
 	background-color: transparent;
-	display: none;
 	background: white;
 	vertical-align: middle;
 	padding: 3px;
@@ -76,7 +74,6 @@
 }
 
 .die {
-	display: none;
 	margin: 5px;
 	float: left;
 	font-size: 3em;

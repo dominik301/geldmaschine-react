@@ -136,11 +136,6 @@
 	left: 0;
 }
 
-.cell-house:before,
-.cell-house2:before{
-	font-family: "Font Awesome 6 Free";
-	content: "\f015";
-}
 .cell-house {
 	top: 0;
 }

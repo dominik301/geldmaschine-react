@@ -17,13 +17,13 @@ const Field = ({player, index, turn}) => {
 
   return (
     <tr id={`moneybarrow${index + 1}`} className="money-bar-row">
-      { turn === index + 1 && (
       <td className="moneybararrowcell">
+      { turn === index + 1 && (
           <span>
           <FontAwesomeIcon id={`p${index + 1}arrow`} className="money-bar-arrow" icon={faArrowRight} />
           </span>
-      </td>
       )}
+      </td>
       <td id={`p${index + 1}moneybar`} className="moneybarcell" style={{border: `2px solid ${player.color}`}}>
           <div>
           <span id={`p${index + 1}moneyname`}>{player.name}</span>:
@@ -76,6 +76,7 @@ const MoneyBar = () => {
         <table>
             <tbody>
             {gameState.players.map((player, index) => (
+              index > 0 &&
               <Field key={index} player={player} index={index} turn={gameState.turn}/>
             ))}
           <tr id="moneybarrow7" className="money-bar-row">

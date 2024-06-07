@@ -24,6 +24,7 @@ const Control = () => {
   const [die0, setDie0] = useState(0);
   const [alerts, setAlerts] = useState([]);
   const [allow2houses, setAllow2houses] = useState(false);
+  const ownedProperties = gameState.squares.filter(square => square.owner === gameState.playerId);
 
   const ICONS = {
     1:faDiceOne,
@@ -34,7 +35,7 @@ const Control = () => {
     6:faDiceSix
   }
 
-  const [selectedCheckbox, setSelectedCheckbox] = useState(null);
+  const [selectedCheckbox, setSelectedCheckbox] = useState(0);
 
   const buyHouse = () => {  
     socket.emit('buyhouse', selectedCheckbox);
@@ -65,10 +66,12 @@ const Control = () => {
   }
 
   const showdeed = (i) => {
+    return;
     updateGameState({showPropertyCard: i});
   };
 
   const hidedeed = () => {
+    return;
     updateGameState({showPropertyCard: 0});
   };
 
@@ -138,51 +141,53 @@ const Control = () => {
             {gameState.tab === 1 && (<div id="manage">
               <div id="option">
                 <div id="buildings" title="Available buildings"></div>
-                { selectedCheckbox > 0 && selectedCheckbox < 12 && !gameState.squares[selectedCheckbox].mortgage && (
+                { selectedCheckbox >= 0 && !ownedProperties[selectedCheckbox].mortgage && (
                   <div>
-                  {(gameState.squares[selectedCheckbox].house === 0 || 
-                  (gameState.squares[selectedCheckbox].house === 1 && allow2houses)) && 
+                  {(ownedProperties[selectedCheckbox].house === 0 || 
+                  (ownedProperties[selectedCheckbox].house === 1 && allow2houses)) && 
                   (<input type="button" value="Haus kaufen" 
-                  title={`Kaufe ein Haus für ${gameState.squares[selectedCheckbox].houseprice}`}
+                  title={`Kaufe ein Haus für ${ownedProperties[selectedCheckbox].houseprice}`}
                   id="buyhousebutton" onClick={buyHouse}/>)}
-                  { gameState.squares[selectedCheckbox].house >= 1 && (<input type="button" value="Haus verkaufen" 
-                  title={`Verkaufe ein Haus für ${gameState.squares[selectedCheckbox].houseprice}`}
+                  { ownedProperties[selectedCheckbox].house >= 1 && (<input type="button" value="Haus verkaufen" 
+                  title={`Verkaufe ein Haus für ${ownedProperties[selectedCheckbox].houseprice}`}
                   id="sellhousebutton" onClick={sellHouse}/>
                   )}
                   </div>
                 )}
-                { selectedCheckbox > 0 && selectedCheckbox < 12 && gameState.squares[selectedCheckbox].house === 0 && 
+                { selectedCheckbox >= 0 && ownedProperties[selectedCheckbox].house === 0 && 
                 (<input type="button" 
-                  value = {gameState.squares[selectedCheckbox].mortgage ? 
+                  value = {ownedProperties[selectedCheckbox].mortgage ? 
                     "Hypothek zurückzahlen" : 
-                    ("Hypothek ($" + gameState.squares[selectedCheckbox].price + ")")} 
-                  title = {gameState.squares[selectedCheckbox].mortgage ? 
-                    "Hypothek auf " + gameState.squares[selectedCheckbox].name + " für " + gameState.squares[selectedCheckbox].price + " zurückzahlen." : 
-                    "Hypothek auf " + gameState.squares[selectedCheckbox].name + " für " + gameState.squares[selectedCheckbox].price + " aufnehmen."}
+                    ("Hypothek ($" + ownedProperties[selectedCheckbox].price + ")")} 
+                  title = {ownedProperties[selectedCheckbox].mortgage ? 
+                    "Hypothek auf " + ownedProperties[selectedCheckbox].name + " für " + ownedProperties[selectedCheckbox].price + " zurückzahlen." : 
+                    "Hypothek auf " + ownedProperties[selectedCheckbox].name + " für " + ownedProperties[selectedCheckbox].price + " aufnehmen."}
                   id="mortgagebutton" onClick={mortgage}/>)}
                 
               </div>
               <div id="owned">
+                {ownedProperties.length > 0 ? (
                 <table>
                   <tbody>
-                {gameState.squares.map((sq1, i) => ( sq1.owner === gameState.playerId && (
-                  <tr className="property-cell-row">
-                    <td className="propertycellcheckbox">
-                      <input type="checkbox" id={`propertycheckbox${i}`} 
-                      checked={selectedCheckbox === i}
-                      onChange={() => setSelectedCheckbox(i)} />
-                    </td>
-                    <td className="propertycellcolor" style={{background: sq1.color}} onMouseOver={showdeed(i)} onMouseOut={hidedeed}></td>
-                    <td className="propertycellname" title={sq1.mortgage ? "Hypothek aufgenommen" : ""} style={{color: "grey"}}>{sq1.name}
-                      {Array.from({ length: sq1.house}).map((_, index) => (
-                        <FontAwesomeIcon icon={faHouse} title="Haus" key={index} />
-                      ))}
-                    </td>
-                  </tr>
-                )))}
+                  {ownedProperties.map((sq1, i) => (
+                    <tr key={i} className="property-cell-row">
+                      <td className="propertycellcheckbox">
+                        <input type="checkbox" id={`propertycheckbox${i}`} 
+                        checked={selectedCheckbox === i}
+                        onChange={() => setSelectedCheckbox(i)} />
+                      </td>
+                      <td className="propertycellcolor" style={{background: sq1.color}} onMouseOver={showdeed(i)} onMouseOut={hidedeed}></td>
+                      <td className="propertycellname" title={sq1.mortgage ? "Hypothek aufgenommen" : ""} style={{color: "grey"}}>{sq1.name}
+                        {Array.from({ length: sq1.house}).map((_, index) => (
+                          <FontAwesomeIcon icon={faHouse} title="Haus" key={index} />
+                        ))}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
                 </table>
-                {true && (
+                 ) :
+                 (
                   <div>
                     {player.name}, du besitzt keine Grundstücke.
                   </div>

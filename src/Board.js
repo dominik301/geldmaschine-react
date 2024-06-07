@@ -1,6 +1,9 @@
 import React from 'react';
 import './Board.css';
 import { useGameContext } from './GameContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHouse } from '@fortawesome/free-solid-svg-icons';
+
 
 const Cell = ({cellId, type}) => {
   const { gameState } = useGameContext();
@@ -13,21 +16,25 @@ const Cell = ({cellId, type}) => {
         <div id={`cell${cellId}color`} className='cell-color' style={{backgroundColor: square.color}}></div>
         <div id={`cell${cellId}positionholder`} className='cell-position-holder'>
           {gameState.players.map((p, i) => (
-            p.position === cellId && (
-            <div id={`player${i+1}figure`} className='cell-position' title={p.name} style={{backgroundColor: p.color, left: (index * 24) % 120 + "px", top: (index++ >= 5 ? 24 : 0) + "px}"}}></div>
+            i > 0 && p.position === cellId && (
+            <div id={`player${i}figure`} className='cell-position' title={p.name} style={{backgroundColor: p.color, left: (index * 24) % 120 + "px", top: (index++ >= 5 ? 24 : 0) + "px}"}}></div>
           )
           ))}
         </div>
         <div id={`cell${cellId}name`} className='cell-name'>{square.name}</div>
         <div id={`cell${cellId}price`} className='cell-price'>{square.pricetext}</div>
         {square.house > 0 && (
-          <div id={`cell${cellId}house`} className='cell-house'></div>
+          <div id={`cell${cellId}house`} className='cell-house'>
+            <FontAwesomeIcon icon={faHouse} />
+          </div>
         )}
         {square.house === 2 && (
-          <div id={`cell${cellId}house2`} className='cell-house2'></div>
+          <div id={`cell${cellId}house2`} className='cell-house2'>
+            <FontAwesomeIcon icon={faHouse} />
+          </div>
         )}
         {square.groupNumber > 0 && square.owner > 0 && (
-          <div id={`cell${cellId}owner`} className='cell-owner' style={{backgroundColor: gameState.player[square.owner].color}} title={gameState.player[square.owner].name}></div>
+          <div id={`cell${cellId}owner`} className='cell-owner' style={{backgroundColor: gameState.players[square.owner].color}} title={gameState.players[square.owner].name}></div>
         )}
       </div>
     </td>

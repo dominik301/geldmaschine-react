@@ -20,17 +20,18 @@ const Stats = () => {
       <div id="statswrap">
         <div id="stats">
           <div style={{position: "relative"}}>
-            <span id="statsclose" title="Schließen"><FontAwesomeIcon icon={faCircleXmark} /></span>
+            <span id="statsclose" title="Schließen"><FontAwesomeIcon icon={faCircleXmark} onClick={() => updateGameState({showStats: false})}/></span>
             <div id="statstext"></div>
             <table align="center">
                 <tbody>
                   <tr>
                   {gameState.players.map((player, index) => (
-                    <td key={index} className='statscell' id={`statscell${index + 1}`} style={{border: `2px solid ${player.color}`}} >
+                    index > 0 && (
+                    <td key={index} className='statscell' id={`statscell${index}`} style={{border: `2px solid ${player.color}`}} >
                       <div className='statsplayername'> {player.name} </div>
                         <table><tbody>
                         {gameState.squares.map((sq, i) => (
-                          sq.owner === index + 1 && (
+                          sq.owner === index && (
                             <tr key={i} >
                               <td className='statscellcolor' style={{background: sq.color}} onMouseOver={() => showdeed(i)} onMouseOut={hidedeed} ></td>
                               <td className='statscellname'>{sq.name}
@@ -60,6 +61,7 @@ const Stats = () => {
                           <span><FontAwesomeIcon icon={faCar} /></span>
                         )}
                     </td>
+                  )
                   ))}
                   </tr>
                 </tbody>

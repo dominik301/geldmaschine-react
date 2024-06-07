@@ -2,8 +2,8 @@ import './App.css';
 import Board, {EnlargeWrap} from './Board.js';
 import MoneyBar from './Moneybar.js';
 import Setup from './Setup.js';
-//import Trade from './Trade.js';
-//import Credit from './Credit.js';
+import Trade from './Trade.js';
+import Credit from './Credit.js';
 import Control from './Control.js';
 import Deed from './Deed.js';
 import Chart from './Chart.js';
@@ -23,6 +23,7 @@ const Game = () => {
 
   const [ereignisText, setEreignisText] = useState('');
   const [ereignisTitle, setEreignisTitle] = useState('');
+  const [offer, setOffer] = useState(null);
 
   var round = 1;
 
@@ -31,6 +32,7 @@ const Game = () => {
   var bankZinsen = []
 
   const setName = () => {
+    console.log("Called setName")
     const name = prompt("Gib deinen Namen ein", "SpielerIn");
     if (socket) {
       socket.emit('setName', name);
@@ -45,6 +47,15 @@ const Game = () => {
   }
 
   useEffect(() => {
+    if (gameState.currentView !== 'trade') {
+      setOffer(null);
+    }
+  }
+  , [gameState.currentView]);
+
+  useEffect(() => {
+
+    console.log("Called useEffect")
 
     setName();
        
@@ -85,6 +96,17 @@ const Game = () => {
       alert(HTML);
       socket.emit('eliminate');
     });
+
+    socket.on('receiveOffer', function(tradeObj) {
+        let initiator = tradeObj.initiator;
+        let recipient = tradeObj.recipient;
+
+        updateGameState({currentView: 'trade'});
+        setOffer(tradeObj);
+
+        alert(recipient.name + " hat dir, " + initiator.name + ", einen Tausch angeboten. Du kannst das Angebot annehmen, ablehnen oder verändern.");
+              
+    });
     
   }, []);
 
@@ -98,11 +120,11 @@ const Game = () => {
     <Ereignisfeld text={ereignisText} title={ereignisTitle}/>
     )}
 
-    { gameState.currentView === 'stats' && (
+    { gameState.showStats && (
       <Stats />
     )}
 
-    { gameState.currentView === 'chart' && (
+    { gameState.showChart && (
       <Chart />)
     }
 
@@ -120,18 +142,13 @@ const Game = () => {
     <NavigationBar />
     <Control />
 
-    {
-      /*      
-      { gameState.currentView === 'trade' && (
-      <Trade />
-      //TODO
-      )}
-
-      { gameState.currentView === 'credit' && (
+    { gameState.currentView === 'credit' && (
       <Credit />
-      )}
-      */
-    }
+    )}
+
+    { gameState.currentView === 'trade' && (
+      <Trade offer={offer} />
+    )}
 
   </div>
   );
@@ -276,36 +293,11 @@ export default App;
 
 /*
 
-function hidedeed() {
-  $("#deed").hide();
-}
-
-function showdeed(property) {
-  socket.emit('showdeed', property)
-}
-
-
-
-var square;
-socket.on('updateSquare', function(msquare) {
-    square = msquare;
-});
-
-var player;
-var meineBank;
 socket.on('updatePlayer', function(mplayer, mbank) {
     player = mplayer;
     meineBank = mbank;
 });
 
-socket.on('show', function(element, isShow) {
-    if (isShow) {
-        $(element).show();
-    } else {
-        $(element).hide();
-    }
-    
-});
 
   $(document).ready(function () {
     $('#icon-bar a').on('click', function(e) {

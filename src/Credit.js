@@ -1,16 +1,16 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { useGameContext } from './GameContext';
 import { SocketContext } from './SocketContext';
 
 const Credit = () => {
   const { socket } = useContext(SocketContext);
-  const { updateGameState } = useGameContext();
+  const { gameState, updateGameState } = useGameContext();
 
   const cancelkredit = () => {
     updateGameState({currentView: "board"});
   };
 
-  kreditaufnehmenHandler = function(){
+  const kreditaufnehmenHandler = () => {
     const kredit = document.getElementById('credit-leftp-money');
 
     if (isNaN(document.getElementById("credit-leftp-money").value)) {
@@ -21,7 +21,7 @@ const Credit = () => {
 
     var money = kredit.value;
 
-    if (!confirm(document.getElementById("player" + playerId + "name").innerHTML + ", möchtest Du wirklich einen Kredit aufnehmen?")) {
+    if (!window.confirm(gameState.players[gameState.playerId].name + ", möchtest Du wirklich einen Kredit aufnehmen?")) {
         return false;
     }
     if (socket) socket.emit('kreditaufnehmen', money);
@@ -29,7 +29,7 @@ const Credit = () => {
     kredit.value = "0";
   }
 
-  kredittilgenHandler = function(){
+  const kredittilgenHandler = () => {
     const kredit = document.getElementById('credit-leftp-money');
 
     if (isNaN(document.getElementById("credit-leftp-money").value)) {
@@ -38,7 +38,7 @@ const Credit = () => {
         return false;
     }
 
-    if (!confirm(document.getElementById("player" + playerId + "name").innerHTML + ", möchtest Du wirklich deinen Kredit tilgen?")) {
+    if (!window.confirm(gameState.players[gameState.playerId].name + ", möchtest Du wirklich deinen Kredit tilgen?")) {
         return false;
     }
     if (socket) socket.emit('kredittilgen', kredit.value);
@@ -49,6 +49,7 @@ const Credit = () => {
     return (
     <div id="credit">
       <table style={{borderSpacing: "3px"}}>
+        <tbody>
         <tr>
           <td className="credit-cell">
             <div id="credit-leftp-name"></div>
@@ -60,12 +61,13 @@ const Credit = () => {
           </td>
         </tr>
         <tr>
-          <td colspan="2" className="credit-cell">
-            <input type="button" id="kreditaufnehmenbutton" value="Kredit aufnehmen" title="Kredit aufnehmen." onChange={kreditaufnehmenHandler} />
+          <td colSpan="2" className="credit-cell">
+            <input type="button" id="kreditaufnehmenbutton" value="Kredit aufnehmen" title="Kredit aufnehmen." onClick={kreditaufnehmenHandler} />
             <input type="button" id="kredittilgenbutton" value="Kredit tilgen" title="Kredit tilgen." onClick={kredittilgenHandler} />
             <input type="button" id="kreditcancelbutton" value="Schließen" onClick={cancelkredit} title="Fenster schließen." />
           </td>
         </tr>
+        </tbody>
       </table>
     </div>
     );

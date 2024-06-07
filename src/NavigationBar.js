@@ -31,8 +31,8 @@ const NavigationBar = () => {
             <a onClick={() => setTab(1)} title="Grundstücke anzeigen und Häuser kaufen"><FontAwesomeIcon icon={faHouse} /></a>
             <a onClick={() => changeView("trade")} title="Grundstücke, Anleihen und Derivate mit Spielern und Bank tauschen"><FontAwesomeIcon icon={faPeopleArrowsLeftRight} /></a>
             <a onClick={() => changeView("credit")} title="Kredit aufnehmen oder tilgen"><FontAwesomeIcon icon={faMoneyBill1} /></a>
-            <a onClick={() => changeView("stats")} title="Statistik anzeigen"><FontAwesomeIcon icon={faInfo} /></a>
-            <a onClick={() => changeView("chart")} title="Verlauf von Geldmenge und Zinsen anzeigen"><FontAwesomeIcon icon={faChartLine} /></a>
+            <a onClick={() => updateGameState({showStats: true})} title="Statistik anzeigen"><FontAwesomeIcon icon={faInfo} /></a>
+            <a onClick={() => updateGameState({showChart: true})} title="Verlauf von Geldmenge und Zinsen anzeigen"><FontAwesomeIcon icon={faChartLine} /></a>
             {gameState.playerId === 1 && (
             <a id="zinsen" onClick={changeZinssatz}><FontAwesomeIcon icon={faPercent} /></a>
             )}
