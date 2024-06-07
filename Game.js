@@ -188,11 +188,6 @@ module.exports = class Game {
 			this.player = [];
 			return;
 		}
-		/*if (pcount === 2) {
-			document.getElementById("stats").style.width = "454px";
-		} else if (pcount === 3) {
-			document.getElementById("stats").style.width = "686px";
-		}*/ //TODO
 
 		if (this.pcount === 1) {
 			this.updateMoney();
@@ -207,6 +202,7 @@ module.exports = class Game {
 	};
 
 	bankruptcyUnmortgage() {
+		//TODO
 		var p = this.player[this.turn];
 
 		if (p.creditor === 0) {
@@ -350,7 +346,10 @@ module.exports = class Game {
 	}
 
 	receiveOffer(key=this.turn) {
+		let initiator = this.tradeObj.initiator;
+		let recipient = this.tradeObj.recipient;
 		this.SOCKET_LIST[key].emit('receiveOffer', this.tradeObj);
+		this.addAlert(recipient.name + " hat einen Handel mit " + initiator.name + " begonnen.")
 	}
 
 	sendAuction() {
@@ -359,8 +358,6 @@ module.exports = class Game {
 
 	setup() {
 		for(var i in this.SOCKET_LIST){
-			this.show("#control, #board, #moneybar, #icon-bar", i);
-			this.hide("#setup, #nextbutton, #resignbutton, #creditbutton", i);
 			this.SOCKET_LIST[i].emit('displayFigures', this.player, this.pcount);
 			this.SOCKET_LIST[i].emit('updateSquare', this.square);
 		  } 
@@ -376,16 +373,8 @@ module.exports = class Game {
 		this.SOCKET_LIST[key].emit('roll');
 	}
 
-	setHTML(item, text, key=this.turn) {
-		this.SOCKET_LIST[key].emit('setHTML', item, text);
-	}
-
 	socketUndefined(key=this.turn) {
 		return this.SOCKET_LIST[key] == undefined
-	}
-
-	focusButton(button, key=this.turn) {
-		this.SOCKET_LIST[key].emit('focusbutton', button);
 	}
 
 	showdeed(property, key=this.turn) {
@@ -639,6 +628,105 @@ module.exports = class Game {
 		}
 		this.receiveOffer(receiver);
 	}
+
+	acceptTrade(tradeObj) {	
+		var money = tradeObj.money;
+		var anleihen = tradeObj.anleihen;
+		var derivate = tradeObj.derivate;
+		var initiator = player[tradeObj.initiator.index];
+		var recipient;
+		if (tradeObj.recipient.index == 0) {
+			recipient = this.meineBank;
+		} else {
+			recipient = player[tradeObj.recipient.index];
+		}
+		var assets = tradeObj.assets;
+	
+		// Exchange properties
+		for (var i = 0; i < 12; i++) {
+	
+			if (tradeObj.property[i] === 1) {
+				this.square[i].owner = recipient.index;
+				this.addAlert(recipient.name + " hat " + square[i].name + " von " + initiator.name + " erhalten.");
+			} else if (tradeObj.property[i] === -1) {
+				this.square[i].owner = initiator.index;
+				this.addAlert(initiator.name + " hat " + square[i].name + " von " + recipient.name + " erhalten.");
+			}
+	
+		}
+
+		if (assets.length == 3) {
+			recipient.motorrad += assets[0]
+			initiator.motorrad -= assets[0]
+			if (assets[0] > 0) {
+				this.addAlert(recipient.name + " hat Motorrad von " + initiator.name + " erhalten.");
+			}
+			else if (assets[0] < 0) {
+				this.addAlert(initiator.name + " hat Motorrad von " + recipient.name + " erhalten.");
+			}
+			recipient.auto += assets[1]
+			initiator.auto -= assets[1]
+			if (assets[1] > 0) {
+				this.addAlert(recipient.name + " hat Auto von " + initiator.name + " erhalten.");
+			}
+			else if (assets[1] < 0) {
+				this.addAlert(initiator.name + " hat Auto von " + recipient.name + " erhalten.");
+			}
+			recipient.yacht += assets[2]
+			initiator.yacht -= assets[2]
+			if (assets[2] > 0) {
+				this.addAlert(recipient.name + " hat Yacht von " + initiator.name + " erhalten.");
+			}
+			else if (assets[2] < 0) {
+				this.addAlert(initiator.name + " hat Yacht von " + recipient.name + " erhalten.");
+			}
+		}
+	
+		// Exchange money.
+		if (money > 0) {
+			recipient.money += money;
+			socket.emit('pay', initiator, recipient, money);
+	
+			this.addAlert(recipient.name + " bekommt " + money + " von " + initiator.name + ".");
+		} else if (money < 0) {
+			recipient.pay(-money, initiator.index);
+    		initiator.money -= money;
+
+			this.addAlert(initiator.name + " bekommt " + (-money) + " von " + recipient.name + ".");
+		}
+	
+		//stock exchange
+		if (anleihen > 0) {
+			let p = recipient == 0 ? this.meineBank : this.player[recipient];
+			p.anleihen += anleihen;
+			this.player[initiator].anleihen -= anleihen;
+	
+			this.addAlert(recipient.name + " bekommt Anleihen im Wert von " + anleihen + " von " + initiator.name + ".");
+		} else if (anleihen < 0) {
+			let p = initiator == 0 ? this.meineBank : this.player[initiator];
+			p.anleihen -= anleihen;
+			this.player[recipient].anleihen += anleihen;
+	
+			this.addAlert(initiator.name + " bekommt Anleihen im Wert von " + (-anleihen) + " von " + recipient.name + ".");
+		}
+	
+		if (derivate > 0) {
+			let p = recipient == 0 ? this.meineBank : this.player[recipient];
+			p.derivate += derivate;
+			this.player[initiator].derivate -= derivate;
+	
+			this.addAlert(recipient.name + " bekommt Derivate im Wert von " + derivate + " von " + initiator.name + ".");
+		} else if (derivate < 0) {
+			let p = initiator == 0 ? this.meineBank : this.player[initiator];
+			p.derivate -= derivate;
+			this.player[recipient].derivate += derivate;
+	
+			this.addAlert(initiator.name + " bekommt Derivate im Wert von " + (-derivate) + " von " + recipient.name + ".");
+		}
+	
+		this.updateOwned();
+		this.updateMoney();  
+	}
 	
 	bid() {
 		
@@ -663,8 +751,6 @@ module.exports = class Game {
 		}
 	  }
 
-
-
 	unmortgage(index) {
 		var sq = this.square[index];
 		var p = this.player[sq.owner];
@@ -688,7 +774,7 @@ module.exports = class Game {
 	}
 
 	land() {
-
+		//TODO
 		var p = this.player[this.turn];
 		var s = this.square[p.position];
 
@@ -792,7 +878,6 @@ module.exports = class Game {
 
 		if (p.human) {
 			this.sendRoll();
-			this.changeButton("nextbutton", "Spielzug beenden", "Spielzug beenden und zum/zur nächsten SpielerIn wechseln.");
 		}
 	
 		this.rollDice();
@@ -806,9 +891,6 @@ module.exports = class Game {
 		var die1 = this.getDie();
 
 		this.addAlert(p.name + " hat " + die1 + " gewürfelt.");
-
-		if (p.human) this.changeButton("nextbutton", "Spielzug beenden", "Spielzug beenden und zum/zur nächsten SpielerIn wechseln.");
-
 
 		var p_old = p.position;
 		// Move player
@@ -863,22 +945,6 @@ module.exports = class Game {
 
 		// Check for bankruptcy.
 		p.pay(0, p.creditor);
-
-		if (p.human) {
-			this.hide("#landed, #option, #manage, #audio");
-			this.show("#board, #control, #moneybar, #buy");
-
-			this.focusButton("nextbutton");
-			this.changeButton("nextbutton", "Würfeln", "Würfeln und Figur entsprechend vorrücken.");
-
-			this.hide("#die0");
-		}
-
-
-		for (var i in this.SOCKET_LIST) {
-			this.hide(".money-bar-arrow", i);
-			this.show("#p" + this.turn + "arrow", i);
-		}
 
 		if (!p.human) {
 			if (!p.AI.beforeTurn()) {

@@ -1,38 +1,40 @@
-module.exports = function Trade(initiator, recipient, money, property, anleihen=0, derivate=0, assets=[]) {
-	// For each property and anleihen or derivate, 1 means offered, -1 means requested, 0 means neither.
-  this.initiator = initiator;
-  this.recipient = recipient;
-  this.money = money;
-  this.property = property;
-  this.anleihen = anleihen;
-  this.derivate = derivate;
-  this.assets = assets;
+module.exports = class Trade { 
+  constructor({ initiator, recipient, money, property, anleihen = 0, derivate = 0, assets = [] }) {
+    // Assign values to class properties
+    this.initiator = initiator;
+    this.recipient = recipient;
+    this.money = money;
+    this.property = property;
+    this.anleihen = anleihen;
+    this.derivate = derivate;
+    this.assets = assets;
+  }
 
-	this.getInitiator = function() {
+	getInitiator = function() {
 		return initiator;
 	};
 
-	this.getRecipient = function() {
+	getRecipient = function() {
 		return recipient;
 	};
 
-	this.getProperty = function(index) {
+	getProperty = function(index) {
 		return property[index];
 	};
 
-	this.getMoney = function() {
+	getMoney = function() {
 		return money;
 	};
 
-	this.getAnleihen = function() {
+	getAnleihen = function() {
 		return anleihen;
 	};
 
-	this.getDerivate = function() {
+	getDerivate = function() {
 		return derivate;
 	};
 
-	this.getAssets = function() {
+	getAssets = function() {
 		return assets;
 	}
 }

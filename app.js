@@ -249,53 +249,16 @@ io.sockets.on('connection', function(socket){
     socket.emit('updatePlayer', game.player, game.meineBank);
   });
 
-  socket.on('newTrade', function(ini, rec, mon, pro, anl, der, ass) {
+  socket.on('sendOffer', function(tradeObj) {
 	let game = socket2game[socket.id];
-    game.tradeObj = new Trade(ini, rec, mon, pro, anl, der, ass);
-    socket.emit('tradeObj', game.tradeObj);
-  });
-
-  socket.on('sendOffer', function() {
-	let game = socket2game[socket.id];
+	game.tradeObj = new Trade(tradeObj);
 	  game.handleOffer();
   });
 
-  socket.on('changeOwner', function(sq_idx, rcp_idx) {
+  socket.on('acceptTrade', (tradeObj) => {
 	let game = socket2game[socket.id];
-    game.square[sq_idx].owner = rcp_idx;
+	game.acceptTrade(tradeObj)
   })
-
-  socket.on('transferAssets', function(ini_idx, rcp_idx, assets) {
-	let game = socket2game[socket.id];
-	  var recipient = game.player[rcp_idx];
-	  var initiator = game.player[ini_idx];
-	if (assets.length == 3) {
-		recipient.motorrad += assets[0]
-		initiator.motorrad -= assets[0]
-		if (assets[0] > 0) {
-			game.addAlert(recipient.name + " hat Motorrad von " + initiator.name + " erhalten.");
-		}
-		else if (assets[0] < 0) {
-			game.addAlert(initiator.name + " hat Motorrad von " + recipient.name + " erhalten.");
-		}
-		recipient.auto += assets[1]
-		initiator.auto -= assets[1]
-		if (assets[1] > 0) {
-			game.addAlert(recipient.name + " hat Auto von " + initiator.name + " erhalten.");
-		}
-		else if (assets[1] < 0) {
-			game.addAlert(initiator.name + " hat Auto von " + recipient.name + " erhalten.");
-		}
-		recipient.yacht += assets[2]
-		initiator.yacht -= assets[2]
-		if (assets[2] > 0) {
-			game.addAlert(recipient.name + " hat Yacht von " + initiator.name + " erhalten.");
-		}
-		else if (assets[2] < 0) {
-			game.addAlert(initiator.name + " hat Yacht von " + recipient.name + " erhalten.");
-		}
-	}
-  });
 
   socket.on('buyDerivate', function(initiator, recipient, derivate) {
 	let game = socket2game[socket.id];

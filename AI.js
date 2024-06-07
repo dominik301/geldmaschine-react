@@ -64,7 +64,15 @@ module.exports = function AITest(p, game) {
 				reversedTradeProperty[i] = -tradeObj.property[i];
 			}
             var Trade = require('./Trade.js');
-			return new Trade(recipient, initiator, -proposedMoney, reversedTradeProperty, -tradeObj.anleihen, -tradeObj.derivate);
+			var trade = {
+				recipient: initiator,
+				initiator: recipient,
+				money: -proposedMoney,
+				property: reversedTradeProperty,
+				anleihen: -tradeObj.anleihen,
+				derivate: -tradeObj.derivate
+			}
+			return new Trade(trade);
 		}
 
 		return false;
