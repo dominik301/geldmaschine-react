@@ -1,6 +1,6 @@
 import React, {useState, useContext } from "react";
-import { useGameContext } from '@/contexts/GameContext';
-import { SocketContext } from '@/contexts/SocketContext';
+import { useGameContext } from '../contexts/GameContext';
+import { SocketContext } from '../contexts/SocketContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 

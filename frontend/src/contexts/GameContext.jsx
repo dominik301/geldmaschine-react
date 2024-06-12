@@ -90,15 +90,17 @@ export const GameProvider = ({ children }) => {
   });
 
   socket.on('updateMoney', function(_player, turn, _meineBank, meinStaat, _pcount) {
+    let player = _player.filter((player) => player.name !== "")
     updateGameState({
-      players: _player, 
+      players: player, 
       bank: _meineBank, 
       staat: meinStaat,
       turn: turn
     });
   });
 
-socket.on('updateOwned', function(player, _square) {
+socket.on('updateOwned', function(_player, _square) {
+  let player = _player.filter((player) => player.name !== "")
   let squares = []
   _square.forEach(function(item){
     let square = new Square(item);
