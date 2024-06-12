@@ -1,0 +1,5 @@
+[{
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target" : { "namespace": "android_app", "package_name": "com.herokuapp.geldmaschine",
+                 "sha256_cert_fingerprints": ["D2:FD:E1:D0:59:D2:67:88:AF:04:BD:EE:5B:0C:D3:A2:52:84:A5:CF:A4:41:84:0F:FB:9A:EF:F8:8E:B8:59:A8"] }
+  }]
