@@ -69,21 +69,4 @@ const Board = () => {
   );
 };
 
-export const EnlargeWrap = () => {
-  const { gameState } = useGameContext();
-
-  return (
-    <div id="enlarge-wrap">
-      {gameState.squares.map((square, i) => (
-        <div key={i} id={`enlarge${i}`} className='enlarge'>
-          <div id={`enlarge${i}color`} className='enlarge-color' style={{backgroundColor: square.color}}></div><br />
-          <div id={`enlarge${i}name`} className='enlarge-name'>{square.name}</div><br />
-          <div id={`enlarge${i}price`} className='enlarge-price'>{square.pricetext}</div><br />
-          <div id={`enlarge${i}token`} className='enlarge-token'></div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export default Board;

@@ -14,6 +14,8 @@ import { useContext, useState, useEffect } from 'react';
 import socketIOClient from "socket.io-client";
 import { SocketContext } from './SocketContext';
 import { GameProvider, useGameContext } from './GameContext';
+import NameDialog from './NameDialog.jsx';
+
 
 const ENDPOINT = "http://localhost:3000";
 
@@ -25,13 +27,16 @@ const Game = () => {
   const [ereignisTitle, setEreignisTitle] = useState('');
   const [offer, setOffer] = useState(null);
 
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState('');
+
   var round = 1;
 
   var xValues = [];
   var geldMengen = [];
   var bankZinsen = []
 
-  const setName = () => {
+  const queryName = () => {
     console.log("Called setName")
     const name = prompt("Gib deinen Namen ein", "SpielerIn");
     if (socket) {
@@ -57,7 +62,8 @@ const Game = () => {
 
     console.log("Called useEffect")
 
-    setName();
+    //queryName();
+    setOpen(true);
        
     if (!socket) return;
 
@@ -116,6 +122,8 @@ const Game = () => {
   return (
     <div>
 
+    <NameDialog open={open} setOpen={setOpen} setName={setName} />
+
     { gameState.showCommunityChest && (
     <Ereignisfeld text={ereignisText} title={ereignisTitle}/>
     )}
@@ -136,7 +144,6 @@ const Game = () => {
       <Deed squareId={gameState.showPropertyCard} />
     )}
     <Board />
-    <EnlargeWrap />
     <MoneyBar />
 
     <NavigationBar />
