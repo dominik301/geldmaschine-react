@@ -1,0 +1,4 @@
+{
+    "name": "geldmaschine-react",
+    "workspaces": ["backend", "frontend"]
+}
