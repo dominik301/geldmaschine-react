@@ -1,9 +1,9 @@
 import React, { useState, useContext, useEffect  } from "react";
-import { SocketContext } from './SocketContext';
+import { SocketContext } from '../contexts/SocketContext';
 import './Control.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse, faDiceOne, faDiceTwo, faDiceThree, faDiceFour, faDiceFive, faDiceSix} from '@fortawesome/free-solid-svg-icons';
-import { useGameContext } from './GameContext';
+import { useGameContext } from '../GameContext';
 
 const Alert = ({alertText}) => {
   return (

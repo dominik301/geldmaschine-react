@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useGameContext } from './GameContext';
-import { SocketContext } from './SocketContext';
+import { useGameContext } from '../GameContext';
+import { SocketContext } from '../contexts/SocketContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSailboat, faCar, faMotorcycle} from '@fortawesome/free-solid-svg-icons';
 

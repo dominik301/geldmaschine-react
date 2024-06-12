@@ -1,8 +1,8 @@
 import React, {useContext, useEffect, useState} from 'react';
-import { SocketContext } from './SocketContext';
+import { SocketContext } from '../contexts/SocketContext.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComment, faInfo, faShield } from '@fortawesome/free-solid-svg-icons';
-import { useGameContext } from './GameContext';
+import { useGameContext } from '../GameContext.jsx';
 import NameDialog from './NameDialog.jsx';
 
 const Setup = () => {

@@ -3,7 +3,7 @@ import Chart from 'chart.js/auto';
 import { Line} from 'react-chartjs-2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-solid-svg-icons';
-import { useGameContext } from './GameContext';
+import { useGameContext } from '../GameContext';
     
 const MyChartComponent = ({xValues, geldMengen, bankZinsen}) => {
   const { updateGameState } = useGameContext();

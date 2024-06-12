@@ -1,9 +1,9 @@
 import React, {useContext} from 'react';
-import { SocketContext } from './SocketContext';
+import { SocketContext } from '../contexts/SocketContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPercent, faAlignJustify, faHouse, faPeopleArrowsLeftRight, faMoneyBill1, faInfo, faChartLine } from '@fortawesome/free-solid-svg-icons';
 import './NavigationBar.css';
-import { useGameContext } from './GameContext';
+import { useGameContext } from '../GameContext';
 
 const NavigationBar = () => {
     const socket = useContext(SocketContext);

@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import './Moneybar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faMaximize, faMinimize } from '@fortawesome/free-solid-svg-icons';
-import { useGameContext } from './GameContext';
+import { useGameContext } from '../GameContext';
 
 const Field = ({player, index, turn}) => {
   const [minimal, setMinimal] = useState(true);

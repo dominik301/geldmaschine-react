@@ -1,6 +1,6 @@
 import React, {useContext} from "react";
-import { useGameContext } from './GameContext';
-import { SocketContext } from './SocketContext';
+import { useGameContext } from '../GameContext';
+import { SocketContext } from '../contexts/SocketContext';
 
 const Bid = props => {
     const { gameState, updateGameState } = useGameContext();
