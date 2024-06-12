@@ -1,4 +1,13 @@
 {
     "name": "geldmaschine-react",
-    "workspaces": ["backend", "frontend"]
+    "workspaces": [
+        "backend", 
+        "frontend"
+    ],
+    "scripts": {
+        "start": "concurrently \"npm run start --workspace=backend\" \"npm run start --workspace=frontend\""
+    },
+    "devDependencies": {
+        "concurrently": "^7.0.0"
+    }
 }

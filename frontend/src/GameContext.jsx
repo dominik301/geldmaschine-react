@@ -65,16 +65,12 @@ export const GameProvider = ({ children }) => {
     if (!socket) return;
 
     socket.on('updateDice', function(die){
-      var snd = new Audio("short-dice-roll.wav"); // buffers automatically when created
-      snd.play();
-      let diceRolled = false;
-      if (gameState.turn === gameState.playerId) {
-        diceRolled = true;
-      }
+      /*var snd = new Audio("short-dice-roll.wav"); // buffers automatically when created
+      snd.play();*/
     
       setTimeout(() => {
         updateGameState({
-          diceRolled: diceRolled,
+          diceRolled: gameState.turn === gameState.playerId,
           die0: die
         });
       }, 500);
@@ -115,11 +111,18 @@ socket.on('updateOwned', function(player, _square) {
 });
 
 socket.on('updatePosition', function(turn, p_old, p){
-  let players = gameState.players;
-  players[turn].position = p;
-  updateGameState({
-    turn: turn,
-    players: players
+
+  setGameState((prev) => {
+
+    // Create a new players array with the updated position
+    const updatedPlayers = prev.players.map((player, index) =>
+      index === turn
+        ? { ...player, position: p.position }
+        : player
+    );
+
+    // Return the new state with the updated players array
+    return { ...prev, players: updatedPlayers, turn: turn};
   });
 });
   

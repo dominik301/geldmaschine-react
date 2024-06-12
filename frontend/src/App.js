@@ -105,14 +105,6 @@ const Game = () => {
       updateGameState({players: players});
     });
 
-    socket.on('playerNames', function(names) {
-      let players = gameState.players;
-      for (var i=0; i<players.length; i++) {
-        players[i].name = names[i];
-      }
-      updateGameState({players: players});
-    });
-
     socket.on('updateChart', updateChart);
 
     socket.on('showEreignis', function(text, title) {
@@ -148,7 +140,7 @@ const Game = () => {
       updateGameState({currentView: 'auction'});  
     });
     
-  }, []);
+  }, [socket]);
 
   if (gameState.currentView === 'setup') {
     return <Setup />;

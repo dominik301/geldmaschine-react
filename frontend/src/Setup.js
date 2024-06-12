@@ -14,6 +14,8 @@ const Setup = () => {
     const [name, setName] = useState('');
     const [open, setOpen] = useState(true);
 
+    const [names, setNames] = useState([]);
+
     const playernumber_onchange = () => {
 
         if (gameState.playerId !== 1) {
@@ -45,7 +47,6 @@ const Setup = () => {
     const startClicked = function(e){
       //prevent the form from refreshing the page
       e.preventDefault();
-      debugger;
 
       if (socket) {
         socket.emit("windowload");
@@ -66,6 +67,14 @@ const Setup = () => {
     useEffect(() => {
         playernumber_onchange();
     }, []);
+
+    useEffect(() => {
+        if (!socket) return;
+        socket.on('playerNames', function(names) {
+            setNames(Object.values(names));
+        });
+
+    }, [socket]);
 
     return (
     <div id="setup">
@@ -103,15 +112,13 @@ const Setup = () => {
                         </td>
                     </tr>
                 )}
-            
-            {gameState.players.map((player, index) => (
-                index > 0 && (
-                <tr key={index} id={`player${index}input`} className="player-input">
-                <td><span>SpielerIn {index}:</span></td>
+            {names.map((pName, index) => (
+                <tr key={index} id={`player${index+1}input`} className="player-input">
+                <td><span>SpielerIn {index+1}:</span></td>
                 <td>
-                    <span id={`player${index}name`} >{player.name}</span>
+                    <span id={`player${index}name`} >{pName}</span>
                 </td>
-                </tr>)
+                </tr>
             ))}
             <tr>
             {gameState.playerId === 1 && gameState.players.length < 7 && (
