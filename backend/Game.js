@@ -70,8 +70,6 @@ module.exports = class Game {
 
 		var index = this.#auctionQueue.shift();
 
-		var s = this.square[index];
-
 		this.auctionproperty = index;
 		this.highestbidder = 0;
 		this.highestbid = 0;
@@ -201,104 +199,6 @@ module.exports = class Game {
 		}
 	};
 
-	bankruptcyUnmortgage() {
-		//TODO
-		var p = this.player[this.turn];
-
-		if (p.creditor === 0) {
-			this.eliminatePlayer();
-			return;
-		}
-
-		var HTML = "<p>" + this.player[p.creditor].name + ", du darfst die Hypothek für eines der folgenden Grundstücke zurückzahlen, indem du darauf klickst. Klicke OK, wenn du fertig bist.</p><table>";
-		var price;
-
-		for (var i = 0; i < 12; i++) {
-			sq = this.square[i];
-			if (sq.owner == p.index && sq.mortgage) {
-				price = sq.price;
-
-				HTML += "<tr><td class='propertycellcolor' style='background: " + sq.color + ";";
-
-				if (sq.groupNumber == 1 || sq.groupNumber == 2) {
-					HTML += " border: 1px solid grey;";
-				} else {
-					HTML += " border: 1px solid " + sq.color + ";";
-				}
-
-				// Player already paid interest, so they can unmortgage for the mortgage price.
-				HTML += "' onmouseover='showdeed(" + i + ");' onmouseout='hidedeed();'></td><td class='propertycellname'><a href='javascript:void(0);' title='Hypothek auf " + sq.name + " für " + price + " zurückzahlen.' onclick='if (" + price + " <= player[" + p.creditor + "].money) {player[" + p.creditor + "].pay(" + price + ", 0); square[" + i + "].mortgage = false; addAlert(\"" + player[p.creditor].name + " hat die Hypothek für " + sq.name + " für " + price + " zurückgezahlt.\");} this.parentElement.parentElement.style.display = \"none\";'>Hypothek auf " + sq.name + " zurückzahlen (" + price + ")</a></td></tr>";
-
-				sq.owner = p.creditor;
-
-			}
-		}
-
-		HTML += "</table>";
-
-		this.SOCKET_LIST[this.turn].emit('eliminatePlayer', HTML);
-
-		this.popup(HTML);
-    	this.eliminatePlayer();
-	};
-
-	resign = function() {
-		this.bankruptcy();
-	};
-
-	bankruptcy() {
-		var p = this.player[this.turn];
-		var pcredit = this.player[p.creditor];
-		var bankruptcyUnmortgageFee = 0;
-
-
-		if (p.money >= 0) {
-			return;
-		}
-
-		this.addAlert(p.name + " ist bankrott.");
-
-		if (p.creditor !== 0) {
-			pcredit.money += p.money;
-		}
-
-		for (var i = 0; i < 12; i++) {
-			sq = this.square[i];
-			if (sq.owner == p.index) {
-				// Mortgaged properties will be tranfered by bankruptcyUnmortgage();
-				if (!sq.mortgage) {
-					sq.owner = p.creditor;
-				} else {
-					//bankruptcyUnmortgageFee += Math.round(sq.price * 0.1);
-				}
-
-				if (sq.house > 0) {
-					if (p.creditor !== 0) {
-						pcredit.money += sq.houseprice * 0.5 * sq.house;
-					}
-					sq.hotel = 0;
-					sq.house = 0;
-				}
-
-				if (p.creditor === 0) {
-					sq.mortgage = false;
-					sq.owner = 0;
-				}
-			}
-		}
-
-        this.updateMoney();
-
-		if (this.pcount === 2 || bankruptcyUnmortgageFee === 0 || p.creditor === 0) {
-			this.eliminatePlayer();
-		} else {
-			//addAlert(pcredit.name + " paid $" + bankruptcyUnmortgageFee + " interest on the mortgaged properties received from " + p.name + ".");
-			//this.popup("<p>" + pcredit.name + ", you must pay $" + bankruptcyUnmortgageFee + " interest on the mortgaged properties you received from " + p.name + ".</p>");
-			this.player[pcredit.index].pay(bankruptcyUnmortgageFee, 0); 
-     		this.bankruptcyUnmortgage();
-		}
-	};
-
 	popup(HTML, option, doMortgage, key=this.turn) {
 		if (!this.player[key].human) return;
   		this.SOCKET_LIST[key].emit('popup', HTML, option, doMortgage);
@@ -314,19 +214,12 @@ module.exports = class Game {
 		for(var i in this.SOCKET_LIST){
 			this.SOCKET_LIST[i].emit('updateOwned', this.player, this.square);
 		}
-		
-		this.updateOption();
 	}
 
 	updateMoney() {
 		for(var i in this.SOCKET_LIST){
 			this.SOCKET_LIST[i].emit('updateMoney', this.player, this.turn, this.meineBank, this.meinStaat, this.pcount);
 		  }
-	}
-
-	updateOption(key=this.turn) {
-		if (this.SOCKET_LIST[key] == undefined) return;
-		this.SOCKET_LIST[key].emit('updateOption', this.square);
 	}
 
 	addAlert(alertText) {
@@ -358,7 +251,6 @@ module.exports = class Game {
 
 	setup() {
 		for(var i in this.SOCKET_LIST){
-			this.SOCKET_LIST[i].emit('displayFigures', this.player, this.pcount);
 			this.SOCKET_LIST[i].emit('updateSquare', this.square);
 		  } 
 	}
@@ -369,31 +261,24 @@ module.exports = class Game {
 		}
 	}
 
-	sendRoll(key=this.turn) {
-		this.SOCKET_LIST[key].emit('roll');
-	}
-
 	socketUndefined(key=this.turn) {
 		return this.SOCKET_LIST[key] == undefined
 	}
 
-	showdeed(property, key=this.turn) {
-		var sq = this.square[property];
-		this.SOCKET_LIST[key].emit('showdeed', sq);
-	}
-
 	auctionHouse(){
+		var properties = new Array();
+		for (var i in this.square) {
+			if (this.square[i].owner == this.turn) {
+				properties.push(i);
+			}
+		}
+		if (properties.length == 0) {
+			this.addAlert(this.player[this.turn].name + " hat keine Grundstücke.");
+			return;
+		}
 		if (this.player[this.turn].human) {
 			this.chooseProperty();
 		} else {
-			// choose property at random
-			var properties = new Array();
-			for (var i in this.square) {
-				if (this.square[i].owner == turn) {
-					properties.push(i);
-				}
-			}
-			if (properties.length == 0) return;
 			properties.sort(function() { return 0.5 - Math.random();});
 			this.addPropertyToAuctionQueue(properties.pop());
 			this.auction();
@@ -448,10 +333,6 @@ module.exports = class Game {
 		sq.mortgage = true;
 		p.money += mortgagePrice;
 	
-	  var value = "Hypothek zurückzahlen für " + mortgagePrice;
-	  var title = "Hypothek auf " + sq.name + " zurückzahlen für " + mortgagePrice + ".";
-	
-		  if (p.human) this.changeButton("mortgagebutton", value, title);
 	
 		this.addAlert(p.name + " hat eine Hypothek auf " + sq.name + " für " + mortgagePrice + " aufgenommen.");
 		this.updateOwned();
@@ -763,11 +644,6 @@ module.exports = class Game {
 		p.pay(mortgagePrice, 0);
 		sq.mortgage = false;
 
-		let value = "Hypothek aufnehmen für " + mortgagePrice;
-		let title = "Hypothek auf " + sq.name + " für " + mortgagePrice + " aufnehmen.";
-
-		if (p.human) this.changeButton("mortgagebutton", value, title);
-
 		this.addAlert(p.name + " hat die Hypothek für " + sq.name + " für " + unmortgagePrice + " zurückgezahlt.");
 		this.updateOwned();
 		return true;
@@ -777,11 +653,6 @@ module.exports = class Game {
 		//TODO
 		var p = this.player[this.turn];
 		var s = this.square[p.position];
-
-		if (p.human) {
-			this.show("#landed");
-			this.setHTML("landed", "Du bist auf " + s.name + " gelandet.");
-		}
 		
 		s.landcount++;
 		this.addAlert(p.name + " ist auf " + s.name + " gelandet.");
@@ -792,8 +663,6 @@ module.exports = class Game {
 				if (p.AI.buyProperty(p.position)) {
 					this.buy();
 				}
-			} else {
-				this.setHTML("landed", "<div>Du bist auf <a href='javascript:void(0);' onmouseover='showdeed(" + p.position + ");' onmouseout='hidedeed();' class='statscellcolor'>" + s.name + "</a> gelandet.<input type='button' onclick='buy();' value='Kaufe (" + s.price + ")' title='Kaufe " + s.name + " für " + s.houseprice + ".'/></div>");
 			}
 		}
 
@@ -808,8 +677,6 @@ module.exports = class Game {
 			this.addAlert(p.name + " hat " + rent + " Miete an " + this.player[s.owner].name + " gezahlt.");
 			p.pay(rent, s.owner);
 			this.player[s.owner].money += rent;
-
-			if (p.human) this.setHTML("landed", "Du bist auf " + s.name + " gelandet. " + this.player[s.owner].name + " hat " + rent + " Miete kassiert.");
 		}
 
 		this.updateMoney();
@@ -875,10 +742,6 @@ module.exports = class Game {
 		var p = this.player[this.turn];
 
 		if (p == undefined) return;
-
-		if (p.human) {
-			this.sendRoll();
-		}
 	
 		this.rollDice();
 		this.updateDice();
@@ -935,10 +798,7 @@ module.exports = class Game {
 		
 		var p = this.player[this.turn];
 		this.resetDice();
-		if (p.human) {
-			this.show("#nextbutton");
-			this.setHTML("pname", p.name);
-		}
+		
 		this.addAlert(p.name + " ist an der Reihe.");
 
 		this.updateChart();

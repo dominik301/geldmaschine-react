@@ -101,11 +101,6 @@ io.sockets.on('connection', function(socket){
 	  game.next();
 	});
 
-  socket.on('resign', function() {
-	let game = socket2game[socket.id];
-	  game.resign()
-	});
-
   socket.on('sozialhilfe', function() {
 	let game = socket2game[socket.id];
 	  game.sozialHilfe();
@@ -192,31 +187,6 @@ io.sockets.on('connection', function(socket){
 	  game.eliminatePlayer();
 	});
 
-  socket.on('updateOwned', function() {
-	let game = socket2game[socket.id];
-	  game.updateOwned();
-  });
-
-  socket.on('updateMoney', function() {
-	let game = socket2game[socket.id];
-	  game.updateMoney();
-	});
-
-  socket.on('updateOption', function() {
-	let game = socket2game[socket.id];
-	  game.updateOption();
-});
-
-  socket.on('showstats', function() {
-	let game = socket2game[socket.id];
-	Object.keys(game.SOCKET_LIST).forEach(function eachKey(key) {
-		if(game.SOCKET_LIST[key] == socket){
-			let showStats = require('./showStats')
-			showStats(game,key);
-		}
-	});
-  });
-
   socket.on('windowload', loadWindow); 
 
   socket.on('setName', function(name) {
@@ -230,25 +200,6 @@ io.sockets.on('connection', function(socket){
 	  }
   });
 
-  socket.on('showdeed', function(property) {
-	let game = socket2game[socket.id];
-	Object.keys(game.SOCKET_LIST).forEach(function eachKey(key) {
-		if(game.SOCKET_LIST[key] == socket){
-			game.showdeed(property, key);
-		}
-	});
-  })
-
-  socket.on('updateSquare', function() {
-	let game = socket2game[socket.id];
-    socket.emit('updateSquare', game.square);
-  });
-
-  socket.on('updatePlayer', function() {
-	let game = socket2game[socket.id];
-    socket.emit('updatePlayer', game.player, game.meineBank);
-  });
-
   socket.on('sendOffer', function(tradeObj) {
 	let game = socket2game[socket.id];
 	game.tradeObj = new Trade(tradeObj);
@@ -259,20 +210,6 @@ io.sockets.on('connection', function(socket){
 	let game = socket2game[socket.id];
 	game.acceptTrade(tradeObj)
   })
-
-  socket.on('buyDerivate', function(initiator, recipient, derivate) {
-	let game = socket2game[socket.id];
-	var p = recipient == 0 ? game.meineBank : game.player[recipient];
-	p.derivate += derivate;
-	game.player[initiator].derivate -= derivate;
-  });
-
-  socket.on('buyAnleihen', function(initiator, recipient, anleihen) {
-	let game = socket2game[socket.id];
-	var p = recipient == 0 ? game.meineBank : game.player[recipient];
-	p.anleihen += anleihen;
-	game.player[initiator].anleihen -= anleihen;
-  });
 
   socket.on("newbid", function(highestbidder,highestbid) {
 	let game = socket2game[socket.id];
@@ -286,15 +223,10 @@ io.sockets.on('connection', function(socket){
 	game.player[currentbidder].bidding = false;
   });
 
-  socket.on("finalizeAuction", function() {
+  socket.on("auctionHouse", function(propertyIndex) {
 	let game = socket2game[socket.id];
-	  game.finalizeAuction();
-	});
-
-  socket.on("auctionHouse", function() {
-	let game = socket2game[socket.id];
-	  game.auctionHouse();
-	});
+	game.addPropertyToAuctionQueue(propertyIndex)
+});
 
   socket.on('disconnect',function(){
 	let game = socket2game[socket.id];
@@ -323,15 +255,6 @@ io.sockets.on('connection', function(socket){
 	});
   });
 
-  socket.on('pay', function(initiator, recipient, money) {
-	  let game = socket2game[socket.id];
-	p1 = game.player[initiator.index]
-	p2 = game.player[recipient.index]
-
-	p1.pay(money, recipient.index);
-    p2.money += money;
-  })
-
   socket.on('buy', function() {
 	let game = socket2game[socket.id];
 	Object.keys(game.SOCKET_LIST).forEach(function eachKey(key) {
@@ -340,16 +263,11 @@ io.sockets.on('connection', function(socket){
 		}
 	});
   });
-
-  socket.on('addAlert', function() {
-	let game = socket2game[socket.id];
-	  game.addAlert();
-	});
 	
 });
 
 //
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 4000;
 //var port = process.argv[2] == undefined ? 4141 : process.argv[2];
 server.listen(port) //, "0.0.0.0");
 
@@ -361,7 +279,6 @@ var game;
 
 var Player = require('./Player');
 var Trade = require('./Trade');
-
 
 // Overwrite an array with numbers from one to the array's length in a random order.
 Array.prototype.randomize = function(length) {
@@ -381,9 +298,6 @@ Array.prototype.randomize = function(length) {
 		indexArray.splice(num, 1);
 	}
 };
-
-
-
 
 function setup(isKapitalismus, playernumber, nieten) {
 	game.pcount = parseInt(playernumber);
@@ -510,17 +424,11 @@ function loadWindow() {
 	// Shuffle Chance and Community Chest decks.
 	chanceCards.deck.sort(function() {return Math.random() - 0.5;});
 	chanceCards2.deck.sort(function() {return Math.random() - 0.5;});
-
-	for(var i in SOCKET_LIST){
-		SOCKET_LIST[i].emit('setupsquares', game.square);
-	  }
 }
 
 const Card = require('./Card');
 var chanceCards = Card.chanceCards;
 var chanceCards2 = Card.chanceCards2;
-
-
 
 var AITest = require('./AI.js');
 //const { kMaxLength } = require('node:buffer');const { generatePrimeSync } = require('node:crypto');

@@ -3,6 +3,7 @@ import { SocketContext } from './SocketContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComment, faInfo, faShield } from '@fortawesome/free-solid-svg-icons';
 import { useGameContext } from './GameContext';
+import NameDialog from './NameDialog.jsx';
 
 const Setup = () => {
     const socket = useContext(SocketContext);
@@ -10,33 +11,41 @@ const Setup = () => {
     const { gameState } = useGameContext();
     const spieler = [3, 4, 5, 6];
 
+    const [name, setName] = useState('');
+    const [open, setOpen] = useState(true);
+
     const playernumber_onchange = () => {
 
         if (gameState.playerId !== 1) {
             return;
         }
         let newNieten = [];
-        var anzahlSpieler = document.getElementById("spieler").value;
-        switch (+anzahlSpieler) {
-        case 3:
-            newNieten = [0, 2, 4];
-            break;
-        case 4:
-            newNieten = [1, 4, 7];
-            break;
-        case 5:
-            newNieten = [0, 4, 8];
-            break;
-        case 6:
-            newNieten = [2, 7];
-            break;
+        try {
+            var anzahlSpieler = document.getElementById("spieler").value;
+            switch (+anzahlSpieler) {
+            case 3:
+                newNieten = [0, 2, 4];
+                break;
+            case 4:
+                newNieten = [1, 4, 7];
+                break;
+            case 5:
+                newNieten = [0, 4, 8];
+                break;
+            case 6:
+                newNieten = [2, 7];
+                break;
         }
         setNieten(newNieten);
+        } catch (err) {
+            console.log(err);
+        }
     }
     
     const startClicked = function(e){
       //prevent the form from refreshing the page
       e.preventDefault();
+      debugger;
 
       if (socket) {
         socket.emit("windowload");
@@ -48,13 +57,19 @@ const Setup = () => {
       
     }
 
+    useEffect(() => {  
+        if (socket) {
+            socket.emit('setName', name);
+        }
+    }, [name]);
+
     useEffect(() => {
         playernumber_onchange();
     }, []);
 
     return (
     <div id="setup">
-
+        <NameDialog open={open} setOpen={setOpen} setName={setName} />
       <div id="mytitle" > Spiel - Geldmaschine </div>
       
         <div id="setup-scrollable">
@@ -80,7 +95,7 @@ const Setup = () => {
                         Anzahl SpielerInnen
                         </div></td>
                         <td>
-                        <select id="spieler" title="Wähle die Anzahl der Spieler." onChange={playernumber_onchange()}>
+                        <select id="spieler" title="Wähle die Anzahl der Spieler." onChange={playernumber_onchange}>
                             {spieler.map((spieler, index) => (
                                 <option key={index} id={`spieler${spieler}`}>{spieler}</option>
                             ))}
@@ -90,22 +105,20 @@ const Setup = () => {
                 )}
             
             {gameState.players.map((player, index) => (
-                <tr key={index} id={`player${index + 1}input`} className="player-input">
-                <td><span>SpielerIn {index + 1}:</span></td>
+                index > 0 && (
+                <tr key={index} id={`player${index}input`} className="player-input">
+                <td><span>SpielerIn {index}:</span></td>
                 <td>
-                    <span id={`player${index + 1}name`} >{player.name}</span>
+                    <span id={`player${index}name`} >{player.name}</span>
                 </td>
-                </tr>
+                </tr>)
             ))}
             <tr>
             {gameState.playerId === 1 && gameState.players.length < 7 && (
-                <td><div style={{margin: "20px 0px;"}}>
-                <input id="startbutton" type="button" value="Spiel beginnen" title="Starte das Spiel." onClick={startClicked()} />
+                <td><div style={{margin: "20px 0px"}}>
+                <input id="startbutton" type="button" value="Spiel beginnen" title="Starte das Spiel." onClick={(event) => startClicked(event)} />
                 </div></td>
             )}
-                <td>
-                <button className="add-button">App installieren</button>
-                </td>
                 </tr>
             </tbody>
             </table>

@@ -15,7 +15,7 @@ const Stats = () => {
   }
 
     return (
-    <div>
+    <>
       <div id="statsbackground"></div>
       <div id="statswrap">
         <div id="stats">
@@ -38,7 +38,7 @@ const Stats = () => {
                               {sq.house > 0 && (
                                 <span style={{float: "right", fontWeight: "bold"}}
                                   title={sq.mortgage ? 'Hypothek aufgenommen' : ''}>{sq.house}
-                                  &nbsp;&nbsp;<FontAwesomeIcon icon={faHouse} title='House' class='house' style={{float: "none"}} />
+                                  &nbsp;&nbsp;<FontAwesomeIcon icon={faHouse} title='House' className='house' style={{float: "none"}} />
                                 </span>
                               )}
                               </td>
@@ -67,11 +67,10 @@ const Stats = () => {
                 </tbody>
             </table>
             <div id='titledeed'></div>
-            <div id="statsdrag"></div>
           </div>
         </div>
       </div>
-    </div>
+    </>
     );
 }
 

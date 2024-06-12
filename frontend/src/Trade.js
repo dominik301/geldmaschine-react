@@ -177,14 +177,14 @@ const Trade = ({offer}) => {
           <td className="trade-cell">
             <div id="trade-rightp-name">
                 {allowRecipientToBeChanged ? (
-                <select id="trade-rightp-name" title="Wähle einen Mitspieler zum Handeln aus." onChange={(event) => {
+                <select id="trade-rightp-name" title="Wähle einen Mitspieler zum Handeln aus." value={tradeObj.recipient.index} onChange={(event) => {
                     setTradeAltered(true)
                     parseInt(event.target.value) === 0 ? setTradeObj(prev => ({ ...prev, recipient: gameState.bank })) :
                     setTradeObj(prev => ({ ...prev, recipient: gameState.players[parseInt(event.target.value)] }))
                 }}>
                 {gameState.players.map((player, i) => (
                 i !== gameState.playerId && (
-                <option key={i} value={i} style={{color: player.color}} selected={i === tradeObj.recipient.index}>{player.name}</option>
+                <option key={i} value={i} style={{color: player.color}}>{player.name}</option>
                 )))}
                 {
                 //<option value={0} style={{color: gameState.bank.color}} selected={0 === tradeObj.recipient.index}>{gameState.bank.name}</option>
@@ -226,7 +226,7 @@ const Trade = ({offer}) => {
                     sq.owner === gameState.playerId && (
                         <tr key={i}>
                             <td className="propertycellcheckbox">
-                                <input type="checkbox" id={`tradeleftcheckbox${i}`} onClick={(event) => {
+                                <input type="checkbox" id={`tradeleftcheckbox${i}`} onChange={(event) => {
                                     setTradeAltered(true)
                                     setTradeObj(prev => {
                                         const property = [...prev.property];
@@ -258,7 +258,7 @@ const Trade = ({offer}) => {
                     sq.owner === tradeObj.recipient.index && (
                         <tr key={i}>
                             <td className="propertycellcheckbox">
-                                <input type="checkbox" id={`tradeleftcheckbox${i}`} onClick={(event) => {
+                                <input type="checkbox" id={`tradeleftcheckbox${i}`} onChange={(event) => {
                                     setTradeAltered(true)
                                     setTradeObj(prev => {
                                         const property = [...prev.property];
@@ -290,7 +290,7 @@ const Trade = ({offer}) => {
                     {tradeObj.initiator.yacht > 0 && (
                         <tr>
                             <td className="propertycellcheckbox">
-                                <input type="checkbox" id="tradeleftcheckboxY" onClick={(event) => {
+                                <input type="checkbox" id="tradeleftcheckboxY" onChange={(event) => {
                                     setTradeAltered(true)
                                     setTradeObj(prev => {
                                         const assets = [...prev.assets];
@@ -310,7 +310,7 @@ const Trade = ({offer}) => {
                     {tradeObj.initiator.auto > 0 && (
                         <tr>
                             <td className="propertycellcheckbox">
-                                <input type="checkbox" id="tradeleftcheckboxA" onClick={(event) => {
+                                <input type="checkbox" id="tradeleftcheckboxA" onChange={(event) => {
                                     setTradeAltered(true)
                                     setTradeObj(prev => {
                                         const assets = [...prev.assets];
@@ -330,7 +330,7 @@ const Trade = ({offer}) => {
                     {tradeObj.initiator.motorrad > 0 && (
                         <tr>
                             <td className="propertycellcheckbox">
-                                <input type="checkbox" id="tradeleftcheckboxM" onClick={(event) => {
+                                <input type="checkbox" id="tradeleftcheckboxM" onChange={(event) => {
                                     setTradeAltered(true)
                                     setTradeObj(prev => {
                                         const assets = [...prev.assets];
@@ -359,7 +359,7 @@ const Trade = ({offer}) => {
                     {tradeObj.recipient.index > 0 && tradeObj.recipient.yacht > 0 && (
                         <tr>
                             <td className="propertycellcheckbox">
-                                <input type="checkbox" id="tradeleftcheckboxY" onClick={(event) => {
+                                <input type="checkbox" id="tradeleftcheckboxY" onChange={(event) => {
                                     setTradeAltered(true)
                                     setTradeObj(prev => {
                                         const assets = [...prev.assets];
@@ -379,7 +379,7 @@ const Trade = ({offer}) => {
                     {tradeObj.recipient.index > 0 && tradeObj.recipient.auto > 0 && (
                         <tr>
                             <td className="propertycellcheckbox">
-                                <input type="checkbox" id="tradeleftcheckboxA" onClick={(event) => {
+                                <input type="checkbox" id="tradeleftcheckboxA" onChange={(event) => {
                                     setTradeAltered(true)
                                     setTradeObj(prev => {
                                         const assets = [...prev.assets];
@@ -399,7 +399,7 @@ const Trade = ({offer}) => {
                     {tradeObj.recipient.index > 0 && tradeObj.recipient.motorrad > 0 && (
                         <tr>
                             <td className="propertycellcheckbox">
-                                <input type="checkbox" id="tradeleftcheckboxM" onClick={(event) => {
+                                <input type="checkbox" id="tradeleftcheckboxM" onChange={(event) => {
                                     setTradeAltered(true)
                                     setTradeObj(prev => {
                                         const assets = [...prev.assets];
@@ -424,12 +424,12 @@ const Trade = ({offer}) => {
           </td>
         </tr>
         <tr>
-          {tradeAltered && (<td colspan="2" className="trade-cell">
+          {tradeAltered && (<td colSpan="2" className="trade-cell">
             <input type="button" id="proposetradebutton" value="Tausch anbieten" onClick={proposeTrade} title="Handel mit Geld, Grundstücken, Anleihen und Derivaten anbieten." />
             <input type="button" id="canceltradebutton" value="Abbrechen" onClick={cancelTrade} title="Tausch abbrechen." />
           </td>)}
           {!tradeAltered && (
-          <td colspan="2" className="trade-cell">
+          <td colSpan="2" className="trade-cell">
             <input type="button" id="accepttradebutton" value="Tausch annehmen" onClick={acceptTrade} title="Nehme den angebotenen Tausch an." />
             <input type="button" id="rejecttradebutton" value="Tausch ablehnen" onClick={cancelTrade} title="Lehne den angebotenen Tausch ab." />
           </td>)}

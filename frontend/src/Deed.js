@@ -6,7 +6,7 @@ const Deed = ({squareId}) => {
 
     return (
     <div id="deed">
-      {!gameState.squares[squareId].mortgage && (<div id="deed-normal" style={{display: "none"}}>
+      {!gameState.squares[squareId].mortgage && (<div id="deed-normal">
         <div id="deed-header" style={{backgroundColor: gameState.squares[squareId].color}}>
           <div style={{margin:"5px", fontSize: "11px"}}>Immobilienkarte</div>
           <div id="deed-name">{gameState.squares[squareId].name}</div>

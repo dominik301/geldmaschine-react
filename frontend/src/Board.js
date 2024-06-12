@@ -17,7 +17,7 @@ const Cell = ({cellId, type}) => {
         <div id={`cell${cellId}positionholder`} className='cell-position-holder'>
           {gameState.players.map((p, i) => (
             i > 0 && p.position === cellId && (
-            <div id={`player${i}figure`} className='cell-position' title={p.name} style={{backgroundColor: p.color, left: (index * 24) % 120 + "px", top: (index++ >= 5 ? 24 : 0) + "px}"}}></div>
+            <div key={i} id={`player${i}figure`} className='cell-position' title={p.name} style={{backgroundColor: p.color, left: (index * 24) % 120 + "px", top: (index++ >= 5 ? 24 : 0) + "px}"}}></div>
           )
           ))}
         </div>
