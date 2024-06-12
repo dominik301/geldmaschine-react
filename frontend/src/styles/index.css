@@ -14,7 +14,7 @@ code {
 
 body {
   /*background: #FFFFFF;*/
-  background-image: url("wood-bright.webp");
+  background-image: url("../assets/images/wood-bright.webp");
   /*background: brown;*/
   background-size: cover;
   margin: 0px;
@@ -141,7 +141,7 @@ td {
 
 @media (prefers-color-scheme: dark) {
   body {
-    background-image: url("wood-dark.webp");
+    background-image: url("../assets/images/wood-dark.webp");
     background-color: black;
     color: white;
   }

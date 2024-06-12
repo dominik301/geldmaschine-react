@@ -1,6 +1,6 @@
 import React from 'react';
-import './Board.css';
-import { useGameContext } from '../GameContext';
+import '../styles/Board.css';
+import { useGameContext } from '../contexts/GameContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 

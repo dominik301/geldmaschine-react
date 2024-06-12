@@ -1,7 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQuestion } from '@fortawesome/free-solid-svg-icons';
-import './Ereignisfeld.css';
+import '../styles/Ereignisfeld.css';
 
 const Ereignisfeld = ({text, title}) => {
     

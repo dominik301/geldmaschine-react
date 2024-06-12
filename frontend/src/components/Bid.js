@@ -1,5 +1,5 @@
 import React, {useContext} from "react";
-import { useGameContext } from '../GameContext';
+import { useGameContext } from '../contexts/GameContext';
 import { SocketContext } from '../contexts/SocketContext';
 
 const Bid = props => {

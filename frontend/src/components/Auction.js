@@ -1,8 +1,9 @@
 import React, {useState, useContext } from "react";
-import { useGameContext } from './GameContext';
+import { useGameContext } from '@/contexts/GameContext';
+import { SocketContext } from '@/contexts/SocketContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
-import { SocketContext } from './SocketContext';
+
 
 const Auction = () => {
     const { gameState, updateGameState } = useGameContext();

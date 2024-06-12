@@ -1,23 +1,22 @@
-import './App.css';
-import Board, {EnlargeWrap} from './Board.js';
-import MoneyBar from './Moneybar.js';
-import Setup from './Setup.js';
-import Trade from './Trade.js';
-import Credit from './Credit.js';
-import Control from './Control.js';
-import Deed from './Deed.js';
-import Chart from './Chart.js';
-import Ereignisfeld from './Ereignisfeld.js';
-import NavigationBar from './NavigationBar.js';
-import Stats from './Stats.js';
+import './styles/App.css';
+import Board from './components/Board.js';
+import MoneyBar from './components/Moneybar.js';
+import Setup from './components/Setup.js';
+import Trade from './components/Trade.js';
+import Credit from './components/Credit.js';
+import Control from './components/Control.js';
+import Deed from './components/Deed.js';
+import Chart from './components/Chart.js';
+import Ereignisfeld from './components/Ereignisfeld.js';
+import NavigationBar from './components/NavigationBar.js';
+import Stats from './components/Stats.js';
+import Bid from './components/Bid.js';
+import Auction from './components/Auction.js';
+
 import { useContext, useState, useEffect } from 'react';
 import socketIOClient from "socket.io-client";
-import { SocketContext } from './SocketContext';
-import { GameProvider, useGameContext } from './GameContext';
-
-import Bid from './Bid.js';
-import Auction from './Auction.js';
-
+import { SocketContext } from './contexts/SocketContext';
+import { GameProvider, useGameContext } from './contexts/GameContext';
 
 const ENDPOINT = "http://localhost:4000";
 

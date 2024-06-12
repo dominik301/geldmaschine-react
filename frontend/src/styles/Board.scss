@@ -39,7 +39,7 @@
 }
 
 #cell3, #cell9 {
-	background-image: url('images/ereignisfeld.png');
+	background-image: url('../assets/images/ereignisfeld.png');
 	background-size: 100% 100%;
 }
 
@@ -144,7 +144,7 @@
 }
 
 %hori-bar {
-	background-image: url("images/hori-bar.png");
+	background-image: url("../assets/images/hori-bar.png");
 	height: 15px;
 	left: 0px;
 	width: 72px;
@@ -162,7 +162,7 @@
 
 .board-left .cell-owner,
 .board-right .cell-owner {
-	background-image: url("images/vert-bar.png");
+	background-image: url("../assets/images/vert-bar.png");
 	height: 68px;
 	top: 0px;
 	width: 15px;
