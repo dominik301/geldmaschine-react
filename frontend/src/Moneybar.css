@@ -1,0 +1,63 @@
+#moneybarwrap {
+    max-width: 220px;
+    font-size: small;
+}
+
+#moneybar {
+	float: right;
+	border: 0px solid black;
+	margin: 15px;
+	border-radius: 5px;
+	z-index: 14;
+	position: relative;
+	cursor: default;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+#moneybar table {
+	font-weight: bold;
+	border-spacing: 1px;
+}
+
+#moneybarwrap {
+	position: absolute;
+	max-width: 25vw;
+	top: 0;
+	right: 0;
+	user-select: none;
+	height: 97%;
+	overflow-y: auto;
+}
+
+.moneybarcell {
+	width: 183px;
+	min-width: 83px;
+	background-color: white;
+	border: 2px solid black;
+}
+
+.moneybararrowcell {
+	width: 30px;
+	border: none;
+	text-align: right;
+	padding: 0px;
+}
+
+.money-bar-arrow {
+	height: 30px;
+	width: 30px;
+	font-size: xx-large;
+}
+
+.player-credit {
+	color: red;
+}
+
+@media (prefers-color-scheme: dark) {
+
+	.moneybarcell {
+		background-color: black;
+		border-color: white;
+	}
+}

@@ -1,0 +1,170 @@
+#owned {
+	padding: 3px 0px;
+	background-color: transparent;
+	text-align: center;
+	max-height: 15vh;
+	overflow-y: auto;
+}
+
+#owned .propertycellname {
+	vertical-align: top;
+}
+
+#control {
+	position: absolute;
+	z-index: 9;
+	top: 20vh;
+	left: 17vw;
+	margin-top: 1.2em;
+	margin-left: 5.2em;
+	padding: 0.5em;
+}
+
+#landed {
+	padding: 3px;
+	border: 1px solid gray;
+	border-top: none;
+	width: 27.6vw;
+	margin: 0px;
+	text-align: center;
+	font-size: small;
+}
+
+#alert {
+	width: 28vw;
+	height: 20vh;
+	margin: 0;
+	padding-left: 1px;
+	border: 1px solid gray;
+	background-color: transparent;
+	overflow-y: scroll;
+	font-size: small;
+}
+
+#manage {
+	width: 28vw;
+	border: 1px solid gray;
+}
+
+#manage input {
+	font-size: medium;
+}
+
+#option {
+	border-bottom: 1px solid gray;
+	background-color: transparent;
+	background: white;
+	vertical-align: middle;
+	padding: 3px;
+	text-align: center;
+	min-height: 26px;
+}
+
+#buildings {
+	margin: auto;
+	height: 21px;
+	font-weight: bold;
+}
+
+#buildings .house {
+	width: 25px;
+	height: 19px;
+	vertical-align: top;
+	float: none;
+}
+
+.die {
+	margin: 5px;
+	float: left;
+	font-size: 3em;
+	font-size: xxx-large;
+}
+
+.die-no-img {
+	border-radius: 6px;
+	font-weight: bold;
+	border: 2px solid black;
+	padding: 5px 10px;
+}
+
+
+.propertycellcheckbox {
+	width: 20px;
+	height: 20px;
+	border: none;
+	vertical-align: middle;
+}
+
+.propertycellcolor {
+	padding: 0px;
+	width: 20px;
+	height: 20px;
+	border-width: 1px;
+	border-style: solid;
+	border-color: white;
+}
+
+.propertycellname {
+	height: 20px;
+	width: 250px;
+	border: none;
+	cursor: default;
+	text-align: left;
+	vertical-align: middle;
+}
+
+@media screen and (min-height: 600px) {
+
+	#landed,
+	#alert {
+		font-size: medium;
+	}
+
+	#manage input {
+		font-size: large
+	}
+}
+
+@media screen and (min-height: 770px) {
+
+	#landed,
+	#alert {
+		font-size: large;
+	}
+}
+
+
+@media screen and (max-height: 450px) {
+	#control {
+		padding: 2px;
+	}
+
+	#landed {
+		width:175px;
+	}
+	
+	#alert {
+		height: 48px;
+		width: 180px;
+	}
+
+	#owned {
+		max-height: 32px;
+		font-size: small;
+	}
+	
+	#manage {
+		width: 194px;
+	}
+
+	#manage input {
+		font-size: x-small;
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+
+	#option {
+		background-color: transparent;
+	}
+}
