@@ -26,18 +26,23 @@ const NavigationBar = () => {
         updateGameState({tab: tab});
     }
 
+    const openGraph = () => {
+        const chart = document.getElementById("graphwrap");
+        chart.showModal();
+    }
+
     return (
-        <div id="icon-bar">
+        <nav>
             <a className={(gameState.currentView === "board" && gameState.tab === 0) ? "active" : ""} id="logicon" onClick={() => setTab(0)} title="Den Spielverlauf anzeigen"><FontAwesomeIcon icon={faAlignJustify} /></a>
             <a className={(gameState.currentView === "board" && gameState.tab === 1) ? "active" : ""} onClick={() => setTab(1)} title="Grundstücke anzeigen und Häuser kaufen"><FontAwesomeIcon icon={faHouse} /></a>
             <a className={gameState.currentView === "trade" ? "active" : ""} onClick={() => changeView("trade")} title="Grundstücke, Anleihen und Derivate mit Spielern und Bank tauschen"><FontAwesomeIcon icon={faPeopleArrowsLeftRight} /></a>
             <a className={gameState.currentView === "credit" ? "active" : ""} onClick={() => changeView("credit")} title="Kredit aufnehmen oder tilgen"><FontAwesomeIcon icon={faMoneyBill1} /></a>
             <a className={gameState.showStats ? "active" : ""} onClick={() => updateGameState({showStats: true})} title="Statistik anzeigen"><FontAwesomeIcon icon={faInfo} /></a>
-            <a className={gameState.showChart ? "active" : ""} onClick={() => updateGameState({showChart: true})} title="Verlauf von Geldmenge und Zinsen anzeigen"><FontAwesomeIcon icon={faChartLine} /></a>
+            <a className={gameState.showChart ? "active" : ""} onClick={openGraph} title="Verlauf von Geldmenge und Zinsen anzeigen"><FontAwesomeIcon icon={faChartLine} /></a>
             {gameState.playerId === 1 && (
             <a id="zinsen" onClick={changeZinssatz}><FontAwesomeIcon icon={faPercent} /></a>
             )}
-        </div>
+        </nav>
     );
 };
 

@@ -155,9 +155,7 @@ const Game = () => {
       <Stats />
     )}
 
-    { gameState.showChart && (
-      <Chart />)
-    }
+    <Chart />
 
     { gameState.currentView === 'bid' && (
       <Bid highestbidder={heighestbidder} highestbid={heighestbid} auctionproperty={auctionproperty} />

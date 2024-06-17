@@ -1,0 +1,19 @@
+
+
+nav {
+	width: 4em;
+	background-color: #555;
+}
+
+nav a {
+	display: block;
+	text-align: center;
+	padding: 0.5em;
+	transition: all 0.3s ease;
+	color: white;
+	font-size: xx-large;
+}
+
+nav a:hover {
+	background-color: #000;
+}

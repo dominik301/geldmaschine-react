@@ -161,24 +161,23 @@ const Control = () => {
                     <div>
                     {(squares[selectedCheckbox].house === 0 || 
                     (squares[selectedCheckbox].house === 1 && allow2houses)) && 
-                    (<input type="button" value="Haus kaufen" 
+                    (<button 
                     title={`Kaufe ein Haus für ${squares[selectedCheckbox].houseprice}`}
-                    id="buyhousebutton" onClick={buyHouse}/>)}
-                    { squares[selectedCheckbox].house >= 1 && (<input type="button" value="Haus verkaufen" 
+                    id="buyhousebutton" onClick={buyHouse}>Haus kaufen</button>)}
+                    { squares[selectedCheckbox].house >= 1 && (<button
                     title={`Verkaufe ein Haus für ${squares[selectedCheckbox].houseprice}`}
-                    id="sellhousebutton" onClick={sellHouse}/>
+                    id="sellhousebutton" onClick={sellHouse}>Haus verkaufen</button>
                     )}
                     </div>
                   )}
                   { squares[selectedCheckbox].house === 0 && 
-                  (<input type="button" 
-                    value = {squares[selectedCheckbox].mortgage ? 
-                      "Hypothek zurückzahlen" : 
-                      ("Hypothek ($" + squares[selectedCheckbox].price + ")")} 
+                  (<button
                     title = {squares[selectedCheckbox].mortgage ? 
                       "Hypothek auf " + squares[selectedCheckbox].name + " für " + squares[selectedCheckbox].price + " zurückzahlen." : 
                       "Hypothek auf " + squares[selectedCheckbox].name + " für " + squares[selectedCheckbox].price + " aufnehmen."}
-                    id="mortgagebutton" onClick={mortgage}/>)}
+                    id="mortgagebutton" onClick={mortgage}>{squares[selectedCheckbox].mortgage ? 
+                      "Hypothek zurückzahlen" : 
+                      ("Hypothek ($" + squares[selectedCheckbox].price + ")")}</button>)}
                 </div>
               )}
               <div id="owned">
@@ -228,9 +227,9 @@ const Control = () => {
         </tr><tr>
           <td colSpan="2" style={{border: "none"}}>
             <div style={{paddingTop: "8px"}}>
-              {turn === playerId && (<input type="button" id="nextbutton" onClick={nextTurn} title="Würfel und rücke entsprechend vor." value={!diceRolled ? "Würfeln" : "Spielzug beenden"}/>)}
-              {turn === playerId && players[playerId].money < 0 && (<input type="button" id="creditbutton" onClick={credit} title="Du musst einen Kredit aufnehmen, um dein Guthaben auszugleichen." value="Kredit aufnehmen"/>)}
-              {false && (<input type="button" id="resignbutton" onClick={sozialHilfe} title="Wenn du deine Schulden nicht zahlen kannst, zahlt der Staat dir Sozialhilfe." value="Sozialhilfe beziehen"/>)}
+              {turn === playerId && (<button id="nextbutton" onClick={nextTurn} title="Würfel und rücke entsprechend vor.">{!diceRolled ? "Würfeln" : "Spielzug beenden"}</button>)}
+              {turn === playerId && players[playerId].money < 0 && (<button id="creditbutton" onClick={credit} title="Du musst einen Kredit aufnehmen, um dein Guthaben auszugleichen.">Kredit aufnehmen</button>)}
+              {false && (<button id="resignbutton" onClick={sozialHilfe} title="Wenn du deine Schulden nicht zahlen kannst, zahlt der Staat dir Sozialhilfe.">Sozialhilfe beziehen</button>)}
             </div>
           </td>
         </tr>

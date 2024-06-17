@@ -4,6 +4,7 @@ import { Line} from 'react-chartjs-2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { useGameContext } from '../contexts/GameContext';
+import '../styles/Chart.css';
     
 const MyChartComponent = ({xValues, geldMengen, bankZinsen}) => {
   const { updateGameState } = useGameContext();
@@ -53,20 +54,17 @@ const MyChartComponent = ({xValues, geldMengen, bankZinsen}) => {
   };
 
     return (
-    <div id="graphwrap">
+    <dialog id="graphwrap">
       <div id="mgraph">
-        <div style={{position: "relative"}}>
-          <span id="graphclose" title="Schließen" onClick={() => updateGameState({showChart: false})}><FontAwesomeIcon icon={faCircleXmark} /></span>
-          <div id="graphtext"><span>Spielverlauf</span></div>
-          <div id="graphdrag"></div>
-          <div id="graph">
-            <Line data={data} options={options}/>
-            {//<canvas id="myChart" width="183px" height="150px"></canvas>
-            }
-          </div>
+        <h2 id="graphtext">Spielverlauf</h2>
+        <div id="graph" >
+          <Line data={data} options={options}/>
         </div>
+        <form method="dialog">
+          <button onClick={() => document.getElementById("graphwrap").close()} autoFocus>Schließen</button>
+        </form>
       </div>
-    </div>
+    </dialog>
     );
 };
 

@@ -64,7 +64,7 @@ td {
   text-align: center;
 }
 
-#mytitle {
+h1 {
   font-size: xx-large;
   text-align: center;
   margin-bottom: 1em;
@@ -122,6 +122,10 @@ td {
   text-align: center;
   padding: 14px 16px;
   text-decoration: none;
+}
+
+#setup {
+	text-align: center;
 }
 
 #setup li a:hover {
@@ -229,8 +233,12 @@ td {
 	background-color: white;
 }
 
+::backdrop {
+	background: black;
+	opacity: 0.75;
+}
 
-#mgraph,
+
 #stats {
 	max-width: 914px;
 	min-width: 454px;
@@ -250,7 +258,6 @@ td {
 	transform: translate(0, -50%);
 }
 
-#graphwrap,
 #statswrap {
 	position: absolute;
 	width: 100%;
@@ -260,13 +267,11 @@ td {
 	top: 50%;
 }
 
-#statstext,
-#graphtext {
+#statstext {
 	overflow: hidden;
 	min-height: 70px;
 }
 
-#graphclose,
 #statsclose {
 	display: block;
 	position: absolute;
@@ -291,8 +296,7 @@ td {
 	z-index: 16;
 }
 
-#statsdrag,
-#graphdrag {
+#statsdrag {
 	width: 100%;
 	height: 16px;
 	position: absolute;
@@ -378,12 +382,6 @@ td {
 	float: right;
 }
 
-#graph {
-	width: 40%;
-	position: relative;
-	left: 30%;
-}
-
 .asset {
 	width: 25px;
 	height: 19px;
@@ -452,31 +450,12 @@ td {
 	}
 }
 
-#icon-bar {
-	width: 4em;
-	background-color: #555;
-}
-
-#icon-bar a {
-	display: block;
-	text-align: center;
-	padding: 0.5em;
-	transition: all 0.3s ease;
-	color: white;
-	font-size: xx-large;
-}
-
-#icon-bar a:hover {
-	background-color: #000;
-}
-
 .active {
 	background-color: #04AA6D;
 }
 
 @media (prefers-color-scheme: dark) {
 
-	#mgraph,
 	#stats,
 	#trade, 
 	#credit {

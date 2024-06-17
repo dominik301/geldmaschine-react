@@ -1,19 +1,10 @@
-import React, {useState} from 'react';
+import React from 'react';
 import '../styles/Moneybar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faMaximize, faMinimize } from '@fortawesome/free-solid-svg-icons';
 import { useGameContext } from '../contexts/GameContext';
 
 const Field = ({player, index, turn}) => {
-  const [minimal, setMinimal] = useState(true);
-
-  const expand = () => {
-    setMinimal(false);
-  };
-
-  const collapse = () => {
-    setMinimal(true);
-  };
 
   return (
     <tr id={`moneybarrow${index + 1}`} className="money-bar-row">
@@ -28,11 +19,10 @@ const Field = ({player, index, turn}) => {
           <div>
           <span id={`p${index + 1}moneyname`}>{player.name}</span>:
           </div>
-          <div>
+          <details>
+          <summary>
           Guthaben: <span id={`p${index + 1}money`}>{player.money > 0 ? player.money : 0}</span>
-          </div>
-          {!minimal && (
-          <div>
+          </summary>
             <div className="moneyopt">
             Kredit: <span id={`p${index + 1}credit`} className="player-credit">{-player.sumKredit}</span>
             </div>
@@ -48,19 +38,7 @@ const Field = ({player, index, turn}) => {
             <div className="moneyopt">
             Derivate: <span id={`p${index + 1}derivate`} className="player-derivate">{player.derivate}</span>
             </div>
-            <button className="min-button" onClick={collapse} >
-              <FontAwesomeIcon icon={faMinimize} />
-              </button>
-          </div>
-          )}
-          <div>
-          {minimal && (
-          <button className="max-button" onClick={expand} >
-              <FontAwesomeIcon icon={faMaximize} />
-            </button>
-          )}
-          
-          </div>
+          </details>
       </td>
     </tr>
   );

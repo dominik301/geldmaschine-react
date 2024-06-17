@@ -19,10 +19,10 @@ const Ereignisfeld = ({text, title}) => {
                         float: "left",
                         margin: "8px 8px 8px 0px"
                      }}/>
-                     <div style={{fontWeight: "bold", fontSize: "16px"}}>
+                     <h3>
                     {title}
-                    </div>
-                    <div style={{textAlign: "justify"}}>{text}</div>
+                    </h3>
+                    <p style={{textAlign: "justify"}}>{text}</p>
                 </div>
                 <div id="popupdrag"></div>
             </div>

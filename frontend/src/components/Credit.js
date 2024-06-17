@@ -62,9 +62,9 @@ const Credit = () => {
         </tr>
         <tr>
           <td colSpan="2" className="credit-cell">
-            <input type="button" id="kreditaufnehmenbutton" defaultValue="Kredit aufnehmen" title="Kredit aufnehmen." onClick={kreditaufnehmenHandler} />
-            <input type="button" id="kredittilgenbutton" defaultValue="Kredit tilgen" title="Kredit tilgen." onClick={kredittilgenHandler} />
-            <input type="button" id="kreditcancelbutton" defaultValue="Schließen" onClick={cancelkredit} title="Fenster schließen." />
+            <button id="kreditaufnehmenbutton" title="Kredit aufnehmen." onClick={kreditaufnehmenHandler} >Kredit aufnehmen</button>
+            <button id="kredittilgenbutton" title="Kredit tilgen." onClick={kredittilgenHandler} >Kredit tilgen</button>
+            <button id="kreditcancelbutton" onClick={cancelkredit} title="Fenster schließen." >Schließen</button>
           </td>
         </tr>
         </tbody>
