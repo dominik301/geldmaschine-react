@@ -2,7 +2,7 @@ import React from 'react';
 import '../styles/Moneybar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faMaximize, faMinimize } from '@fortawesome/free-solid-svg-icons';
-import { useGameContext } from '../contexts/GameContext';
+import { useGameContext } from '../contexts/GameContext.tsx';
 
 const Field = ({player, index, turn}) => {
 

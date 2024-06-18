@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPercent, faAlignJustify, faHouse, faPeopleArrowsLeftRight, faMoneyBill1, faInfo, faChartLine } from '@fortawesome/free-solid-svg-icons';
 import '../styles/NavigationBar.css';
 import { SocketContext } from '../contexts/SocketContext';
-import { useGameContext } from '../contexts/GameContext';
+import { useGameContext } from '../contexts/GameContext.tsx';
 
 const NavigationBar = () => {
     const socket = useContext(SocketContext);
@@ -12,6 +12,7 @@ const NavigationBar = () => {
 
     const changeZinssatz = () => {
         const value = prompt("Zinssatz ändern", "5");
+        if (value === null) return; // cancel button clicked
         // can value be parsed as int?
         if (!isNaN(parseInt(value)) && socket) {
             socket.emit("zinssatz", parseInt(value))
@@ -27,7 +28,7 @@ const NavigationBar = () => {
     }
 
     const openGraph = () => {
-        const chart = document.getElementById("graphwrap");
+        const chart = document.getElementById("graphwrap") as HTMLDialogElement;
         chart.showModal();
     }
 

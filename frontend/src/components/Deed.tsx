@@ -1,5 +1,5 @@
 import React from 'react';
-import { useGameContext } from '../contexts/GameContext';
+import { useGameContext } from '../contexts/GameContext.tsx';
 
 const Deed = ({squareId}) => {
   const { gameState } = useGameContext();
@@ -14,7 +14,7 @@ const Deed = ({squareId}) => {
         <table id="deed-table">
             <tbody>
           <tr>
-                      <td colSpan="2">
+                      <td colSpan={2}>
               Grundstückswert = Summe der Baukosten
             </td>
                   </tr>
@@ -23,7 +23,7 @@ const Deed = ({squareId}) => {
             <td style={{textAlign: "right"}}><b><span id="deed-houseprice">{gameState.squares[squareId].houseprice}</span></b></td>
                   </tr>
                   <tr style={{borderBottom: "1px solid black"}}>
-                      <td colSpan="2">
+                      <td colSpan={2}>
               Baukosten werden sofort anteilig an alle Mitspielenden ausgezahlt.
             </td>
           </tr>
@@ -32,7 +32,7 @@ const Deed = ({squareId}) => {
             <td style={{textAlign: "right"}}><b><span id="deed-rent">{gameState.squares[squareId].rent}</span></b></td>
                   </tr>
                   <tr>
-                      <td colSpan="2">
+                      <td colSpan={2}>
               Fällig, wenn ein Spielzug auf diesem Feld endet.
             </td>
           </tr>

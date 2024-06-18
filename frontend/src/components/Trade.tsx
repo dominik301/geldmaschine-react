@@ -1,9 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useGameContext } from '../contexts/GameContext';
+import { useGameContext, IPlayer, IBank } from '../contexts/GameContext.tsx';
 import { SocketContext } from '../contexts/SocketContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSailboat, faCar, faMotorcycle} from '@fortawesome/free-solid-svg-icons';
 
+interface ITrade {
+    initiator: IPlayer | null;
+    recipient: IPlayer | IBank | null;
+    money: number;
+    property: number[];
+    anleihen: number;
+    derivate: number;
+    assets: number[];
+
+}
 const Trade = ({offer}) => {
     const socket = useContext(SocketContext);
     const { gameState, updateGameState } = useGameContext();
@@ -13,7 +23,7 @@ const Trade = ({offer}) => {
         { asset: 'anleihen', title: 'Wie viele Anleihen möchtest du tauschen?' },
     ];
     const [tradeAltered, setTradeAltered] = useState(false);
-    const [tradeObj, setTradeObj] = useState({
+    const [tradeObj, setTradeObj] = useState<ITrade>({
         initiator: null,
         recipient: null,
         money: 0,
@@ -23,7 +33,7 @@ const Trade = ({offer}) => {
         assets: [0, 0, 0],
     });
     const ownedProperties = gameState.squares.filter(square => square.owner === gameState.playerId);
-    const propertiesRecipient = gameState.squares.filter(square => square.owner === tradeObj.recipient);
+    const propertiesRecipient = gameState.squares.filter(square => square.owner === tradeObj.recipient?.index);
     const [allowRecipientToBeChanged, setAllowRecipientToBeChanged ] = useState(true);
 
     useEffect(() => {
@@ -53,6 +63,7 @@ const Trade = ({offer}) => {
     };
 
     const acceptTrade = () => {
+        if (!tradeObj.initiator || !tradeObj.recipient) return;
         if (!window.confirm(tradeObj.initiator.name + ", bist du sicher, dass du diesen Tausch mit " + tradeObj.recipient.name + " machen willst?")) {
             return false;
         }
@@ -67,11 +78,11 @@ const Trade = ({offer}) => {
         var money = tradeObj.money;
         var initiator = tradeObj.initiator;
         var recipient = tradeObj.recipient;
-        var reversedTradeProperty = [];
+        var reversedTradeProperty : number[] = [];
         var anleihen = tradeObj.anleihen;
         var derivate = tradeObj.derivate;
         var assets = tradeObj.assets;
-        var reversedAssets = [];
+        var reversedAssets : number[] = [];
         /*var isAPropertySelected = false;
 
         // Ensure that some properties are selected.
@@ -79,49 +90,52 @@ const Trade = ({offer}) => {
             isAPropertySelected |= tradeObj.property[i];
         }*/
 
-        if (isNaN(document.getElementById("trade-leftp-money").value)) {
-            document.getElementById("trade-leftp-money").value = "Der Wert muss eine Zahl sein.";
-            document.getElementById("trade-leftp-money").style.color = "red";
+        let money_left = document.getElementById("trade-leftp-money") as HTMLInputElement;
+        let money_right = document.getElementById("trade-rightp-money") as HTMLInputElement;
+
+        if (isNaN(Number(money_left.value))) {
+            money_left.value = "Der Wert muss eine Zahl sein.";
+            money_left.style.color = "red";
             return false;
         }
       
-        if (isNaN(document.getElementById("trade-rightp-money").value)) {
-            document.getElementById("trade-rightp-money").value = "Der Wert muss eine Zahl sein.";
-            document.getElementById("trade-rightp-money").style.color = "red";
+        if (isNaN(Number(money_right.value))) {
+            money_right.value = "Der Wert muss eine Zahl sein.";
+            money_right.style.color = "red";
             return false;
         }
         
-        if (money > 0 && money > initiator.money) {
-            document.getElementById("trade-leftp-money").value = initiator.name + " hat keine " + money + ".";
-            document.getElementById("trade-leftp-money").style.color = "red";
+        if (money > 0 && money > (initiator as IPlayer).money) {
+            money_left.value = initiator?.name + " hat keine " + money + ".";
+            money_left.style.color = "red";
             return false;
-        } else if (!(recipient.name === "Bank") && money < 0 && -money > recipient.money) {
-            document.getElementById("trade-rightp-money").value = recipient.name + " hat keine " + (-money) + ".";
-            document.getElementById("trade-rightp-money").style.color = "red";
-            return false;
-        }
-
-        if (anleihen > 0 && anleihen > initiator.anleihen) {
-            document.getElementById("trade-leftp-anleihen").value = initiator.name + " hat keine Anleihen im Wert von " + anleihen + ".";
-            document.getElementById("trade-leftp-anleihen").style.color = "red";
-            return false;
-        } else if (anleihen < 0 && -anleihen > recipient.anleihen) {
-            document.getElementById("trade-rightp-anleihen").value = recipient.name + " hat keine Anleihen im Wert von " + (-anleihen) + ".";
-            document.getElementById("trade-rightp-anleihen").style.color = "red";
+        } else if (!(recipient?.name === "Bank") && money < 0 && -money > (recipient as IPlayer).money) {
+            money_right.value = recipient?.name + " hat keine " + (-money) + ".";
+            money_right.style.color = "red";
             return false;
         }
 
-        if (derivate > 0 && derivate > initiator.derivate) {
-            document.getElementById("trade-leftp-derivate").value = initiator.name + " hat keine Derivate im Wert von " + derivate + ".";
-            document.getElementById("trade-leftp-derivate").style.color = "red";
+        if (anleihen > 0 && anleihen > (initiator as IPlayer).anleihen) {
+            (document.getElementById("trade-leftp-anleihen") as HTMLInputElement).value = initiator?.name + " hat keine Anleihen im Wert von " + anleihen + ".";
+            (document.getElementById("trade-leftp-anleihen") as HTMLInputElement).style.color = "red";
             return false;
-        } else if (derivate < 0 && -derivate > recipient.derivate) {
-            document.getElementById("trade-rightp-derivate").value = recipient.name + " hat keine Derivate im Wert von " + (-derivate) + ".";
-            document.getElementById("trade-rightp-derivate").style.color = "red";
+        } else if (recipient !== null && anleihen < 0 && -anleihen > recipient.anleihen) {
+            (document.getElementById("trade-rightp-anleihen") as HTMLInputElement).value = recipient?.name + " hat keine Anleihen im Wert von " + (-anleihen) + ".";
+            (document.getElementById("trade-rightp-anleihen") as HTMLInputElement).style.color = "red";
             return false;
         }
 
-        if (!window.confirm(initiator.name + ", bist du sicher, dass du dieses Angebot an " + recipient.name + " machen willst?")) {
+        if (derivate > 0 && derivate > (initiator as IPlayer).derivate) {
+            (document.getElementById("trade-leftp-derivate") as HTMLInputElement).value = initiator?.name + " hat keine Derivate im Wert von " + derivate + ".";
+            (document.getElementById("trade-leftp-derivate") as HTMLInputElement).style.color = "red";
+            return false;
+        } else if (recipient !== null && derivate < 0 && -derivate > recipient.derivate) {
+            (document.getElementById("trade-rightp-derivate") as HTMLInputElement).value = recipient.name + " hat keine Derivate im Wert von " + (-derivate) + ".";
+            (document.getElementById("trade-rightp-derivate") as HTMLInputElement).style.color = "red";
+            return false;
+        }
+
+        if (!window.confirm(initiator?.name + ", bist du sicher, dass du dieses Angebot an " + recipient?.name + " machen willst?")) {
             return false;
         }
 
@@ -255,7 +269,7 @@ const Trade = ({offer}) => {
           <table>
                 <tbody>
                 {gameState.squares.map((sq, i) => (
-                    sq.owner === tradeObj.recipient.index && (
+                    sq.owner === tradeObj.recipient?.index && (
                         <tr key={i}>
                             <td className="propertycellcheckbox">
                                 <input type="checkbox" id={`tradeleftcheckbox${i}`} onChange={(event) => {
@@ -424,12 +438,12 @@ const Trade = ({offer}) => {
           </td>
         </tr>
         <tr>
-          {tradeAltered && (<td colSpan="2" className="trade-cell">
+          {tradeAltered && (<td colSpan={2} className="trade-cell">
             <input type="button" id="proposetradebutton" value="Tausch anbieten" onClick={proposeTrade} title="Handel mit Geld, Grundstücken, Anleihen und Derivaten anbieten." />
             <input type="button" id="canceltradebutton" value="Abbrechen" onClick={cancelTrade} title="Tausch abbrechen." />
           </td>)}
           {!tradeAltered && (
-          <td colSpan="2" className="trade-cell">
+          <td colSpan={2} className="trade-cell">
             <input type="button" id="accepttradebutton" value="Tausch annehmen" onClick={acceptTrade} title="Nehme den angebotenen Tausch an." />
             <input type="button" id="rejecttradebutton" value="Tausch ablehnen" onClick={cancelTrade} title="Lehne den angebotenen Tausch ab." />
           </td>)}

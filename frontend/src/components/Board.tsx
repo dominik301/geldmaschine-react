@@ -1,6 +1,6 @@
 import React from 'react';
 import '../styles/Board.css';
-import { useGameContext } from '../contexts/GameContext';
+import { useGameContext } from '../contexts/GameContext.tsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 
@@ -52,11 +52,11 @@ const Board = () => {
           <Cell cellId={9} type="board-corner" />
         </tr><tr>
           <Cell cellId={5} type="board-left" />
-          <td colSpan="2" type="board-center"></td>
+          <td colSpan={2} className="board-center"></td>
           <Cell cellId={10} type="board-right" />
         </tr><tr>
           <Cell cellId={4} type="board-left" />
-          <td colSpan="2" type="board-center"></td>
+          <td colSpan={2} className="board-center"></td>
           <Cell cellId={11} type="board-right" />
         </tr><tr>
           <Cell cellId={3} type="board-corner" />

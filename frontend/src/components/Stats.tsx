@@ -1,7 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark , faHouse, faMotorcycle, faSailboat, faCar } from '@fortawesome/free-solid-svg-icons';
-import { useGameContext } from '../contexts/GameContext';
+import { useGameContext } from '../contexts/GameContext.tsx';
 
 const Stats = () => {
   const { gameState, updateGameState } = useGameContext();

@@ -2,12 +2,12 @@ import React, {useContext, useEffect, useState} from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComment, faInfo, faShield } from '@fortawesome/free-solid-svg-icons';
 import { SocketContext } from '../contexts/SocketContext.js';
-import { useGameContext } from '../contexts/GameContext.jsx';
+import { useGameContext } from '../contexts/GameContext.tsx';
 import NameDialog from './NameDialog.jsx';
 
 const Setup = () => {
     const socket = useContext(SocketContext);
-    const [nieten, setNieten] = useState([]);
+    const [nieten, setNieten] = useState<number[]>([]);
     const { gameState } = useGameContext();
     const spieler = [3, 4, 5, 6];
 
@@ -21,9 +21,9 @@ const Setup = () => {
         if (gameState.playerId !== 1) {
             return;
         }
-        let newNieten = [];
+        let newNieten : number[] = [];
         try {
-            var anzahlSpieler = document.getElementById("spieler").value;
+            var anzahlSpieler = (document.getElementById("spieler") as HTMLInputElement).value;
             switch (+anzahlSpieler) {
             case 3:
                 newNieten = [0, 2, 4];
@@ -51,8 +51,8 @@ const Setup = () => {
       if (socket) {
         socket.emit("windowload");
     
-        const nieten = document.getElementById("nieten").value;
-        const pNo = document.getElementById("spieler").value;
+        const nieten = (document.getElementById("nieten") as HTMLInputElement).value;
+        const pNo = (document.getElementById("spieler") as HTMLInputElement).value;
         socket.emit('setup', true, pNo, nieten);
       }
       
@@ -84,7 +84,7 @@ const Setup = () => {
         {gameState.playerId === 1 && (
             <form style={{marginBottom: "25px"}} >
                 <div style={{padding: "10px"}}>
-                    <label for="nieten">Anzahl Nieten: </label>
+                    <label htmlFor="nieten">Anzahl Nieten: </label>
                     <select name="nieten" id="nieten" title="Wähle die Anzahl der Nieten.">
                         {nieten.map((niete, index) => (
                             <option key={index} id={`nieten${niete}`}>{niete}</option>
@@ -92,7 +92,7 @@ const Setup = () => {
                     </select>
                 </div>
                 <div style={{padding: "10px"}}>
-                    <label for="spieler">Anzahl SpielerInnen: </label>
+                    <label htmlFor="spieler">Anzahl SpielerInnen: </label>
                     <select id="spieler" title="Wähle die Anzahl der Spieler." onChange={playernumber_onchange}>
                         {spieler.map((spieler, index) => (
                             <option key={index} id={`spieler${spieler}`}>{spieler}</option>

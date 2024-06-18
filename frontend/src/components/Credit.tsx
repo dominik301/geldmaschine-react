@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import { useGameContext } from '../contexts/GameContext';
+import { useGameContext } from '../contexts/GameContext.tsx';
 import { SocketContext } from '../contexts/SocketContext';
 
 const Credit = () => {
@@ -11,11 +11,11 @@ const Credit = () => {
   };
 
   const kreditaufnehmenHandler = () => {
-    const kredit = document.getElementById('credit-leftp-money');
+    const kredit = document.getElementById('credit-leftp-money') as HTMLInputElement;
 
-    if (isNaN(document.getElementById("credit-leftp-money").value)) {
-        document.getElementById("credit-leftp-money").value = "Bitte eine Zahl eingeben.";
-        document.getElementById("credit-leftp-money").style.color = "red";
+    if (isNaN(Number(kredit.value))) {
+        kredit.value = "Bitte eine Zahl eingeben.";
+        kredit.style.color = "red";
         return false;
     }
 
@@ -30,11 +30,11 @@ const Credit = () => {
   }
 
   const kredittilgenHandler = () => {
-    const kredit = document.getElementById('credit-leftp-money');
+    const kredit = document.getElementById('credit-leftp-money') as HTMLInputElement;
 
-    if (isNaN(document.getElementById("credit-leftp-money").value)) {
-        document.getElementById("credit-leftp-money").value = "Bitte eine Zahl eingeben.";
-        document.getElementById("credit-leftp-money").style.color = "red";
+    if (isNaN(Number(kredit.value))) {
+        kredit.value = "Bitte eine Zahl eingeben.";
+        kredit.style.color = "red";
         return false;
     }
 
@@ -61,7 +61,7 @@ const Credit = () => {
           </td>
         </tr>
         <tr>
-          <td colSpan="2" className="credit-cell">
+          <td colSpan={2} className="credit-cell">
             <button id="kreditaufnehmenbutton" title="Kredit aufnehmen." onClick={kreditaufnehmenHandler} >Kredit aufnehmen</button>
             <button id="kredittilgenbutton" title="Kredit tilgen." onClick={kredittilgenHandler} >Kredit tilgen</button>
             <button id="kreditcancelbutton" onClick={cancelkredit} title="Fenster schließen." >Schließen</button>

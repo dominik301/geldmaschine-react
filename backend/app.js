@@ -273,12 +273,12 @@ server.listen(port) //, "0.0.0.0");
 
 //Start: Old code monopoly.js
 
-var Game = require('./Game');
+var Game = require('./models/Game');
 var games = [];
 var game;
 
-var Player = require('./Player');
-var Trade = require('./Trade');
+var Player = require('./models/Player');
+var Trade = require('./models/Trade');
 
 // Overwrite an array with numbers from one to the array's length in a random order.
 Array.prototype.randomize = function(length) {
@@ -426,9 +426,9 @@ function loadWindow() {
 	chanceCards2.deck.sort(function() {return Math.random() - 0.5;});
 }
 
-const Card = require('./Card');
+const Card = require('./models/Card');
 var chanceCards = Card.chanceCards;
 var chanceCards2 = Card.chanceCards2;
 
-var AITest = require('./AI.js');
+var AITest = require('./models/AI.js');
 //const { kMaxLength } = require('node:buffer');const { generatePrimeSync } = require('node:crypto');

@@ -1,5 +1,5 @@
 import React, {useContext} from "react";
-import { useGameContext } from '../contexts/GameContext';
+import { useGameContext } from '../contexts/GameContext.tsx';
 import { SocketContext } from '../contexts/SocketContext';
 
 const Bid = props => {
@@ -10,26 +10,25 @@ const Bid = props => {
     var highestbid = props.highestbid || 0;
     const square = gameState.squares[props.auctionproperty];
 
-    const auctionBid = bid => {
-        bid = bid || parseInt(document.getElementById("bid").value, 10);
+    const auctionBid = () => {
+        if (gameState.playerId === 0) return
+        let bid_input = document.getElementById("bid") as HTMLInputElement;
+        let bid = parseInt(bid_input.value, 10);
     
-        if (bid === "" || bid === null) {
-            document.getElementById("bid").value = "Gebe ein Gebot ab.";
-            document.getElementById("bid").style.color = "red";
-        } else if (isNaN(bid)) {
-            document.getElementById("bid").value = "Das Gebot muss eine Zahl sein.";
-            document.getElementById("bid").style.color = "red";
+        if (isNaN(bid) || bid === null) {
+            bid_input.value = "Gebe ein Gebot ab. Das Gebot muss eine Zahl sein.";
+            bid_input.style.color = "red";
         } else {
             if (bid > player.money) {
-                document.getElementById("bid").value = "Du hast nicht genügend Geld um " + bid + " zu bieten.";
-                document.getElementById("bid").style.color = "red";
+                bid_input.value = "Du hast nicht genügend Geld um " + bid + " zu bieten.";
+                bid_input.style.color = "red";
             } else if (bid > highestbid) {
                 highestbid = bid;
                 highestbidder = gameState.playerId;
                 auctionPass();
             } else {
-                document.getElementById("bid").value = "Dein Gebot muss höher sein als das höchste Gebot. ($" + highestbid + ")";
-                document.getElementById("bid").style.color = "red";
+                bid_input.value = "Dein Gebot muss höher sein als das höchste Gebot. ($" + highestbid + ")";
+                bid_input.style.color = "red";
             }
         }
     };
@@ -83,9 +82,9 @@ const Bid = props => {
                             <input id='bid' title={`Gib ein Gebot für ${square.name} ab.`} style={{width: "291px"}} />
                         </div>
                         <div>
-                            <input type='button' value='Bieten' onClick={(event) => auctionBid(event.target.value)} title='Gib dein Gebot ab.' />
-                            <input type='button' value='Aussetzen' title='Diese Runde nicht bieten.' onClick={auctionPass} />
-                            <input type='button' value='Auktion verlassen' title={`Nicht mehr für ${square.name} bieten.`} onClick={auctionExit} />
+                            <input type='button' onClick={auctionBid} title='Gib dein Gebot ab.'>Bieten</input>
+                            <input type='button' title='Diese Runde nicht bieten.' onClick={auctionPass}>Aussetzen</input>
+                            <input type='button' title={`Nicht mehr für ${square.name} bieten.`} onClick={auctionExit}>Auktion verlassen</input>
                         </div>
 
                         </div>
