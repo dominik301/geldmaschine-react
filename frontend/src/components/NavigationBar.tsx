@@ -33,7 +33,7 @@ const NavigationBar = () => {
     }
 
     return (
-        <nav>
+        <nav style={{position: "absolute", top: 0}}>
             <a className={(gameState.currentView === "board" && gameState.tab === 0) ? "active" : ""} id="logicon" onClick={() => setTab(0)} title="Den Spielverlauf anzeigen"><FontAwesomeIcon icon={faAlignJustify} /></a>
             <a className={(gameState.currentView === "board" && gameState.tab === 1) ? "active" : ""} onClick={() => setTab(1)} title="Grundstücke anzeigen und Häuser kaufen"><FontAwesomeIcon icon={faHouse} /></a>
             <a className={gameState.currentView === "trade" ? "active" : ""} onClick={() => changeView("trade")} title="Grundstücke, Anleihen und Derivate mit Spielern und Bank tauschen"><FontAwesomeIcon icon={faPeopleArrowsLeftRight} /></a>

@@ -1,5 +1,5 @@
 import './styles/App.css';
-import Board from './components/Board.tsx';
+import Board from './components/Board3D.jsx';
 import MoneyBar from './components/Moneybar.tsx';
 import Setup from './components/Setup.tsx';
 import Trade from './components/Trade.tsx';
