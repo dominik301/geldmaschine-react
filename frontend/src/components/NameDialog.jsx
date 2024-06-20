@@ -1,54 +1,18 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
 
-export default function FormDialog({open, setOpen, setName}) {
-
-  const handleClose = () => {
-    setOpen(false);
-  };
+export default function FormDialog({setName}) {
 
   return (
-    <Dialog
-    open={open}
-    onClose={handleClose}
-    PaperProps={{
-        component: 'form',
-        onSubmit: (event) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        const formJson = Object.fromEntries(formData.entries());
-        const name = formJson.name;
-        setName(name);
-        handleClose();
-        },
-    }}
-    >
-    <DialogTitle>Enter User Name</DialogTitle>
-    <DialogContent>
-        <DialogContentText>
-        Please enter user name
-        </DialogContentText>
-        <TextField
-        autoFocus
-        required
-        margin="dense"
-        id="name"
-        name="name"
-        label="Name"
-        fullWidth
-        variant="standard"
-        />
-    </DialogContent>
-    <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button type="submit">Accept</Button>
-    </DialogActions>
-    </Dialog>
+    <dialog id="namedialog">
+        <div id="popup" className="popup" style={{width: "300px", minWidth: "300px", top: "30vh"}}>
+            <div className="popuptext">
+                <h3>Gib deinen Namen ein</h3>
+                <input type="text" id="name" name="name" placeholder="Name" required />
+            </div>
+            <form method="dialog">
+                <button onClick={() => {setName(document.getElementById("name").value); document.getElementById("namedialog").close()}} autoFocus>OK</button>
+            </form>
+        </div>
+    </dialog>
   );
 }

@@ -70,17 +70,6 @@ h1 {
   margin-bottom: 1em;
 }
 
-#setup {
-  display: block;
-  margin-top: 1em;
-}
-
-#credits {
-  width: 100%;
-  position: absolute;
-  bottom: 0;
-}
-
 @media screen and (min-height: 600px) {
 
   button, input {
@@ -104,7 +93,7 @@ h1 {
   }
 }
 
-#setup ul {
+footer ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
@@ -112,11 +101,11 @@ h1 {
   background-color: #333;
 }
 
-#setup li {
+footer li {
   float: left;
 }
 
-#setup li a {
+footer li a {
   display: block;
   color: white;
   text-align: center;
@@ -128,7 +117,7 @@ h1 {
 	text-align: center;
 }
 
-#setup li a:hover {
+footer li a:hover {
   background-color: #111;
 }
 
