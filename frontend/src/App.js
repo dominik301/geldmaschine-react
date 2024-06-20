@@ -62,19 +62,6 @@ const Game = () => {
 
   }, []);
 
-  var round = 1;
-
-  var xValues = [];
-  var geldMengen = [];
-  var bankZinsen = []
-
-  const updateChart = () => {
-    xValues.push(round);
-    geldMengen.push(gameState.bank.geldMenge)
-    bankZinsen.push(gameState.bank.zinsenLotto)
-    round++;
-  }
-
   useEffect(() => {
     if (gameState.currentView !== 'trade') {
       setOffer(null);
@@ -102,8 +89,6 @@ const Game = () => {
       }
       updateGameState({players: players});
     });
-
-    socket.on('updateChart', updateChart);
 
     socket.on('showEreignis', function(text, title) {
       setEreignisText(text);

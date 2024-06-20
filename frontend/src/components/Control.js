@@ -57,8 +57,8 @@ const Control = () => {
       socket.emit('next');
       if (diceRolled) {
           setAllow2houses(false);
-          updateGameState({diceRolled: false});
       }
+      updateGameState({diceRolled: !diceRolled});
   }
 
   const sozialHilfe = () => {
@@ -86,7 +86,7 @@ const Control = () => {
     if (!socket) return;
 
     socket.on('addAlert', function(alertText) {
-      setAlerts([...alerts, alertText]);
+      setAlerts(alerts => [alertText, ...alerts]);
     })
 
     socket.on('buyhouse2', function(isAllowed) {
@@ -99,7 +99,7 @@ const Control = () => {
         socket.emit("doMortgage", selectedCheckbox);
       }
 
-      var action = null;
+      var action = () => {};
       
       if (mortgage) {
         action = doMortgage;

@@ -18,9 +18,9 @@ const Trade = ({offer}) => {
     const socket = useContext(SocketContext);
     const { gameState, updateGameState } = useGameContext();
     const assets = [
-        { asset: 'money', title: 'Wie viel Geld möchtest du tauschen?' },
-        { asset: 'derivate', title: 'Wie viele Derivate möchtest du tauschen?' },
-        { asset: 'anleihen', title: 'Wie viele Anleihen möchtest du tauschen?' },
+        { asset: 'money', title: 'Wie viel Geld möchtest du tauschen?', label: 'Geld'},
+        { asset: 'derivate', title: 'Wie viele Derivate möchtest du tauschen?', label: 'Derivate'},
+        { asset: 'anleihen', title: 'Wie viele Anleihen möchtest du tauschen?', label: 'Anleihen'},
     ];
     const [tradeAltered, setTradeAltered] = useState(false);
     const [tradeObj, setTradeObj] = useState<ITrade>({
@@ -214,17 +214,17 @@ const Trade = ({offer}) => {
         {tradeObj.recipient.name === "Bank" && (
             <tr>Derivate (Kurs: {gameState.bank.derivateKurs})</tr>
         )}
-        {assets.map(({ asset, title }) => (
+        {assets.map(({ asset, title, label }) => (
             <tr key={asset}>
                 <td className="cell">
-                    {asset}: &nbsp;
+                    {label}: &nbsp;
                     <input id={`trade-leftp-${asset}`} value={max(tradeObj[asset], 0)} type="number" title={title} onChange={(event) => {
                         setTradeAltered(true)
                         setTradeObj(prev => ({ ...prev, [asset]: parseInt(event.target.value) || 0 }))
                         }} />
                 </td>
                 <td className="cell">
-                    {asset}: &nbsp;
+                    {label}: &nbsp;
                     <input id={`trade-rightp-${asset}`} value={max(-tradeObj[asset], 0)} type="number" title={title} onChange={(event) => {
                         setTradeAltered(true)
                         setTradeObj(prev => ({ ...prev, [asset]: -parseInt(event.target.value) || 0 }))

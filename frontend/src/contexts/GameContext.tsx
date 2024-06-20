@@ -204,7 +204,6 @@ export const GameProvider = ({ children }) => {
     
       setTimeout(() => {
         updateGameState({
-          diceRolled: gameState.turn === gameState.playerId,
           die0: die
         });
       }, 500);

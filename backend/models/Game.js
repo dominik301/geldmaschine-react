@@ -235,6 +235,8 @@ module.exports = class Game {
 	}
 
 	buyHouse2(buy=true) {
+		// check if this.SOCEKT_LIST[this.turn] is undefined
+		if (this.socketUndefined()) return;
 		this.SOCKET_LIST[this.turn].emit('buyhouse2', buy)
 	}
 

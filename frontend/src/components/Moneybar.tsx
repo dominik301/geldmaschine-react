@@ -7,36 +7,36 @@ import { useGameContext } from '../contexts/GameContext.tsx';
 const Field = ({player, index, turn}) => {
 
   return (
-    <tr id={`moneybarrow${index + 1}`} className="money-bar-row">
+    <tr id={`moneybarrow${index}`} className="money-bar-row">
       <td className="moneybararrowcell">
-      { turn === index + 1 && (
+      { turn === index && (
           <span>
-          <FontAwesomeIcon id={`p${index + 1}arrow`} className="money-bar-arrow" icon={faArrowRight} />
+          <FontAwesomeIcon id={`p${index}arrow`} className="money-bar-arrow" icon={faArrowRight} />
           </span>
       )}
       </td>
-      <td id={`p${index + 1}moneybar`} className="moneybarcell" style={{border: `2px solid ${player.color}`}}>
+      <td id={`p${index}moneybar`} className="moneybarcell" style={{border: `2px solid ${player.color}`}}>
           <div>
-          <span id={`p${index + 1}moneyname`}>{player.name}</span>:
+          <span id={`p${index}moneyname`}>{player.name}</span>:
           </div>
           <details>
           <summary>
-          Guthaben: <span id={`p${index + 1}money`}>{player.money > 0 ? player.money : 0}</span>
+          Guthaben: <span id={`p${index}money`}>{player.money > 0 ? player.money : 0}</span>
           </summary>
             <div className="moneyopt">
-            Kredit: <span id={`p${index + 1}credit`} className="player-credit">{-player.sumKredit}</span>
+            Kredit: <span id={`p${index}credit`} className="player-credit">{-player.sumKredit}</span>
             </div>
             <div className="moneyopt">
-            Dispokredit: <span id={`p${index + 1}dispocredit`} className="player-credit">{player.money > 0 ? 0 : player.money}</span>
+            Dispokredit: <span id={`p${index}dispocredit`} className="player-credit">{player.money > 0 ? 0 : player.money}</span>
             </div>
             <div className="moneyopt" title="Summe aus Anleihen, Derivaten und Immobilien (inkl.Häusern.)">
-                verfügbare Kreditsumme: <span id={`p${index + 1}avcredit`} className="player-avcredit">{player.verfuegbareHypothek}</span>
+                verfügbare Kreditsumme: <span id={`p${index}avcredit`} className="player-avcredit">{player.verfuegbareHypothek}</span>
             </div>
             <div className="moneyopt">
-            Anleihen: <span id={`p${index + 1}anleihen`} className="player-anleihen">{player.anleihen}</span>
+            Anleihen: <span id={`p${index}anleihen`} className="player-anleihen">{player.anleihen}</span>
             </div>
             <div className="moneyopt">
-            Derivate: <span id={`p${index + 1}derivate`} className="player-derivate">{player.derivate}</span>
+            Derivate: <span id={`p${index}derivate`} className="player-derivate">{player.derivate}</span>
             </div>
           </details>
       </td>

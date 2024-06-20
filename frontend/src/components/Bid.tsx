@@ -74,7 +74,7 @@ const Bid = props => {
                     </div>
                     )}
                     <div>
-                        {player.name}, du bist an der Reihe.
+                        {player?.name}, du bist an der Reihe.
                     </div>
                     <div>
                         <input id='bid' title={`Gib ein Gebot für ${square.name} ab.`} style={{width: "291px"}} />

@@ -37,7 +37,7 @@ const Auction = () => {
                 <div className="popuptext">
                 {ownedSquares.length > 0 ? (
                 <>
-                    <p style={{}}>{player.name}, wähle eines der Grundstücke für die Auktion aus, indem du es anklickst. Klicke OK, wenn du fertig bist.</p>
+                    <p style={{}}>{player?.name}, wähle eines der Grundstücke für die Auktion aus, indem du es anklickst. Klicke OK, wenn du fertig bist.</p>
                     <table>
                         <tbody>
                             {gameState.squares.map((sq, i) => (

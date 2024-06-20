@@ -1,22 +1,56 @@
-import React from 'react';
+import React, {useEffect, useContext, useState, useRef} from 'react';
 import Chart from 'chart.js/auto';
 import { Line} from 'react-chartjs-2';
+import { SocketContext } from '../contexts/SocketContext';
+import { useGameContext } from '../contexts/GameContext.tsx';
     
-const MyChartComponent = ({xValues, geldMengen, bankZinsen}) => {
+const MyChartComponent = () => {
+  const socket = useContext(SocketContext);
+  const { gameState } = useGameContext();
+  const gameStateRef = useRef(gameState);
+  const [chartData, setChartData ] = useState({
+    xValues: [],
+    geldMengen: [],
+    bankZinsen: [],
+    round: 1
+  });
+
+  function updateChart() {
+    setChartData(({xValues, geldMengen, bankZinsen, round}) => { return {
+      xValues: [...xValues, round],
+      geldMengen: [...geldMengen, gameStateRef.current.bank.geldMenge],
+      bankZinsen: [...bankZinsen, gameStateRef.current.bank.zinsenLotto],
+      round: round + 1
+    }});
+  }
+
+  useEffect(() => {
+    gameStateRef.current = gameState;
+  }, [gameState]);
+
+  useEffect(() => {
+       
+    if (!socket) return;
+
+    socket.on('updateChart', updateChart);
+    
+  }, [socket]);
+
+  
 
   const data = {
-    labels: xValues,
+    labels: chartData.xValues,
     datasets: [{
         backgroundColor: "rgba(255,0,0,1.0)",
         borderColor: "rgba(255,0,0,0.1)",
-        data: geldMengen,
+        data: chartData.geldMengen,
         label: "Geldmenge",
         yAxisID: 'y',
     },
     {
         backgroundColor: "rgba(0,0,255,1.0)",
         borderColor: "rgba(0,0,255,0.1)",
-        data: bankZinsen,
+        data: chartData.bankZinsen,
         label: "Zinsen",
         yAxisID: 'y1',
     }]

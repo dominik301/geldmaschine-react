@@ -13,8 +13,8 @@
 #control {
 	position: absolute;
 	z-index: 9;
-	top: 30vh;
-	left: 25vw;
+	bottom: 2%;
+	right: 2%;
 	margin-top: 1.2em;
 	margin-left: 5.2em;
 	padding: 0.5em;
@@ -166,7 +166,7 @@
 
 @media (prefers-color-scheme: dark) {
 
-	#option {
-		background-color: transparent;
+	#control {
+		background-color: black;
 	}
 }
