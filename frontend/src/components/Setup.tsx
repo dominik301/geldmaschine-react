@@ -82,6 +82,7 @@ const Setup = () => {
         <h1> Spiel - Geldmaschine </h1>
 
         {gameState.playerId === 1 && (
+            <>
             <form style={{marginBottom: "25px"}} >
                 <div style={{padding: "10px"}}>
                     <label htmlFor="nieten">Anzahl Nieten: </label>
@@ -99,10 +100,11 @@ const Setup = () => {
                         ))}
                     </select>
                 </div>
+            </form>
                 {gameState.players.length < 7 && (
                 <button id="startbutton" title="" onClick={(event) => startClicked(event)}>Starte das Spiel.</button>
                 )}
-            </form>
+            </>
         )}
 
         {names.map((pName, index) => (

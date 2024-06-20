@@ -18,7 +18,7 @@ import socketIOClient from "socket.io-client";
 import { SocketContext } from './contexts/SocketContext';
 import { GameProvider, useGameContext } from './contexts/GameContext.tsx';
 
-const ENDPOINT = "http://localhost:4000";
+const ENDPOINT = "ws://192.168.188.26:4000";
 
 const Game = () => {
   const socket = useContext(SocketContext);

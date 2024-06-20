@@ -2,8 +2,10 @@ var express = require('express');
 var compression = require('compression');
 //const { title } = require('node:process');
 var app = express();
+const cors = require('cors');
+app.use(cors());
 app.use(compression());
-
+app.options('*', cors());
 /*const fs = require('fs');
  
 const options = {
@@ -31,7 +33,12 @@ var playerNames = {};
 
 var socket2game = {};
 
-var io = require('socket.io')(server);
+var io = require('socket.io')(server, {
+	cors: {
+		origin: "*",
+		methods: ["GET", "POST"]
+	},
+});
 io.sockets.on('connection', function(socket){
   //if (gameRunning) return;
   console.log('new user!');
@@ -269,7 +276,7 @@ io.sockets.on('connection', function(socket){
 //
 var port = process.env.PORT || 4000;
 //var port = process.argv[2] == undefined ? 4141 : process.argv[2];
-server.listen(port) //, "0.0.0.0");
+server.listen(port, "0.0.0.0");
 
 //Start: Old code monopoly.js
 
