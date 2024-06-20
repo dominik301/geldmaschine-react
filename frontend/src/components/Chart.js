@@ -1,13 +1,8 @@
 import React from 'react';
 import Chart from 'chart.js/auto';
 import { Line} from 'react-chartjs-2';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleXmark } from '@fortawesome/free-solid-svg-icons';
-import { useGameContext } from '../contexts/GameContext.tsx';
-import '../styles/Chart.css';
     
 const MyChartComponent = ({xValues, geldMengen, bankZinsen}) => {
-  const { updateGameState } = useGameContext();
 
   const data = {
     labels: xValues,
@@ -55,9 +50,9 @@ const MyChartComponent = ({xValues, geldMengen, bankZinsen}) => {
 
     return (
     <dialog id="graphwrap">
-      <div id="mgraph">
-        <h2 id="graphtext">Spielverlauf</h2>
-        <div id="graph" >
+      <div className="popup">
+        <h2 className="popuptext">Spielverlauf</h2>
+        <div style={{width: "60%", position: "relative", left: "20%"}} >
           <Line data={data} options={options}/>
         </div>
         <form method="dialog">

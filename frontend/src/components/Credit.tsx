@@ -1,13 +1,14 @@
 import React, {useContext} from 'react';
-import { useGameContext } from '../contexts/GameContext.tsx';
 import { SocketContext } from '../contexts/SocketContext';
+import { useGameContext } from '../contexts/GameContext.tsx';
 
 const Credit = () => {
-  const { socket } = useContext(SocketContext);
+  const socket = useContext(SocketContext);
   const { gameState, updateGameState } = useGameContext();
 
   const cancelkredit = () => {
-    updateGameState({currentView: "board"});
+    const credit = document.getElementById('credit') as HTMLDialogElement;
+    credit.close();
   };
 
   const kreditaufnehmenHandler = () => {
@@ -47,14 +48,10 @@ const Credit = () => {
   }
 
     return (
-    <div id="credit">
+    <dialog id="credit">
+      <div className="popup" style={{width: "315px", minWidth: "315px"}}>
       <table style={{borderSpacing: "3px"}}>
         <tbody>
-        <tr>
-          <td className="credit-cell">
-            <div id="credit-leftp-name"></div>
-          </td>
-        </tr>
         <tr>
           <td className="credit-cell">
             $&nbsp;<input id="credit-leftp-money" defaultValue="0" type="number" title="Gewünschte Höhe des Kredits eingeben." />
@@ -62,14 +59,15 @@ const Credit = () => {
         </tr>
         <tr>
           <td colSpan={2} className="credit-cell">
-            <button id="kreditaufnehmenbutton" title="Kredit aufnehmen." onClick={kreditaufnehmenHandler} >Kredit aufnehmen</button>
-            <button id="kredittilgenbutton" title="Kredit tilgen." onClick={kredittilgenHandler} >Kredit tilgen</button>
-            <button id="kreditcancelbutton" onClick={cancelkredit} title="Fenster schließen." >Schließen</button>
+              <button title="Kredit aufnehmen." onClick={kreditaufnehmenHandler} >Kredit aufnehmen</button>
+              <button title="Kredit tilgen." onClick={kredittilgenHandler} >Kredit tilgen</button>
+              <button onClick={cancelkredit} title="Fenster schließen." >Schließen</button>
           </td>
         </tr>
         </tbody>
       </table>
-    </div>
+      </div>
+    </dialog>
     );
 }
 

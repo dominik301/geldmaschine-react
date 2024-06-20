@@ -107,9 +107,9 @@ const Game = () => {
     socket.on('updateChart', updateChart);
 
     socket.on('showEreignis', function(text, title) {
-      updateGameState({showCommunityChest: true});
       setEreignisText(text);
       setEreignisTitle(title);
+      document.getElementById("ereignisfeld").showModal();
     });
 
     socket.on('eliminatePlayer', function(HTML, action) {
@@ -121,8 +121,9 @@ const Game = () => {
         let initiator = tradeObj.initiator;
         let recipient = tradeObj.recipient;
 
-        updateGameState({currentView: 'trade'});
         setOffer(tradeObj);
+        const trade = document.getElementById("trade");
+        trade.showModal();
 
         alert(recipient.name + " hat dir, " + initiator.name + ", einen Tausch angeboten. Du kannst das Angebot annehmen, ablehnen oder verändern.");
               
@@ -132,11 +133,13 @@ const Game = () => {
       setAuctionproperty(_auctionproperty);
       setHeighestbidder(_highestbidder);
       setHeighestbid(_highestbid);
-      updateGameState({currentView: 'bid'});
+      const auction = document.getElementById("bid");
+      auction.showModal();
     });
 
     socket.on("chooseProperty", function(player, square) {
-      updateGameState({currentView: 'auction'});  
+      const auction = document.getElementById("auction");
+      auction.close();
     });
     
   }, [socket]);
@@ -147,23 +150,15 @@ const Game = () => {
   return (
     <div>
 
-    { gameState.showCommunityChest && (
     <Ereignisfeld text={ereignisText} title={ereignisTitle}/>
-    )}
 
-    { gameState.showStats && (
-      <Stats />
-    )}
+    <Stats />
 
     <Chart />
 
-    { gameState.currentView === 'bid' && (
-      <Bid highestbidder={heighestbidder} highestbid={heighestbid} auctionproperty={auctionproperty} />
-    )}
+    <Bid highestbidder={heighestbidder} highestbid={heighestbid} auctionproperty={auctionproperty} />
 
-    { gameState.currentView === 'auction' && (
-      <Auction />
-    )}
+    <Auction />
 
     <div id="refresh">
       Lade die Seite neu, um ein neues Spiel zu beginnen.
@@ -175,16 +170,12 @@ const Game = () => {
     <Board />
     <MoneyBar />
 
+    <Credit />
+
     <NavigationBar />
     <Control />
 
-    { gameState.currentView === 'credit' && (
-      <Credit />
-    )}
-
-    { gameState.currentView === 'trade' && (
-      <Trade offer={offer} />
-    )}
+    <Trade offer={offer} />
 
   </div>
   );

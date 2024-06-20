@@ -18,7 +18,8 @@ const Auction = () => {
         }
         else {
             if (socket) socket.emit("auctionHouse", selectedCheckbox);
-            updateGameState({currentView: "board"});
+            const auction = document.getElementById("auction") as HTMLDialogElement;
+            auction.close();
         }
     }
 
@@ -31,12 +32,12 @@ const Auction = () => {
     };
     
     return (
-        <dialog id="popupwrap">
-            <div id="popup">
-                <div id="popuptext">
+        <dialog id="auction">
+            <div className="popup" style={{width: "600px"}}>
+                <div className="popuptext">
                 {ownedSquares.length > 0 ? (
                 <>
-                    <p>{player.name}, wähle eines der Grundstücke für die Auktion aus, indem du es anklickst. Klicke OK, wenn du fertig bist.</p>
+                    <p style={{}}>{player.name}, wähle eines der Grundstücke für die Auktion aus, indem du es anklickst. Klicke OK, wenn du fertig bist.</p>
                     <table>
                         <tbody>
                             {gameState.squares.map((sq, i) => (

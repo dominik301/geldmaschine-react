@@ -32,14 +32,29 @@ const NavigationBar = () => {
         chart.showModal();
     }
 
+    const openStats = () => {
+        const stats = document.getElementById("statswrap") as HTMLDialogElement;
+        stats.showModal();
+    }
+
+    const openTrade = () => {
+        const trade = document.getElementById("trade") as HTMLDialogElement;
+        trade.showModal();
+    }
+
+    const openCredit = () => {
+        const credit = document.getElementById("credit") as HTMLDialogElement;
+        credit.showModal();
+    }
+
     return (
         <nav style={{position: "absolute", top: 0}}>
             <a className={(gameState.currentView === "board" && gameState.tab === 0) ? "active" : ""} id="logicon" onClick={() => setTab(0)} title="Den Spielverlauf anzeigen"><FontAwesomeIcon icon={faAlignJustify} /></a>
             <a className={(gameState.currentView === "board" && gameState.tab === 1) ? "active" : ""} onClick={() => setTab(1)} title="Grundstücke anzeigen und Häuser kaufen"><FontAwesomeIcon icon={faHouse} /></a>
-            <a className={gameState.currentView === "trade" ? "active" : ""} onClick={() => changeView("trade")} title="Grundstücke, Anleihen und Derivate mit Spielern und Bank tauschen"><FontAwesomeIcon icon={faPeopleArrowsLeftRight} /></a>
-            <a className={gameState.currentView === "credit" ? "active" : ""} onClick={() => changeView("credit")} title="Kredit aufnehmen oder tilgen"><FontAwesomeIcon icon={faMoneyBill1} /></a>
-            <a className={gameState.showStats ? "active" : ""} onClick={() => updateGameState({showStats: true})} title="Statistik anzeigen"><FontAwesomeIcon icon={faInfo} /></a>
-            <a className={gameState.showChart ? "active" : ""} onClick={openGraph} title="Verlauf von Geldmenge und Zinsen anzeigen"><FontAwesomeIcon icon={faChartLine} /></a>
+            <a onClick={openTrade} title="Grundstücke, Anleihen und Derivate mit Spielern und Bank tauschen"><FontAwesomeIcon icon={faPeopleArrowsLeftRight} /></a>
+            <a onClick={openCredit} title="Kredit aufnehmen oder tilgen"><FontAwesomeIcon icon={faMoneyBill1} /></a>
+            <a onClick={openStats} title="Statistik anzeigen"><FontAwesomeIcon icon={faInfo} /></a>
+            <a onClick={openGraph} title="Verlauf von Geldmenge und Zinsen anzeigen"><FontAwesomeIcon icon={faChartLine} /></a>
             {gameState.playerId === 1 && (
             <a id="zinsen" onClick={changeZinssatz}><FontAwesomeIcon icon={faPercent} /></a>
             )}

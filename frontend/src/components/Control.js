@@ -66,7 +66,8 @@ const Control = () => {
   }
 
   const credit = () => {
-    updateGameState({currentView: "credit"});
+    const credit = document.getElementById("credit");
+    credit.showModal();
   }
 
   const showdeed = (i) => {

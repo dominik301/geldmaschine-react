@@ -174,19 +174,6 @@ h1 {
 	margin: 15px;
 }
 
-#trade {
-	position: absolute;
-	left: 10vw;
-	border: 2px solid black;
-	width: 630px;
-	margin: 1em auto;
-	background-color: white;
-	border-radius: 8px;
-	padding: 2px;
-	z-index: 14;
-	top: 0;
-}
-
 #trade-leftp-name {
 	font-weight: bold;
 }
@@ -198,23 +185,6 @@ h1 {
 #trade-rightp-name option {
 	font-weight: normal;
 }
-#credit {
-	border: 2px solid black;
-	position: absolute;
-	left: 33%;
-	width: 315px;
-	margin: 15px auto;
-	background-color: white;
-	border-radius: 8px;
-	padding: 2px;
-	z-index: 14;
-	top: 0;
-}
-
-#credit-leftp-name {
-	font-weight: bold;
-}
-
 
 #credit-leftp-money {
 	width: 90%;
@@ -236,72 +206,6 @@ h1 {
 ::backdrop {
 	background: black;
 	opacity: 0.75;
-}
-
-
-#stats {
-	max-width: 914px;
-	min-width: 454px;
-	padding: 10px;
-	text-align: center;
-	word-wrap: break-word;
-	line-height: 1.5;
-	border: 2px solid black;
-	border-radius: 10px;
-	background-color: white;
-	display: block;
-	z-index: 17;
-	margin: auto;
-	position: relative;
-	-webkit-user-select: none;
-	user-select: none;
-	transform: translate(0, -50%);
-}
-
-#statswrap {
-	position: absolute;
-	width: 100%;
-	background-color: transparent;
-	-webkit-user-select: none;
-	user-select: none;
-	top: 50%;
-}
-
-#statstext {
-	overflow: hidden;
-	min-height: 70px;
-}
-
-#statsclose {
-	display: block;
-	position: absolute;
-	top: -24px;
-	right: -25px;
-	width: 30px;
-	height: 30px;
-	border: none;
-	cursor: pointer;
-	overflow: visible;
-	z-index: 17;
-}
-
-#statsbackground {
-	position: fixed;
-	width: 100%;
-	height: 100%;
-	top: 0px;
-	left: 0px;
-	background-color: #000000;
-	opacity: .5;
-	z-index: 16;
-}
-
-#statsdrag {
-	width: 100%;
-	height: 16px;
-	position: absolute;
-	top: -16px;
-	cursor: move;
 }
 
 #deed {
@@ -435,7 +339,7 @@ h1 {
 
 
 @media screen and (max-height: 450px) {
-	
+
 	#stats {
 		font-size: small;
 		max-width: 700px;
@@ -456,13 +360,6 @@ h1 {
 
 @media (prefers-color-scheme: dark) {
 
-	#stats,
-	#trade, 
-	#credit {
-		background-color: black;
-		border-color: white;
-	}
-
 	#deed {
 		color: black;
 	}
@@ -472,3 +369,51 @@ h1 {
 	from {opacity: 0;}
 	to {opacity: 1;}
   }
+
+.popup {
+	max-width: 914px;
+	min-width: 454px;
+	padding: 10px;
+	text-align: center;
+	word-wrap: break-word;
+	line-height: 1.5;
+	border: 2px solid black;
+	border-radius: 10px;
+	background-color: white;
+	display: block;
+	z-index: 17;
+	margin: auto;
+	position: relative;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+dialog {
+	position: absolute;
+	width: 100%;
+	background-color: transparent;
+	-webkit-user-select: none;
+	user-select: none;
+	z-index: 13;
+	border: none;
+	/*top: 30vh;*/
+	/*top: 50%;
+    margin-top: auto;*/
+}
+
+button {
+	margin: 5px;
+}
+
+@media (prefers-color-scheme: dark) {
+
+	.popup {
+		background-color: black;
+		border-color: white;
+	}
+
+    .popuptext {
+        color: white;
+    }
+}
+

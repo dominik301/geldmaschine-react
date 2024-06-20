@@ -15,14 +15,10 @@ const Stats = () => {
   }
 
     return (
-    <>
-      <div id="statsbackground"></div>
-      <div id="statswrap">
-        <div id="stats">
+      <dialog id="statswrap">
+        <div id="stats" className="popup">
           <div style={{position: "relative"}}>
-            <span id="statsclose" title="Schließen"><FontAwesomeIcon icon={faCircleXmark} onClick={() => updateGameState({showStats: false})}/></span>
-            <div id="statstext"></div>
-            <table align="center">
+            <table className="popuptext" align="center">
                 <tbody>
                   <tr>
                   {gameState.players.map((player, index) => (
@@ -51,13 +47,13 @@ const Stats = () => {
                             {player.name} hat keine Grundstücke.
                           </div>
                         )}
-                        {player.motorrad && (
+                        {player.motorrad > 0 && (
                           <span><FontAwesomeIcon icon={faMotorcycle} /></span>
                         )}
-                        {player.yacht && (
+                        {player.yacht > 0 && (
                           <span><FontAwesomeIcon icon={faSailboat} /></span>
                         )}
-                        {player.auto && (
+                        {player.auto > 0 && (
                           <span><FontAwesomeIcon icon={faCar} /></span>
                         )}
                     </td>
@@ -66,11 +62,12 @@ const Stats = () => {
                   </tr>
                 </tbody>
             </table>
-            <div id='titledeed'></div>
           </div>
+          <form method="dialog">
+            <button autoFocus>Schließen</button>
+          </form>
         </div>
-      </div>
-    </>
+      </dialog>
     );
 }
 

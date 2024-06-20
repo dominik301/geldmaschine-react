@@ -1,17 +1,13 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQuestion } from '@fortawesome/free-solid-svg-icons';
-import '../styles/Ereignisfeld.css';
 
 const Ereignisfeld = ({text, title}) => {
     
     return (
-        <div>
-        <div id="popupbackground"></div>
-        <div id="popupwrap">
-            <div id="popup" style={{width: "300px", top: "0px", left: "0px"}}>
-            <div style={{position: "relative"}}>
-                <div id="popuptext">
+        <dialog id="ereignisfeld">
+            <div id="popup" className="popup" style={{width: "300px", minWidth: "300px", top: "30vh"}}>
+                <div className="popuptext">
                     <FontAwesomeIcon icon={faQuestion} style={{
                         fontSize: "xx-large",
                         height: "1em",
@@ -24,11 +20,11 @@ const Ereignisfeld = ({text, title}) => {
                     </h3>
                     <p style={{textAlign: "justify"}}>{text}</p>
                 </div>
-                <div id="popupdrag"></div>
+                <form method="dialog">
+                    <button autoFocus>Schließen</button>
+                </form>
             </div>
-            </div>
-        </div>
-        </div>
+        </dialog>
     );
 }
 

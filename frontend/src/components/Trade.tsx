@@ -179,8 +179,9 @@ const Trade = ({offer}) => {
     }
 
     return (
-    <div id="trade">
-      <table style={{borderSpacing: "3px"}}>
+    <dialog id="trade" style={{width: "630px", top: "0"}}>
+        <div className="popup">
+      <table className="popuptext" style={{borderSpacing: "3px"}}>
         <tbody>
         <tr>
           <td className="trade-cell">
@@ -439,18 +440,22 @@ const Trade = ({offer}) => {
         </tr>
         <tr>
           {tradeAltered && (<td colSpan={2} className="trade-cell">
-            <input type="button" id="proposetradebutton" value="Tausch anbieten" onClick={proposeTrade} title="Handel mit Geld, Grundstücken, Anleihen und Derivaten anbieten." />
-            <input type="button" id="canceltradebutton" value="Abbrechen" onClick={cancelTrade} title="Tausch abbrechen." />
+            <button id="proposetradebutton" onClick={proposeTrade} title="Handel mit Geld, Grundstücken, Anleihen und Derivaten anbieten." >Tausch anbieten</button>
+            <button id="canceltradebutton" onClick={cancelTrade} title="Tausch abbrechen." >Abbrechen</button>
           </td>)}
           {!tradeAltered && (
           <td colSpan={2} className="trade-cell">
-            <input type="button" id="accepttradebutton" value="Tausch annehmen" onClick={acceptTrade} title="Nehme den angebotenen Tausch an." />
-            <input type="button" id="rejecttradebutton" value="Tausch ablehnen" onClick={cancelTrade} title="Lehne den angebotenen Tausch ab." />
+            <button id="accepttradebutton" onClick={acceptTrade} title="Nehme den angebotenen Tausch an.">Tausch annehmen</button>
+            <button id="rejecttradebutton" onClick={cancelTrade} title="Lehne den angebotenen Tausch ab.">Tausch ablehnen</button>
           </td>)}
         </tr>
         </tbody>
       </table>
-    </div>
+      <form method="dialog">
+        <button autoFocus>Schließen</button>
+      </form>
+      </div>
+    </dialog>
     );
 };
 

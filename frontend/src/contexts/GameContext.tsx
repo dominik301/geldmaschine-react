@@ -111,11 +111,7 @@ class Bank extends Player implements IBank {
 interface IGameContext {
   gameState: {
     currentView: string;
-    showCredit: boolean;
-    showStats: boolean;
-    showCommunityChest: boolean;
     showPropertyCard: number;
-    showChart: boolean;
     turn: number;
     playerId: number;
     tab: number;
@@ -132,11 +128,7 @@ interface IGameContext {
 const GameContext = createContext<IGameContext>({
   gameState: {
   currentView: 'setup', // board, trade, stats, etc.
-  showCredit: false,
-  showStats: false,
-  showCommunityChest: false,
   showPropertyCard: 0,
-  showChart: false,
   turn: 1,
   playerId: 1,
   tab: 0,
@@ -168,12 +160,8 @@ export const useGameContext = () => useContext(GameContext);
 
 export const GameProvider = ({ children }) => {
   const [gameState, setGameState] = useState({
-    currentView: 'setup', // board, trade, stats, etc.
-    showCredit: false,
-    showStats: false,
-    showCommunityChest: false,
+    currentView: 'setup', // board, setup
     showPropertyCard: 0,
-    showChart: false,
     turn: 1,
     playerId: 1,
     tab: 0,

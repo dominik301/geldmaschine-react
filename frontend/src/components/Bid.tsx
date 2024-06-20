@@ -39,7 +39,8 @@ const Bid = props => {
         }
         if (socket) socket.emit("newbid", highestbidder, highestbid)
 
-        updateGameState({currentView: "board"});
+        const auction = document.getElementById("bid") as HTMLDialogElement;
+        auction.close();
     
     };
     
@@ -59,40 +60,34 @@ const Bid = props => {
     };
 
     return (
-        <>
-            <div id="popupbackground"></div>
-            <div id="popupwrap">
-                <div id="popup">
-                    <div style={{position: "relative"}}>
-                        <div id="popuptext">
-                        <div style={{fontWeight: "bold", fontSize: "16px", marginBottom: "10px"}}>
-                            Auktion <span id="propertyname">
-                                <a onMouseOver={() => showdeed(props.auctionproperty)} onMouseOut={() => hidedeed()} className='statscellcolor'>{square.name}</a>
-                            </span>
-                        </div>
-                        {highestbidder !== 0 && (
-                        <div>
-                            Höchstes Gebot = ${highestbid}({player[highestbidder].name})
-                        </div>
-                        )}
-                        <div>
-                           {player.name}, du bist an der Reihe.
-                        </div>
-                        <div>
-                            <input id='bid' title={`Gib ein Gebot für ${square.name} ab.`} style={{width: "291px"}} />
-                        </div>
-                        <div>
-                            <input type='button' onClick={auctionBid} title='Gib dein Gebot ab.'>Bieten</input>
-                            <input type='button' title='Diese Runde nicht bieten.' onClick={auctionPass}>Aussetzen</input>
-                            <input type='button' title={`Nicht mehr für ${square.name} bieten.`} onClick={auctionExit}>Auktion verlassen</input>
-                        </div>
-
-                        </div>
-                        <div id="popupdrag"></div>
+        <dialog id="bid">
+            <div className="popup">
+                <div className="popuptext">
+                    <div style={{fontWeight: "bold", fontSize: "16px", marginBottom: "10px"}}>
+                        Auktion <span id="propertyname">
+                            <a onMouseOver={() => showdeed(props.auctionproperty)} onMouseOut={() => hidedeed()} className='statscellcolor'>{square.name}</a>
+                        </span>
                     </div>
+                    {highestbidder !== 0 && (
+                    <div>
+                        Höchstes Gebot = ${highestbid}({player[highestbidder].name})
+                    </div>
+                    )}
+                    <div>
+                        {player.name}, du bist an der Reihe.
+                    </div>
+                    <div>
+                        <input id='bid' title={`Gib ein Gebot für ${square.name} ab.`} style={{width: "291px"}} />
+                    </div>
+                    <div>
+                        <button onClick={auctionBid} title='Gib dein Gebot ab.'>Bieten</button>
+                        <button title='Diese Runde nicht bieten.' onClick={auctionPass}>Aussetzen</button>
+                        <button title={`Nicht mehr für ${square.name} bieten.`} onClick={auctionExit}>Auktion verlassen</button>
+                    </div>
+
                 </div>
             </div>
-        </>
+        </dialog>
     );
 };
 
