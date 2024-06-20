@@ -4,6 +4,7 @@ import { faComment, faInfo, faShield } from '@fortawesome/free-solid-svg-icons';
 import { SocketContext } from '../contexts/SocketContext.js';
 import { useGameContext } from '../contexts/GameContext.tsx';
 import NameDialog from './NameDialog.jsx';
+import '../styles/Setup.css';
 
 const Setup = () => {
     const socket = useContext(SocketContext);

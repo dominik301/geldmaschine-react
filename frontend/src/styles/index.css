@@ -29,19 +29,6 @@ select {
   font-size:large;
 }
 
-#description {
-  margin-left: 3em;
-  margin-right: 3em;
-  margin-top: 1em;
-  margin-bottom: 1em;
-  font-size:small;
-}
-
-#setup-scrollable {
-  overflow-y: scroll;
-  height: calc(100vh - 7em);
-}
-
 button, input {
   background-color: #c8e6c9; /* Blue background */
   border: none; /* Remove borders */
@@ -57,6 +44,10 @@ select {
 
 button:hover, input:hover, select:hover {
   background-color: #81c784;
+}
+
+button {
+	margin: 5px;
 }
 
 td {
@@ -75,61 +66,12 @@ h1 {
   button, input {
     padding: 0.6em 0.8em; /* Some padding */
   }
-
-  #description {
-    font-size: medium;
-  }
-}
-
-@media screen and (min-height: 770px) {
-  #description {
-    font-size:large;
-  }
 }
 
 @media screen and (max-height: 450px) {
   input {
     font-size: small;
   }
-}
-
-footer ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background-color: #333;
-}
-
-footer li {
-  float: left;
-}
-
-footer li a {
-  display: block;
-  color: white;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-}
-
-#setup {
-	text-align: center;
-}
-
-footer li a:hover {
-  background-color: #111;
-}
-
-#setup table {
-  border-collapse: collapse;
-  border-style: hidden;
-  margin: 0 auto;
-}
-
-#setup table td {
-  border: none;
-  padding: 0.5em 0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -163,109 +105,9 @@ footer li a:hover {
 	margin: 15px;
 }
 
-#trade-leftp-name {
-	font-weight: bold;
-}
-
-#trade-rightp-name {
-	font-weight: bold;
-}
-
-#trade-rightp-name option {
-	font-weight: normal;
-}
-
-#credit-leftp-money {
-	width: 90%;
-}
-
-#deedcolor {
-	background: white;
-	width: 100%;
-	height: 48px;
-}
-
-#deedname {
-	margin-top: 10px;
-	font-weight: bold;
-	font-size: 20px;
-	background-color: white;
-}
-
 ::backdrop {
 	background: black;
 	opacity: 0.75;
-}
-
-#deed {
-	position: fixed;
-	border: 2px solid black;
-	width: 235px;
-	height: 400px;
-	background-color: white;
-	z-index: 18;
-	-webkit-user-select: none;
-	user-select: none;
-}
-
-#deed td{
-	border: none;
-}
-
-#deed-header {
-	width: 215px;
-	height: 48px;
-	border: 1px solid black;
-	margin: 9px;
-	background-color: yellow;
-	text-align: center;
-	text-transform: uppercase;
-}
-
-#deed-name {
-	font-weight: bold;
-
-}
-
-#deed-table {
-	margin: 9px;
-	width: 217px;
-	border-spacing: 10px;
-}
-
-#deed-mortgaged {
-	text-align: center;
-
-}
-
-#deed-mortgaged-name {
-	font-weight: bold;
-	text-transform: uppercase;
-	margin: 30px 20px 20px;
-}
-
-#deed-special {
-	text-align: justify;
-}
-
-#deed-special-name {
-	text-align: center;
-	font-weight: bold;
-	border-style: solid;
-	border-width: 2px 0px;
-	text-transform: uppercase;
-	margin: 50px 20px 20px;
-}
-
-#deed-special-text {
-	margin: 20px;
-}
-
-#deed-special-footer {
-	margin: 0px 20px;
-	width: 195px;
-	position: absolute;
-	bottom: 20px;
 }
 
 .house {
@@ -281,77 +123,8 @@ footer li a:hover {
 	float: none;
 }
 
-.statscellcolor {
-	padding: 0px;
-	width: 22px;
-	height: 20px;
-	border: none;
-}
-
-.statscellname {
-	height: 20px;
-	border: none;
-	cursor: default;
-	text-align: left;
-	min-width: 172px;
-}
-
-.statsplayername {
-	font-weight: bold;
-	font-size: 24px;
-}
-
-.statscell {
-	border: 2px solid black;
-	padding: 8px;
-	vertical-align: top;
-	width: 202px;
-	min-width: 115px;
-}
-
-.trade-cell {
-	border: none;
-	border-radius: 3px;
-	width: 308px;
-	height: 26px;
-	vertical-align: middle;
-}
-
-.credit-cell {
-	border: none;
-	border-radius: 3px;
-	width: 308px;
-	height: 26px;
-	vertical-align: middle;
-}
-
-
-
-@media screen and (max-height: 450px) {
-
-	#stats {
-		font-size: small;
-		max-width: 700px;
-	}
-	
-	.statsplayername {
-		font-size: medium;
-	}
-	
-	.statscellname {
-		min-width: 120px;
-	}
-}
-
 .active {
 	background-color: #04AA6D;
-}
-
-@media (prefers-color-scheme: dark) {
-
-	#deed {
-		color: black;
-	}
 }
 
 @keyframes changeOpacity {
@@ -385,13 +158,6 @@ dialog {
 	user-select: none;
 	z-index: 13;
 	border: none;
-	/*top: 30vh;*/
-	/*top: 50%;
-    margin-top: auto;*/
-}
-
-button {
-	margin: 5px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -406,3 +172,14 @@ button {
     }
 }
 
+.player-name {
+	font-weight: bold;
+}
+
+.cell {
+	border: none;
+	border-radius: 3px;
+	width: 308px;
+	height: 26px;
+	vertical-align: middle;
+}

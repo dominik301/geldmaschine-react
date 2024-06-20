@@ -1,0 +1,43 @@
+.statscellcolor {
+	padding: 0px;
+	width: 22px;
+	height: 20px;
+	border: none;
+}
+
+.statscellname {
+	height: 20px;
+	border: none;
+	cursor: default;
+	text-align: left;
+	min-width: 172px;
+}
+
+.statsplayername {
+	font-weight: bold;
+	font-size: 24px;
+}
+
+.statscell {
+	border: 2px solid black;
+	padding: 8px;
+	vertical-align: top;
+	width: 202px;
+	min-width: 115px;
+}
+
+@media screen and (max-height: 450px) {
+
+	#stats {
+		font-size: small;
+		max-width: 700px;
+	}
+	
+	.statsplayername {
+		font-size: medium;
+	}
+	
+	.statscellname {
+		min-width: 120px;
+	}
+}

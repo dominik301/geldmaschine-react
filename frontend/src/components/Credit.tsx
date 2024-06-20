@@ -53,12 +53,12 @@ const Credit = () => {
       <table style={{borderSpacing: "3px"}}>
         <tbody>
         <tr>
-          <td className="credit-cell">
-            $&nbsp;<input id="credit-leftp-money" defaultValue="0" type="number" title="Gewünschte Höhe des Kredits eingeben." />
+          <td className="cell">
+            $&nbsp;<input id="credit-leftp-money" style={{width: "90%"}} defaultValue="0" type="number" title="Gewünschte Höhe des Kredits eingeben." />
           </td>
         </tr>
         <tr>
-          <td colSpan={2} className="credit-cell">
+          <td colSpan={2} className="cell">
               <button title="Kredit aufnehmen." onClick={kreditaufnehmenHandler} >Kredit aufnehmen</button>
               <button title="Kredit tilgen." onClick={kredittilgenHandler} >Kredit tilgen</button>
               <button onClick={cancelkredit} title="Fenster schließen." >Schließen</button>

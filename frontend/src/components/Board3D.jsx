@@ -1,8 +1,7 @@
-import React, {useRef, useState} from 'react';
-import '../styles/Board.css';
+import React from 'react';
 import { useGameContext } from '../contexts/GameContext.tsx';
-import { Canvas, useFrame, useLoader } from '@react-three/fiber'
-import { Text, OrbitControls, Plane, Image } from "@react-three/drei";
+import { Canvas, useLoader } from '@react-three/fiber'
+import { Text, OrbitControls, Plane } from "@react-three/drei";
 import * as THREE from 'three';
 
 const Field = ({cellId, position}) => {
@@ -84,29 +83,6 @@ const CommunityChestField = ({cellId, position}) => {
   );
 };
 
-/*function Box(props) {
-  // This reference will give us direct access to the mesh
-  const meshRef = useRef()
-  // Set up state for the hovered and active state
-  const [hovered, setHover] = useState(false)
-  const [active, setActive] = useState(false)
-  // Subscribe this component to the render-loop, rotate the mesh every frame
-  useFrame((state, delta) => (meshRef.current.rotation.x += delta))
-  // Return view, these are regular three.js elements expressed in JSX
-  return (
-    <mesh
-      {...props}
-      ref={meshRef}
-      scale={active ? 1.5 : 1}
-      onClick={(event) => setActive(!active)}
-      onPointerOver={(event) => setHover(true)}
-      onPointerOut={(event) => setHover(false)}>
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
-    </mesh>
-  )
-}*/
-
 const Board = () => {
   return (
     <Canvas style={{height: "100vh", width: "100vw"}} camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 0, 15] }}>
@@ -130,29 +106,6 @@ const Board = () => {
         <Field cellId={10} position={[7.5, 2.5, 0]} />
         <Field cellId={11} position={[7.5, -2.5, 0]} />
         <OrbitControls />
-    {/*<table id="board">
-      <tbody>
-        <tr>
-          <Cell cellId={6} type="board-corner" />
-          <Cell cellId={7} type="board-top" />
-          <Cell cellId={8} type="board-top" />
-          <Cell cellId={9} type="board-corner" />
-        </tr><tr>
-          <Cell cellId={5} type="board-left" />
-          <td colSpan="2" type="board-center"></td>
-          <Cell cellId={10} type="board-right" />
-        </tr><tr>
-          <Cell cellId={4} type="board-left" />
-          <td colSpan="2" type="board-center"></td>
-          <Cell cellId={11} type="board-right" />
-        </tr><tr>
-          <Cell cellId={3} type="board-corner" />
-          <Cell cellId={2} type="board-bottom" />
-          <Cell cellId={1} type="board-bottom" />
-          <Cell cellId={0} type="board-corner" />
-        </tr>
-      </tbody>
-    </table>*/}
     </Canvas>
   );
 };

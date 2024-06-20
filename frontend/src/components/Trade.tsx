@@ -184,22 +184,22 @@ const Trade = ({offer}) => {
       <table className="popuptext" style={{borderSpacing: "3px"}}>
         <tbody>
         <tr>
-          <td className="trade-cell">
-            <div id="trade-leftp-name">
+          <td className="cell">
+            <div className="player-name">
                 {tradeObj.initiator.name}
             </div>
           </td>
-          <td className="trade-cell">
-            <div id="trade-rightp-name">
+          <td className="cell">
+            <div>
                 {allowRecipientToBeChanged ? (
-                <select id="trade-rightp-name" title="Wähle einen Mitspieler zum Handeln aus." value={tradeObj.recipient.index} onChange={(event) => {
+                <select className="player-name" title="Wähle einen Mitspieler zum Handeln aus." value={tradeObj.recipient.index} onChange={(event) => {
                     setTradeAltered(true)
                     parseInt(event.target.value) === 0 ? setTradeObj(prev => ({ ...prev, recipient: gameState.bank })) :
                     setTradeObj(prev => ({ ...prev, recipient: gameState.players[parseInt(event.target.value)] }))
                 }}>
                 {gameState.players.map((player, i) => (
                 i !== gameState.playerId && (
-                <option key={i} value={i} style={{color: player.color}}>{player.name}</option>
+                <option key={i} value={i} style={{color: player.color, fontWeight: "normal"}}>{player.name}</option>
                 )))}
                 {
                 //<option value={0} style={{color: gameState.bank.color}} selected={0 === tradeObj.recipient.index}>{gameState.bank.name}</option>
@@ -216,14 +216,14 @@ const Trade = ({offer}) => {
         )}
         {assets.map(({ asset, title }) => (
             <tr key={asset}>
-                <td className="trade-cell">
+                <td className="cell">
                     {asset}: &nbsp;
                     <input id={`trade-leftp-${asset}`} value={max(tradeObj[asset], 0)} type="number" title={title} onChange={(event) => {
                         setTradeAltered(true)
                         setTradeObj(prev => ({ ...prev, [asset]: parseInt(event.target.value) || 0 }))
                         }} />
                 </td>
-                <td className="trade-cell">
+                <td className="cell">
                     {asset}: &nbsp;
                     <input id={`trade-rightp-${asset}`} value={max(-tradeObj[asset], 0)} type="number" title={title} onChange={(event) => {
                         setTradeAltered(true)
@@ -233,7 +233,7 @@ const Trade = ({offer}) => {
             </tr>
         ))}
         <tr>
-          <td id="trade-leftp-property" className="trade-cell">
+          <td id="trade-leftp-property" className="cell">
             {ownedProperties.length > 0 ? (
             <table>
                 <tbody>
@@ -265,7 +265,7 @@ const Trade = ({offer}) => {
             <div>{tradeObj.initiator.name} hat keine Grundstücke zum Handeln.</div>
             )}
           </td>
-          <td id="trade-rightp-property" className="trade-cell">
+          <td id="trade-rightp-property" className="cell">
           {propertiesRecipient.length > 0 ? (
           <table>
                 <tbody>
@@ -299,7 +299,7 @@ const Trade = ({offer}) => {
           </td>
         </tr>
         <tr>
-          <td id="trade-leftp-assets" className="trade-cell">
+          <td id="trade-leftp-assets" className="cell">
             <table>
                 <tbody>
                     {tradeObj.initiator.yacht > 0 && (
@@ -368,7 +368,7 @@ const Trade = ({offer}) => {
                 <div>{tradeObj.initiator.name} hat keine Wertgegenstände zum Handeln.</div>
             )}
           </td>
-          <td id="trade-rightp-assets" className="trade-cell">
+          <td id="trade-rightp-assets" className="cell">
           <table>
                 <tbody>
                     {tradeObj.recipient.index > 0 && tradeObj.recipient.yacht > 0 && (
@@ -439,12 +439,12 @@ const Trade = ({offer}) => {
           </td>
         </tr>
         <tr>
-          {tradeAltered && (<td colSpan={2} className="trade-cell">
+          {tradeAltered && (<td colSpan={2} className="cell">
             <button id="proposetradebutton" onClick={proposeTrade} title="Handel mit Geld, Grundstücken, Anleihen und Derivaten anbieten." >Tausch anbieten</button>
             <button id="canceltradebutton" onClick={cancelTrade} title="Tausch abbrechen." >Abbrechen</button>
           </td>)}
           {!tradeAltered && (
-          <td colSpan={2} className="trade-cell">
+          <td colSpan={2} className="cell">
             <button id="accepttradebutton" onClick={acceptTrade} title="Nehme den angebotenen Tausch an.">Tausch annehmen</button>
             <button id="rejecttradebutton" onClick={cancelTrade} title="Lehne den angebotenen Tausch ab.">Tausch ablehnen</button>
           </td>)}
